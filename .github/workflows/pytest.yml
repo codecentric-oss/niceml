@@ -43,12 +43,12 @@ jobs:
       - name: 🧪 Run tests [e2e]
         run: |
           poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml tests/e2e
-#      - name: ⬆️ Upload pytest test results
-#        uses: actions/upload-artifact@v3
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
-#          path: junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml
-#        # Use always() to always run this step to publish test results when there are test failures
-#        if: ${{ always() }}
+      - name: ⬆️ Upload pytest test results
+        uses: actions/upload-artifact@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
+          path: junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
