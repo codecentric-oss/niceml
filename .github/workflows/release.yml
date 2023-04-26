@@ -1,0 +1,29 @@
+name: 🚀Create Release
+
+on: [pull-request]
+
+jobs:
+  test:
+    name: 🧪 Run pytest
+    uses: ./.github/workflows/pytest.yml
+  build:
+    name: 🏗️ Build package and publish to pypi
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v3
+      - name: 🐍Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - name: 🔨 Setup poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: "1.4.0"
+      - name: 🔨Install dependencies
+        run: poetry install --no-interaction --with dev --no-ansi
+      - name: Build
+        run: poetry build
+
+
