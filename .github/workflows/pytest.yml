@@ -34,7 +34,7 @@ jobs:
           poetry-version: "1.4.0"
       - name: 🔨Install dependencies
         run: poetry install --no-interaction --with dev --no-ansi
-      - run: touch junit/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
+      - run: touch test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
       - name: 🧪 Run tests
         uses: dariocurr/pytest-summary@v1
         with:
@@ -72,7 +72,7 @@ jobs:
       - name: 🖊️ Write job summary
         run: |
           echo "# 🧪Test summary for $${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
-          cat junit/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md > $GITHUB_STEP_SUMMARY
+          cat test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md > $GITHUB_STEP_SUMMARY
         if: ${{ always() }}
       - name: ⬆️ Upload pytest test summary
         uses: actions/upload-artifact@v3
