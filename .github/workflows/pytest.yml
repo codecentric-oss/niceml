@@ -36,7 +36,7 @@ jobs:
         run: poetry install --no-interaction --with dev --no-ansi
       - run: mkdir results && touch results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
       - name: 🧪 Run tests
-        uses: dariocurr/pytest-summary@v1
+        uses: nuhrberg/pytest-summary@main
         with:
           extensions: pytest-cov
           options: --doctest-modules --cov-report term --cov-report xml:results/coverage-${{ matrix.python-version }}-${{matrix.os}}.xml --cov=niceml
@@ -65,5 +65,11 @@ jobs:
       - name: 🖊️ Write job summary
         run: |
           echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
-          cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+          if [ ${{matrix.os}}==windows_latest ]; then
+              type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+          else
+              cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+              exit 1
+          fi
+        shell: bash
         if: ${{ always() }}
