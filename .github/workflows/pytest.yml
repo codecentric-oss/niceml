@@ -65,11 +65,10 @@ jobs:
       - name: 🖊️ Write job summary
         run: |
           echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{matrix.os}}" == "windows_latest" ]; then
-              type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
-          else
-              cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
-              exit 1
-          fi
-        shell: bash
-        if: ${{ always() }}
+          type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+        if: ${{ always() }} && runner.os == 'windows_latest'
+      - name: 🖊️ Write job summary
+        run: |
+          echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
+          cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+        if: ${{ always() }} && ${{matrix.os}} != 'windows_latest'
