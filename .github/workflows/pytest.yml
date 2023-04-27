@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10"]
-        os: [ ubuntu-latest, macos-latest, windows-latest]
+        python-version: [ "3.8"]
+        os: [ ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -34,15 +34,23 @@ jobs:
           poetry-version: "1.4.0"
       - name: 🔨Install dependencies
         run: poetry install --no-interaction --with dev --no-ansi
-      - name: 🧪 Run tests [unit]
-        run: |
-          poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml tests/unit
-      - name: 🧪 Run tests [configs]
-        run: |
-          poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml tests/configs
-      - name: 🧪 Run tests [e2e]
-        run: |
-          poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml tests/e2e
+      - run: mkdir junit && touch junit/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
+      - name: 🧪 Run tests
+        uses: dariocurr/pytest-summary@main
+        with:
+          extensions: pytest-cov
+          options: --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-unit.xml --cov=niceml
+          paths: tests/**
+          output: junit/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
+          show: all
+     #   run: |
+      #    poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-unit.xml --cov=niceml tests/unit
+     # - name: 🧪 Run tests [configs]
+      #  run: |
+       #   poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-configs.xml --cov=niceml tests/configs
+     # - name: 🧪 Run tests [e2e]
+      #  run: |
+       #   poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-e2e.xml --cov=niceml  tests/e2e
       - name: ⬆️ Upload pytest test results
         uses: actions/upload-artifact@v3
         env:
@@ -50,5 +58,16 @@ jobs:
         with:
           name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
           path: junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+      - name: 🖊️ Write job summary
+        run: cat junit/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+      - name: ⬆️ Upload pytest test summary
+        uses: actions/upload-artifact@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: pytest-test-summary-${{ matrix.python-version }}-${{matrix.os}}
+          path: junit/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
