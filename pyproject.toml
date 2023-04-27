@@ -2,7 +2,7 @@
 name = "niceml"
 version = "0.1.1"
 description = ""
-authors = ["Denis Stalz-John <denis.stalz-john@codecentric.de>, Nils Uhrberg <nils.uhrberg@codecentric.de>, Anke Koke <anke.koke@codecentric.de>"]
+authors = ["Denis Stalz-John <denis.stalz-john@codecentric.de>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
