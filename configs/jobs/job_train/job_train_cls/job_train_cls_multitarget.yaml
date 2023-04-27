@@ -1,0 +1,44 @@
+# train multitarget classification
+defaults:
+  # experiment
+  - ops/experiment@ops.experiment.config: op_experiment_default.yaml
+  # train
+  - /ops/train@ops.train.config: op_train_cls_binary.yaml
+  # prediction, not-fitting values are overwritten here
+  - /ops/prediction@ops.prediction.config: op_prediction_cls.yaml
+  # analysis
+  - /ops/analysis@ops.analysis.config: op_analysis_cls_multitarget.yaml
+  # experiment tests
+  - /ops/exptests@ops.exptests.config.tests: exptests_default.yaml
+  # experiment locations
+  - shared/locations@globals: exp_locations.yaml
+  - _self_
+
+hydra:
+  searchpath:
+    - file://configs
+
+globals:
+  exp_name: SampleClsMultitarget
+  exp_prefix: CLM
+  data_location:
+    uri: ${oc.env:DATA_URI,./data}/numbers_cropped_split
+
+ops:
+  train:
+    config:
+      data_description:
+        _target_: niceml.data.datadescriptions.clsdatadescription.ClsDataDescription
+        classes:
+          - "0"
+          - "1"
+          - "2"
+          - "3"
+          - name: even_numbers
+            weight: 2.0
+            subclasses: [ "0", "2" ]
+          - name: odd_numbers
+            weight: 2.0
+            subclasses: [ "1", "3" ]
+        use_multitargets: true
+        use_binary: false

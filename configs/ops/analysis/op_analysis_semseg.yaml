@@ -1,0 +1,6 @@
+# op for semseg analysis
+result_analyzer:
+  _target_: niceml.mlcomponents.resultanalyzers.tensors.tensorgraphanalyzer.TensorGraphAnalyzer
+  dataiterator:
+    _target_: niceml.mlcomponents.resultanalyzers.tensors.semsegdataiterator.SemSegDataIterator
+  metrics: []

@@ -1,0 +1,45 @@
+# op for multi-target classification analysis
+result_analyzer:
+  _target_: niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer
+  metrics:
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric
+    use_multitarget: true
+    function: accuracy
+    source_col: class_idx
+    target_cols_prefix: pred_
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric
+    use_probabilities: true
+    use_multitarget: true
+    function:
+      name: coverage_error
+      target:
+        _target_: niceml.utilities.factoryutils.import_function
+        function_name: sklearn.metrics.coverage_error
+    source_col: class_idx
+    target_cols_prefix: pred_
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric
+    use_probabilities: true
+    use_multitarget: true
+    function:
+      name: label_ranking_average_precision
+      target:
+        _target_: niceml.utilities.factoryutils.import_function
+        function_name: sklearn.metrics.label_ranking_average_precision_score
+    source_col: class_idx
+    target_cols_prefix: pred_
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.multilabeltobinary.MultilabelBinaryMetric
+    function: accuracy
+    positive_indexes: [1, 3, 4, 5]
+    source_col: class_idx
+    target_cols_prefix: pred_
+    name_suffix: _binary
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.multilabeltobinary.MultilabelBinaryMetric
+    function: precision
+    positive_indexes: [1, 3, 4, 5]
+    source_col: class_idx
+    target_cols_prefix: pred_
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.multilabeltobinary.MultilabelBinaryMetric
+    function: recall
+    positive_indexes: [1, 3, 4, 5]
+    source_col: class_idx
+    target_cols_prefix: pred_

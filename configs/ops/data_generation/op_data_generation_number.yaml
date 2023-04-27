@@ -1,0 +1,16 @@
+data_generator:
+  _target_: niceml.utilities.imagegeneration.NumberDataGenerator
+  location:
+    uri: ${oc.env:DATA_URI,data}/number_data
+  sample_count: ${niceml.to_int:${oc.env:SAMPLE_COUNT,100}}
+  seed: 42
+  max_number: ${niceml.to_int:${oc.env:MAX_NUMBER,5}}
+  img_size:
+    _target_: niceml.utilities.imagesize.ImageSize
+    width: 1024
+    height: 1024
+  font_size_min: 40
+  font_size_max: 80
+  detection_labels: true
+  max_amount: 8
+  rotate: true
