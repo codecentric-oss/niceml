@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8","3,9","3.10"]
+        python-version: [ "3.8","3.9","3.10"]
         os: [ ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
@@ -56,7 +56,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: pytest-results
+          name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
           path: |
             results
             .test_report.xml
