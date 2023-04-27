@@ -1,0 +1,19 @@
+# generate numbers sample data
+defaults:
+  # op for generation of sample data
+  - ops/data_generation@ops.data_generation.config: op_data_generation_number.yaml
+  # op for splitting data into test, train, validation subset
+  - ops/split_data@ops.split_data.config: op_split_data_number.yaml
+  # op for cropping numbers from images and store them in a separate folder
+  - ops/crop_numbers@ops.crop_numbers.config: op_crop_numbers.yaml
+  # credentials are only used for data location, otherwise ignored
+  - /shared/credentials@globals.data_location.credentials: credentials_minio.yaml
+  - _self_
+
+globals:
+  data_location:
+    uri: ${oc.env:DATA_URI,./data}
+
+hydra:
+  searchpath:
+    - file://configs
