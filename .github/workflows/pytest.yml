@@ -34,14 +34,14 @@ jobs:
           poetry-version: "1.4.0"
       - name: 🔨Install dependencies
         run: poetry install --no-interaction --with dev --no-ansi
-      - run: touch test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
+      - run: mkdir results && touch results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
       - name: 🧪 Run tests
         uses: dariocurr/pytest-summary@v1
         with:
           extensions: pytest-cov
-          options: --doctest-modules --junitxml=test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}.xml --cov=niceml
+          options: --doctest-modules --cov-report term --cov-report xml:results/coverage-${{ matrix.python-version }}-${{matrix.os}}.xml --cov=niceml
           paths: tests/**
-          output: test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
+          output: results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
           show: all
      #   run: |
       #    poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-unit.xml --cov=niceml tests/unit
@@ -51,35 +51,17 @@ jobs:
      # - name: 🧪 Run tests [e2e]
       #  run: |
        #   poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-e2e.xml --cov=niceml  tests/e2e
-      - name: ⬆️ Upload pytest test results
+      - name: ⬆️ Upload pytest results
         uses: actions/upload-artifact@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
-          path: test-results-${{ matrix.python-version }}-${{matrix.os}}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
-      - name: ⬆️ Upload pytest coverage
-        uses: actions/upload-artifact@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          name: pytest-coverage-${{ matrix.python-version }}-${{matrix.os}}
-          path: coverage-${{ matrix.python-version }}-${{matrix.os}}.xml
+          path: results
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
       - name: 🖊️ Write job summary
         run: |
-          echo "# 🧪Test summary for $${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
-          cat test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md > $GITHUB_STEP_SUMMARY
-        if: ${{ always() }}
-      - name: ⬆️ Upload pytest test summary
-        uses: actions/upload-artifact@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          name: pytest-test-summary-${{ matrix.python-version }}-${{matrix.os}}
-          path: test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
-        # Use always() to always run this step to publish test results when there are test failures
+          echo "# 🧪Test summary for $${{ matrix.python-version }}-${{matrix.os}}" > $GITHUB_STEP_SUMMARY
+          cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
         if: ${{ always() }}
