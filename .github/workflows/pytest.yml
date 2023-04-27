@@ -56,12 +56,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
-          path: results
+          name: pytest-results
+          path: |
+            results
+            .test_report.xml
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
       - name: 🖊️ Write job summary
         run: |
-          echo "# 🧪Test summary for $${{ matrix.python-version }}-${{matrix.os}}" > $GITHUB_STEP_SUMMARY
+          echo "# 🧪 Test summary for ${{ matrix.python-version }}-${{matrix.os}}" > $GITHUB_STEP_SUMMARY
           cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
         if: ${{ always() }}
