@@ -66,9 +66,9 @@ jobs:
         run: |
           echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
           type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
-        if: runner.os == 'windows_latest' && ${{ always() }}
+        if: ${{matrix.os}} == 'windows_latest' && ${{ always() }}
       - name: 🖊️ Write job summary
         run: |
           echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
           cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
-        if: ${{matrix.os}} != 'windows_latest' && ${{ always() }}
+        if: ${{matrix.os}} != 'windows_latest'  && ${{ always() }}
