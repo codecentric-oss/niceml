@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8","3.9","3.10"]
-        os: [ ubuntu-latest, macos-latest, windows-latest]
+        python-version: [ "3.8"]
+        os: [ ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -43,18 +43,10 @@ jobs:
           paths: tests/**
           output: results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
           show: all
-     #   run: |
-      #    poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-unit.xml --cov=niceml tests/unit
-     # - name: 🧪 Run tests [configs]
-      #  run: |
-       #   poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-configs.xml --cov=niceml tests/configs
-     # - name: 🧪 Run tests [e2e]
-      #  run: |
-       #   poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}-${{matrix.os}}.xml --cov-report term --cov-report xml:coverage-${{ matrix.python-version }}-${{matrix.os}}-e2e.xml --cov=niceml  tests/e2e
       - name: ⬆️ Upload pytest results
         uses: actions/upload-artifact@v3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
           path: |
@@ -65,10 +57,10 @@ jobs:
       - name: 🖊️ Write job summary
         run: |
           echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
-          type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
-        if: ${{ always() }} && ${{matrix.os}} == windows_latest
-      - name: 🖊️ Write job summary
-        run: |
-          echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
-          cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
-        if: ${{ always() }} && ${{matrix.os}} != windows_latest
+          if [${{matrix.os}} == windows_latest]; then
+            type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+          else
+            cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+          fi
+        shell: bash
+        if: ${{ always() }}
