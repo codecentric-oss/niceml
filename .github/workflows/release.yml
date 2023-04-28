@@ -1,6 +1,9 @@
 name: 🚀Create Release
 
-on: [pull-request]
+on:
+  push:
+    branches:
+      - feature/github-actions
 
 jobs:
   test:
@@ -16,14 +19,16 @@ jobs:
       - name: 🐍Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: 3.x
+          python-version: 3.8
       - name: 🔨 Setup poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: "1.4.0"
       - name: 🔨Install dependencies
-        run: poetry install --no-interaction --with dev --no-ansi
-      - name: Build
-        run: poetry build
+        run: poetry install --no-interaction --no-ansi --with dev
+      - name: 🚀 Release new version
+        run: semantic-release publish
+
+
 
 

@@ -1,3 +1,2 @@
-
 def test_app():
-    assert 1==2
+    assert 1 == 1

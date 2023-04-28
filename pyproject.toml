@@ -36,3 +36,20 @@ pytest-cov = "^4.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.semantic_release]
+version_variable = [
+    "niceml/__init__.py:__version__"
+]
+version_toml = [
+    "pyproject.toml:tool.poetry.version"
+]
+version_source="commit"
+major_on_zero = false
+branch = "feature/github-actions"
+upload_to_PyPI = true
+upload_to_release = false
+build_command = "pip install poetry==1.4.0 && poetry build"
+repository = "testpypi"
+repository_url = "niceml"
+commit_subject="New release with version {version}"
