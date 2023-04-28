@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.0 (2023-04-28)
+### Feature
+* Enable upload release ([`44e6e59`](https://github.com/codecentric-oss/niceml/commit/44e6e59379c4185429ab9b7a01f1dee119409d1c))
+
 ## v0.0.5 (2023-04-28)
 ### Fix
 * Remove repository URL ([`115f0a3`](https://github.com/codecentric-oss/niceml/commit/115f0a31c73079cecfdeaec13e80215483270ec8))
