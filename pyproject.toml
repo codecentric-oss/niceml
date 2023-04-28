@@ -52,6 +52,5 @@ upload_to_PyPI = true
 upload_to_release = false
 build_command = "poetry build"
 repository = "testpypi"
-repository_url = "niceml"
 commit_subject="New release with version {version}"
 commit_author="github-actions <action@github.com>"
