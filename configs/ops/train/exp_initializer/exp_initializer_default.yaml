@@ -1,0 +1,5 @@
+_target_: niceml.experiments.expoutinitializer.ExpOutInitializer
+exp_name: ${globals.exp_name}
+exp_prefix: ${globals.exp_prefix}
+git_modules:
+  - niceml

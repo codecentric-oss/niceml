@@ -1,0 +1,12 @@
+_target_: niceml.experiments.experimenttests.testinitializer.ExpTestProcess
+test_list:
+- _target_: niceml.experiments.experimenttests.validateexps.ModelsSavedExpTest
+- _target_: niceml.experiments.experimenttests.validateexps.ParqFilesNoNoneExpTest
+- _target_: niceml.experiments.experimenttests.validateexps.ExpEmptyTest
+- _target_: niceml.experiments.experimenttests.checkfilesfolderstest.CheckFilesFoldersTest
+  folders:
+    - configs
+  files:
+    - configs/train/model_load_custom_objects.yaml
+    - configs/train/data_description.yaml
+    - train_logs.csv

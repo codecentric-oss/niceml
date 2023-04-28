@@ -1,0 +1,80 @@
+# run dashboard locally
+title: niceML-Dashboard
+icon: ":rocket:"
+exp_cache:
+  _target_: niceml.experiments.localexperimentcache.LocalExperimentCache
+  store_folder: ./cache/experiments
+storage_handler:
+  _target_: niceml.data.storages.storagehandler.StorageHandler
+  storages:
+    dev:
+      _target_: niceml.data.storages.localstorage.LocalStorage
+      working_directory: ${oc.env:OUTPUT_PATH,./experiments}
+    prod:
+      _target_: niceml.data.storages.localstorage.LocalStorage
+      working_directory: ${oc.env:OUTPUT_PATH,./experiments}
+df_loader_factory:
+  _target_: niceml.data.dataloaders.dfloaders.RemoteDiskCachedDfLoaderFactory
+  cache_dir: ./cache/dataframes
+image_loader_factory:
+  _target_: niceml.data.dataloaders.cachedimageloader.RemoteDiskCacheImageLoaderFactory
+  cache_dir: ./cache/images
+
+sidebar_filters:
+  - _target_: niceml.experiments.filters.selectboxfilter.SelectBoxFilter
+    allow_all: False
+    meta_function:
+      _target_: niceml.experiments.metafunctions.ExperimentInfoExtraction
+      name: prefix
+      key: EXPERIMENT_PREFIX
+  - _target_: niceml.experiments.filters.datefilter.DateFilter
+  - _target_: niceml.experiments.filters.selectboxfilter.SelectBoxFilter
+    meta_function:
+      _target_: niceml.experiments.metafunctions.ModelExtractor
+  - _target_: niceml.experiments.filters.sliderfilter.epoch_slider_factory
+  - _target_: niceml.experiments.filters.expselectionfilter.ExpMultiSelectFilter
+component:
+  _target_: niceml.dashboard.components.prefixviscomponent.PrefixVisComponent
+  use_tabs: true
+  components:
+    _all_:
+      - _target_: niceml.dashboard.components.linearviscomponent.LinearVisComponent
+        component_name: Meta
+        vis_components:
+          - _target_: niceml.dashboard.components.metaviscomponent.MetaVisComponent
+            meta_tables:
+              - _target_: niceml.experiments.metainfotables.DefaultMetaTable
+                name: Overview
+                meta_function_list:
+                  _target_: niceml.experiments.metalists.get_base_meta_list
+              - _target_: niceml.experiments.metainfotables.DefaultMetaTable
+                name: Augmentation
+                meta_function_list:
+                  _target_: niceml.experiments.metalists.get_augmentation_list
+      - _target_: niceml.dashboard.components.linearviscomponent.LinearVisComponent
+        component_name: Metrics
+        vis_components:
+          - _target_: niceml.dashboard.metricviscomponent.MetricVisComponent
+      - _target_: niceml.dashboard.components.selectionviscomponent.SelectionVisComponent
+        component_name: Configs
+        use_subset_selection: False
+        vis_components:
+          - _target_: niceml.dashboard.configviscomponent.ConfigVisComponent
+      - _target_: niceml.dashboard.components.selectionviscomponent.SelectionVisComponent
+        component_name: Net Data
+        use_subset_selection: False
+        vis_components:
+          - _target_: niceml.dashboard.imagenetdataloggerviscomponent.ImageNetDataLoggerVisComponent
+            column_amount: 4
+            image_loader:
+              _target_: niceml.data.dataloaders.imageloaders.SimpleImageLoader
+              working_dir: ${oc.env:OUTPUT_PATH,experiments}
+      - _target_: niceml.dashboard.components.linearviscomponent.LinearVisComponent
+        component_name: Download
+        vis_components:
+          - _target_: niceml.dashboard.components.downloadexpviscomponent.DownloadExpVisComponent
+    CLS:
+      - _target_: niceml.dashboard.components.linearviscomponent.LinearVisComponent
+        component_name: Metrics
+        vis_components:
+          - _target_: niceml.dashboard.metricviscomponent.MetricVisComponent
