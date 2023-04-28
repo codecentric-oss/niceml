@@ -28,6 +28,9 @@ jobs:
         run: poetry install --no-interaction --no-ansi --with dev
       - name: 🚀 Release new version
         run: semantic-release publish
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PyPI_TOKEN: ${{secrets.PyPI_TOKEN}}
 
 
 
