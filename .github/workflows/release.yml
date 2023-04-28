@@ -6,9 +6,6 @@ on:
       - feature/github-actions
 
 jobs:
-  test:
-    name: 🧪 Run pytest
-    uses: ./.github/workflows/pytest.yml
   build:
     name: 🏗️ Build package and publish to pypi
     needs: test
@@ -36,7 +33,7 @@ jobs:
           git config --global user.email "action@github.com"
           semantic-release publish
         env:
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GH_TOKEN: ${{secrets.RELEASE_WORKFLOW}}
           PyPI_TOKEN: ${{secrets.PyPI_TOKEN}}
 
 
