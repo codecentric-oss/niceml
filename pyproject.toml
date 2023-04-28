@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "niceml"
-version = "0.0.5"
+version = "0.1.1"
 description = ""
 authors = ["Denis Stalz-John <denis.stalz-john@codecentric.de>"]
 readme = "README.md"
@@ -47,10 +47,10 @@ version_toml = [
 ]
 version_source="commit"
 major_on_zero = false
-branch = "feature/github-actions"
+branch = "main"
 upload_to_PyPI = true
 upload_to_release = true
 build_command = "poetry build"
-repository = "testpypi"
+repository = "pypi"
 commit_subject="New release with version {version}"
 commit_author="github-actions <action@github.com>"

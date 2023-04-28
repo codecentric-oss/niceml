@@ -1,11 +1,13 @@
 name: 🚀Create Release
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/github-actions
+      - main
 
 jobs:
+  test:
+    uses: ./.github/workflows.yaml
   build:
     name: 🏗️ Build package and publish to pypi
     runs-on: ubuntu-latest
