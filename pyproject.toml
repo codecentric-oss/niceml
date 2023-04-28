@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "niceml"
-version = "0.0.2"
+version = "0.0.3"
 description = ""
 authors = ["Denis Stalz-John <denis.stalz-john@codecentric.de>"]
 readme = "README.md"

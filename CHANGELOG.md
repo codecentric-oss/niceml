@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.3 (2023-04-28)
+### Fix
+* Use USERNAME and PASSWORD ([`81e359c`](https://github.com/codecentric-oss/niceml/commit/81e359c59eb5ec0f1dd898240f060372f914614a))
+
 ## v0.0.2 (2023-04-28)
 ### Fix
 * Use Test PyPi token ([`874f79b`](https://github.com/codecentric-oss/niceml/commit/874f79b911aef02303f5f80c0ee09023fd658d7f))
