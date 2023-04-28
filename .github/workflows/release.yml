@@ -34,7 +34,7 @@ jobs:
           semantic-release publish
         env:
           GH_TOKEN: ${{secrets.RELEASE_WORKFLOW}}
-          PyPI_TOKEN: ${{secrets.PyPI_TOKEN}}
+          PyPI_TOKEN: ${{secrets.PyPI_TEST_TOKEN}}
 
 
 

@@ -50,7 +50,7 @@ major_on_zero = false
 branch = "feature/github-actions"
 upload_to_PyPI = true
 upload_to_release = false
-build_command = "pip install poetry==1.4.0 && poetry build"
+build_command = "poetry build"
 repository = "testpypi"
 repository_url = "niceml"
 commit_subject="New release with version {version}"
