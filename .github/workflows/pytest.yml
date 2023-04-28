@@ -4,13 +4,7 @@ on:
   pull_request:
     types: [ opened, reopened ]
   workflow_call:
-    inputs:
-      config-path:
-        required: true
-        type: string
-    secrets:
-      token:
-        required: true
+    
 jobs:
   test:
     strategy:
