@@ -27,7 +27,9 @@ jobs:
         with:
           poetry-version: "1.4.0"
       - name: 🔨Install dependencies
-        run: poetry install --no-interaction --no-ansi --with dev
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --no-ansi --with dev
       - name: 🚀 Release new version
         run: semantic-release publish
         env:
