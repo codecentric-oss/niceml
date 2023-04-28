@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.5 (2023-04-28)
+### Fix
+* Remove repository URL ([`115f0a3`](https://github.com/codecentric-oss/niceml/commit/115f0a31c73079cecfdeaec13e80215483270ec8))
+
 ## v0.0.4 (2023-04-28)
 ### Fix
 * Spelling mistake in secret ([`e774429`](https://github.com/codecentric-oss/niceml/commit/e774429b6a7eb3b7d10dc23ab4a0ee0f6c96e944))
