@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     name: 🏗️ Build package and publish to pypi
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repository
