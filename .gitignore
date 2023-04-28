@@ -289,6 +289,7 @@ cache
 /data
 experiment_outputs*
 experiments
+!niceml/experiments
 auth.json
 exp_cache
 cache
