@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.0.4 (2023-04-28)
+### Fix
+* Spelling mistake in secret ([`e774429`](https://github.com/codecentric-oss/niceml/commit/e774429b6a7eb3b7d10dc23ab4a0ee0f6c96e944))
+
 ## v0.0.3 (2023-04-28)
 ### Fix
 * Use USERNAME and PASSWORD ([`81e359c`](https://github.com/codecentric-oss/niceml/commit/81e359c59eb5ec0f1dd898240f060372f914614a))
