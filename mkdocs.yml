@@ -13,11 +13,15 @@ theme:
     view: material/eye
   features:
 #    - navigation.tabs
+#    - navigation.top
+    - navigation.footer
+    - navigation.indexes
     - navigation.sections
-    - toc.integrate
-    - navigation.top
+#    - toc.integrate
+    - toc.follow
     - search.suggest
     - search.highlight
+    - content.tooltips
     - content.tabs.link
     - content.code.annotation
     - content.code.copy
@@ -69,9 +73,11 @@ plugins:
 
 nav:  # Sort the pages
   - index.md
-  - gettingstarted.md
-  - how-to-guides.md
-  - concepts.md
+  - Tutorials:
+    - Getting Started: tutorials.md
+    - How-to-guides: how-to-guides.md
+  - Documentation:
+    - concepts.md
 
 copyright: |
   &copy; 2023 <a href="https://www.codecentric.de/"  target="_blank" rel="noopener">codecentric AG</a>
