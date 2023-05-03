@@ -43,7 +43,7 @@ class CSVLogger(Callback):
 
         row_dict = {"epoch": epoch + 1}
         row_dict.update({k: np.round(v, 6) for k, v in logs.items()})
-        self.data = self.data.append(row_dict, ignore_index=True)
+        self.data = self.data.concat(row_dict, ignore_index=True)
         self.flush()
 
     def on_train_end(self, logs=None):
