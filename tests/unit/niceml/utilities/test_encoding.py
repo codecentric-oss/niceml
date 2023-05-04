@@ -42,15 +42,15 @@ def test_get_base64_from_empty_file():
 
 def test_base64_to_bytesio(test_file: str, test_text: str):
     b_64 = get_base64_from_file(test_file)
-    with base64_to_bytesio(b_64) as f:
-        text = f.read().decode("utf-8")
+    with base64_to_bytesio(b_64) as file:
+        text = file.read().decode("utf-8")
     assert text == test_text
 
 
 def test_numpy_to_bas64():
     array = np.ones((10, 15), dtype=np.uint8) * 5
     b_64: str = numpy_to_base64(array)
-    with base64_to_bytesio(b_64) as f:
-        new_img = Image.open(f)
+    with base64_to_bytesio(b_64) as file:
+        new_img = Image.open(file)
         new_array = np.array(new_img)
         assert np.array_equal(array, new_array)

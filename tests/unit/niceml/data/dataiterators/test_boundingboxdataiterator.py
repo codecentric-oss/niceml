@@ -41,14 +41,14 @@ def parq_file(
 ) -> str:
     df_dict_list: List[dict] = []
     for det_index in range(5):
-        cur_bbox_row = dict(image_filepath=image_ids[0], detection_index=det_index)
+        cur_bbox_row = {"image_filepath": image_ids[0], "detection_index": det_index}
         cur_bbox_row.update(asdict(target_bbox))
         for pred_idx, pred_col in enumerate(pred_cols):
             cur_bbox_row[pred_col] = float(pred_idx == (det_index % len(pred_cols)))
         df_dict_list.append(cur_bbox_row)
 
     for cur_id in image_ids[1:]:
-        cur_bbox_row = dict(image_filepath=cur_id, detection_index=-1)
+        cur_bbox_row = {"image_filepath": cur_id, "detection_index": -1}
         bbox: BoundingBox = BoundingBox(0, 0, 0, 0)
         cur_bbox_row.update(asdict(bbox))
         for pred_idx, pred_col in enumerate(pred_cols):

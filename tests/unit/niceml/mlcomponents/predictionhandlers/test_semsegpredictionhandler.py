@@ -11,7 +11,9 @@ from niceml.data.datadescriptions.semsegdatadescritption import (
 from niceml.mlcomponents.predictionhandlers.semsegpredictionhandler import (
     create_bbox_prediction_from_mask_instances,
 )
-from niceml.mlcomponents.resultanalyzers.instancefinders.maskinstance import MaskInstance
+from niceml.mlcomponents.resultanalyzers.instancefinders.maskinstance import (
+    MaskInstance,
+)
 from niceml.mlcomponents.resultanalyzers.instancefinders.multichannelinstancefinder import (
     MultiChannelInstanceFinder,
 )
@@ -19,7 +21,7 @@ from niceml.mlcomponents.resultanalyzers.tensors.semsegdataiterator import (
     SemSegPredictionContainer,
 )
 from niceml.utilities.imagesize import ImageSize
-from tests.unit.ccml.utilities.semseg.testutils import get_random_semseg_mask
+from tests.unit.niceml.utilities.semseg.testutils import get_random_semseg_mask
 
 
 @pytest.fixture()

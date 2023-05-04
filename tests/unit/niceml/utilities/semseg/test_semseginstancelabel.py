@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from niceml.utilities.semseg.semseginstancelabeling import SemSegInstanceLabel
-from tests.unit.ccml.utilities.semseg.testutils import get_random_semseg_mask
+from tests.unit.niceml.utilities.semseg.testutils import get_random_semseg_mask
 
 
 @pytest.mark.parametrize(

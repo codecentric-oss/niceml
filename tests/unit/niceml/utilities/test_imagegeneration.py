@@ -16,7 +16,7 @@ from niceml.utilities.imagegeneration import (
 from niceml.utilities.imagesize import ImageSize
 from niceml.utilities.imageutils import get_font
 from niceml.utilities.splitutils import clear_folder
-from tests.unit.ccml.data.conftest import objdet_image_label_path
+from tests.unit.niceml.data.conftest import objdet_image_label_path
 
 
 def test_single_image_generation():
@@ -51,7 +51,7 @@ def test_multi_image_generation(tmp_dir):
     img_size = ImageSize(256, 256)
     save = True
 
-    tmp_location = dict(uri=tmp_dir)
+    tmp_location = {"uri": tmp_dir}
     clear_folder(tmp_location)
     # When
     generate_test_images(
@@ -76,7 +76,7 @@ def test_load_label_from_json(tmp_dir):
 
     # When
     objdet_image_label: ObjDetImageLabel = load_label_from_json(
-        location=dict(uri=file_path), filename=""
+        location={"uri": file_path}, filename=""
     )
 
     # Then

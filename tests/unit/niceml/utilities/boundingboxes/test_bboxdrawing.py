@@ -15,7 +15,7 @@ def test_draw_labels_on_image():
     img_size = ImageSize(1024, 1024)
     random_generator = np.random.default_rng(seed=42)
 
-    img, mask_image, gt_labels = generate_number_image(
+    img, _, gt_labels = generate_number_image(
         random_generator=random_generator,
         rotate=True,
         img_size=img_size,
