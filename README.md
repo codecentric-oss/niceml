@@ -9,4 +9,6 @@ After cloning this repo, you can use the Makefile as an entry point:
 - `make train_semseg` to train a semantic segmentation model
 - `make dashboard` to start the dashboard
 
+Further documentation is available [here](https://codecentric-oss.github.io/niceml/)
+
 A lot more documentation will follow soon!

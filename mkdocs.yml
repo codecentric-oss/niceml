@@ -78,6 +78,7 @@ nav:  # Sort the pages
     - First Steps for your Use-case: first-steps.md
   - How-to Guides:
     - How-to-guides: how-to-guides.md
+    - Frequently Asked Questions: faq.md
   - Documentation:
     - concepts.md
 
