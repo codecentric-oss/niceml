@@ -13,7 +13,7 @@ from niceml.utilities.matchingresult import (
     match_classification_prediction_and_gt,
     match_detection_prediction_and_gt,
 )
-from tests.unit.ccml.data.conftest import get_random_bounding_box
+from tests.unit.niceml.data.conftest import get_random_bounding_box
 
 
 def test_match_prediction_and_gt():

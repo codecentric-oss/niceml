@@ -16,7 +16,7 @@ from niceml.utilities.imagegeneration import (
 from niceml.utilities.imagesize import ImageSize
 from niceml.utilities.imageutils import get_font
 from niceml.utilities.splitutils import clear_folder
-from tests.unit.ccml.data.conftest import objdet_image_label_path
+from tests.unit.niceml.data.conftest import objdet_image_label_path
 
 
 def test_single_image_generation():

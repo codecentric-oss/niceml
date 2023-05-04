@@ -6,7 +6,7 @@ import pytest
 from niceml.utilities.colorutils import Color
 from niceml.utilities.instancelabelmatching import get_kind_of_label_match
 from niceml.utilities.semseg.semseginstancelabeling import SemSegInstanceLabel
-from tests.unit.ccml.utilities.semseg.testutils import get_random_semseg_mask
+from tests.unit.niceml.utilities.semseg.testutils import get_random_semseg_mask
 
 
 @pytest.mark.parametrize(
