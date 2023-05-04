@@ -26,7 +26,9 @@ jobs:
         with:
           poetry-version: "1.4.0"
       - name: 🔨Install dependencies
-        run: poetry install --no-interaction --with dev --no-ansi
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --with dev --no-ansi
       - run: mkdir results && touch results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
       - name: 🧪 Run tests
         uses: nuhrberg/pytest-summary@main
