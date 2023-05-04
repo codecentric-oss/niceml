@@ -1,8 +1,7 @@
 name: 🚀Create Release
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
 
