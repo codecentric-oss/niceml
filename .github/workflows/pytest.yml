@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8","3.9","3.10"]
-        os: [ ubuntu-latest,macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -37,7 +37,7 @@ jobs:
           options: --doctest-modules --cov-report term --cov-report xml:results/coverage-${{ matrix.python-version }}-${{matrix.os}}.xml --cov=niceml
           paths: tests/**
           output: results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
-          show: all
+          show: "fail, skip"
       - name: ⬆️ Upload pytest results
         uses: actions/upload-artifact@v3
         env:
@@ -52,7 +52,7 @@ jobs:
       - name: 🖊️ Write job summary
         run: |
           echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
-          if [${{matrix.os}} == windows_latest]; then
+          if [${{matrix.os}} == windows-latest]; then
             type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
           else
             cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
