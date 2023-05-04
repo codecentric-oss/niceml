@@ -63,9 +63,9 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.mark
   - attr_list
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+#  - pymdownx.emoji:
+#      emoji_index: !!python/name:materialx.emoji.twemoji
+#      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 plugins:
   - mkdocstrings  # Use docstrings for documentation
@@ -75,6 +75,8 @@ nav:  # Sort the pages
   - index.md
   - Tutorials:
     - Getting Started: tutorials.md
+    - First Steps for your Use-case: first-steps.md
+  - How-to Guides:
     - How-to-guides: how-to-guides.md
   - Documentation:
     - concepts.md
