@@ -2,12 +2,13 @@ name: 🚀Create Release
 
 on:
   pull_request:
+    types: [closed]
     branches:
       - main
 
 jobs:
   test:
-    uses: ./.github/workflows.yaml
+    uses: ./.github/workflows/pytest.yaml
   build:
     name: 🏗️ Build package and publish to pypi
     runs-on: ubuntu-latest

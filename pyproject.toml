@@ -34,10 +34,6 @@ schema = "^0.7.5"
 [tool.poetry.extras]
 tensorflow = ["tensorflow"]
 tensorflow-macos = ["tensorflow-macos", "tensorflow-metal"]
-
-[tool.poetry.extras]
-tensorflow = ["tensorflow"]
-tensorflow-macos = ["tensorflow-macos", "tensorflow-metal"]
 visu = ["altair", "streamlit"]
 
 [tool.poetry.group.dev.dependencies]
@@ -57,6 +53,7 @@ version_variable = [
 version_toml = [
     "pyproject.toml:tool.poetry.version"
 ]
+
 version_source="commit"
 major_on_zero = false
 branch = "main"
