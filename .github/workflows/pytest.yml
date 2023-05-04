@@ -2,7 +2,7 @@ name: 🧪 pytest
 
 on:
   pull_request:
-    types: [ opened, reopened ]
+    types: [ opened, reopened, synchronize ]
   workflow_call:
 
 jobs:
