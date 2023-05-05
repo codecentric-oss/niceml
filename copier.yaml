@@ -1,0 +1,31 @@
+_subdirectory: template
+_exclude:
+  - copier
+
+use_precommit:
+  type: bool
+  help: Do you want to use our pre-commit hooks?
+  default: no
+
+setup_env:
+  type: bool
+  help: Should poetry take care of creating a virtual environment?
+  default: no
+
+use_apple_silicon:
+  type: bool
+  help: Do you use Apple Silicon as a GPU?
+  default: no
+
+use_dashboard:
+  type: bool
+  help: Do you want to use our awesome dashboard?
+  default: yes
+
+_tasks:
+  - "mkdir -p data"
+  - "cp -R {{ _copier_conf.src_path }}/configs/ configs"
+  - "{% if setup_env %}poetry config virtualenvs.create true{% else %}poetry config virtualenvs.create false{% endif %}"
+  - "poetry install {% if use_apple_silicon %} -E tensorflow-macos {% else %} -E tensorflow {% endif %} {% if use_dashboard %} -E visu {% endif%}"
+  - "{% if setup_env %}poetry shell{% endif %}"
+  - "{% if use_precommit %} cp {{ _copier_conf.src_path }}/.pre-commit-config.yaml .pre-commit-config.yaml && pre-commit install{% endif %}"

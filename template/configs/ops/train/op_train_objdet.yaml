@@ -1,0 +1,59 @@
+defaults:
+  - op_train_base.yaml@_here_
+  - /shared/datasets@data_train: dataset_objdet_test.yaml
+  - /shared/datasets@data_validation: dataset_objdet_test.yaml
+  - _self_
+
+data_description:
+  _target_: niceml.data.datadescriptions.objdetdatadescription.ObjDetDataDescription
+  featuremap_scales: [8, 16, 32, 64, 128]
+  classes: ["0", "1", "2", "3", "4", "5"]
+  anchor_scales: [1.0, 1.25, 1.6]
+  anchor_aspect_ratios: [0.5, 1.0, 2.0]
+  anchor_base_area_side: 4
+  box_variance: [0.1, 0.1, 0.2, 0.2]
+  input_image_size:
+    _target_: niceml.utilities.imagesize.ImageSize
+    width: 1024
+    height: 1024
+
+model:
+  _target_: niceml.dlframeworks.tensorflow.models.retinanet.RetinaNetFactory
+
+learner:
+  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  model_compiler:
+    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    run_eagerly: ${niceml.to_bool:${oc.env:RUN_EAGERLY,false}}
+    loss:
+      _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.CombinationLoss
+      weights: [5000.0,0.1]
+      losses:
+        - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetClsLoss
+        - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetBoxLoss
+    # Optimizer is used in the experiment
+    optimizer:
+      _target_: tensorflow.keras.optimizers.RMSprop
+      learning_rate: 0.0001
+      decay: 0.000001
+    metrics:
+      - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetClsLoss
+      - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetBoxLoss
+      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgPosPredObjDet
+      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgPosTargetCountObjDet
+      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgNegTargetCountObjDet
+      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgNegPredObjDet
+
+
+data_train:
+  datainfo_listing:
+    sub_dir: train
+  set_name: train
+  shuffle: true
+  net_data_logger:
+    _target_: niceml.data.netdataloggers.objdetnetdatalogger.ObjDetNetDataLogger
+    max_log: 5
+data_validation:
+  datainfo_listing:
+    sub_dir: validation
+  set_name: validation

@@ -1,0 +1,7 @@
+defaults:
+  # minio credentials
+  - /shared/credentials@data_location.credentials: credentials_minio.yaml
+  - /shared/credentials@experiment_location.credentials: credentials_minio.yaml
+
+experiment_location:
+  uri: ${oc.env:EXPERIMENT_URI,./experiments}

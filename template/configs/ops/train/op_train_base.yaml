@@ -1,0 +1,7 @@
+defaults:
+  - callbacks: callbacks_base.yaml
+  - train_params: trainparams_default.yaml
+  - exp_initializer: exp_initializer_default.yaml
+
+model_load_custom_objects:
+  _target_: niceml.mlcomponents.modelcompiler.modelcustomloadobjects.ModelCustomLoadObjects

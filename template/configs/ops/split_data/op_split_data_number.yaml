@@ -1,0 +1,16 @@
+output_location: ${globals.data_location}
+sub_dir: number_data_split
+recursive: True
+name_delimiter: "_"
+max_split: 1
+clear_folder: True
+set_infos:
+  - _target_: niceml.utilities.splitutils.DataSetInfo
+    set_name: train
+    probability: 0.7
+  - _target_: niceml.utilities.splitutils.DataSetInfo
+    set_name: validation
+    probability: 0.1
+  - _target_: niceml.utilities.splitutils.DataSetInfo
+    set_name: test
+    probability: 0.2
