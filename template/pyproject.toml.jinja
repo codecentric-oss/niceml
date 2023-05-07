@@ -4,11 +4,7 @@ version = "{{version}}"
 description = "{{description}}"
 authors = {{authors}}
 
-{% if packages %}
-packages = "{{packages}}"
-{%endif%}
-
-[tool.poetry.group]
+[tool.poetry.dependencies]
 {{dependencies}}
 tensorflow = {version = "2.9", optional = true}
 tensorflow-macos = {version = "2.9", optional = true}
@@ -16,44 +12,18 @@ tensorflow-metal = {version = "^0.8.0", optional = true}
 altair = {version = "^4.2.2", optional = true}
 streamlit = {version = "^1.22.0", optional = true}
 
-
 [tool.poetry.extras]
 tensorflow = ["tensorflow"]
 tensorflow-macos = ["tensorflow-macos", "tensorflow-metal"]
 visu = ["altair", "streamlit"]
 
-
 {% if use_precommit %}
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
+pre-commit = "^3.3.1"
 
-
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 88
-known_third_party = "dagster"
-
-[tool.mypy]
-exclude = ["sampleconfs", "docker", "conf", "data"]
-
-[tool.black]
-line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-exclude = '''
-(
-  /(
-    | \.pytest_cache
-    | \.git
-    | \.venv
-    | docs
-    | dist
-  )/
-)
-'''
+[tool.ruff]
+line-length = 100
 
 {%endif%}
 

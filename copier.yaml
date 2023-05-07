@@ -24,8 +24,7 @@ use_dashboard:
 
 _tasks:
   - "mkdir -p data"
-  - "cp -R {{ _copier_conf.src_path }}/configs/ configs"
   - "{% if setup_env %}poetry config virtualenvs.create true{% else %}poetry config virtualenvs.create false{% endif %}"
-  - "poetry install {% if use_apple_silicon %} -E tensorflow-macos {% else %} -E tensorflow {% endif %} {% if use_dashboard %} -E visu {% endif%}"
+  - "poetry lock && poetry install {% if use_apple_silicon %} -E tensorflow-macos {% else %} -E tensorflow {% endif %} {% if use_dashboard %} -E visu {% endif%}"
   - "{% if setup_env %}poetry shell{% endif %}"
   - "{% if use_precommit %} cp {{ _copier_conf.src_path }}/.pre-commit-config.yaml .pre-commit-config.yaml && pre-commit install{% endif %}"

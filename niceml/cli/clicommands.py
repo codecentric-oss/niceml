@@ -7,6 +7,7 @@ import toml
 from dotenv import load_dotenv
 from invoke import task
 
+
 load_dotenv(".env")
 
 
@@ -51,6 +52,8 @@ def execute(context, job_name, config_path):
 
 @task
 def init(context):
+    """Initializes an empty niceml project"""
+
     old_pyproject_toml = toml.load(
         join(os.path.abspath(os.getcwd()), "pyproject.toml")
     )["tool"]["poetry"]
@@ -82,15 +85,12 @@ def init(context):
             copier_data_dict[attribute] = attribute_value
 
         if attribute == "dependencies":
-            dependencies = attribute_value
-            dependencies_str = ""
-            if isinstance(dependencies, dict):
-                for name, version in dependencies.items():
-                    dependencies_str += f'{name} = "{version}"\n'
-            copier_data_dict["dependencies"] = dependencies_str
+            copier_data_dict[attribute] = toml.dumps(
+                attribute_value, encoder=toml.TomlPreserveInlineDictEncoder()
+            )
 
     copier.run_auto(
-        src_path="gh:codecentric-oss/niceml/tree/feature/niceml-init",
+        src_path="gh:codecentric-oss/niceml",
         dst_path=f"{os.path.abspath(os.getcwd())}",
         data=copier_data_dict,
         overwrite=True,
