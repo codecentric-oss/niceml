@@ -27,7 +27,7 @@ jobs:
           poetry-version: "1.4.0"
       - name: 🔨Prepare for Windows
         run: pip install tensorflow-io
-        if: {{matrix.os}} == windows-latest
+        if: ${{matrix.os}} == windows-latest
       - name: 🔨Install dependencies
         run: |
           poetry config virtualenvs.create false
