@@ -7,13 +7,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v3
+      - name: 🐍Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.x
-      - uses: actions/cache@v2
+          python-version: 3.8
+      - name: 🔨 Setup poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: "1.4.0"
+      - name: 🔨Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --no-ansi -E docs
+      - name: 📥 Caching
+        uses: actions/cache@v2
         with:
           key: ${{ github.ref }}
           path: .cache
-      - run: pip install mkdocs-material
-      - run: mkdocs gh-deploy --force
+      - name: ⬆️ Deploy to github
+        run: mkdocs gh-deploy --force
