@@ -1,4 +1,5 @@
 # This is the readme for niceml
+[![🧪 Pytest](https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml/badge.svg)](https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml)
 
 After cloning this repo, you can use the Makefile as an entry point:
 
