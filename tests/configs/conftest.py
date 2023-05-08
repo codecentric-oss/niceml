@@ -1,3 +1,3 @@
-from niceml.utilities.omegaconfutils import register_ccml_resolvers
+from niceml.utilities.omegaconfutils import register_niceml_resolvers
 
-register_ccml_resolvers()
+register_niceml_resolvers()

@@ -1,5 +1,7 @@
-"""Repository of ccmlops pipelines."""
+"""Repository of niceml pipelines."""
 from typing import List
+
+from dagster import JobDefinition, repository
 
 from niceml.dagster.jobs.jobs import (
     job_copy_exp,
@@ -7,7 +9,6 @@ from niceml.dagster.jobs.jobs import (
     job_eval,
     job_train,
 )
-from dagster import JobDefinition, repository
 
 
 def get_job_list() -> List[JobDefinition]:
@@ -16,6 +17,6 @@ def get_job_list() -> List[JobDefinition]:
 
 
 @repository
-def ccmlops_repository() -> List[JobDefinition]:
+def niceml_repository() -> List[JobDefinition]:
     """returns a list of all niceml jobs"""
     return get_job_list()

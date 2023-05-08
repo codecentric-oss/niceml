@@ -51,7 +51,7 @@ class TrueDivResolver:  # pylint: disable=too-few-public-methods
         return int(float(numerator) // float(denominator))
 
 
-def register_ccml_resolvers():
+def register_niceml_resolvers():
     """register all niceml OmegaConf resolvers"""
     # If this function is called twice, the Resolvers are already registered.
     # In this case, the upcoming ValueError is ignored.
