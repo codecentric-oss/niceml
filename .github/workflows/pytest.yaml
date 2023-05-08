@@ -1,0 +1,62 @@
+name: 🧪 pytest
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+  workflow_call:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8","3.9","3.10"]
+        os: [ ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v3
+      - name: 🐍Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: 🔨 Setup poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: "1.4.0"
+      - name: 🔨Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction -E visu -E tensorflow --with dev --no-ansi
+      - run: mkdir results && touch results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
+      - name: 🧪 Run tests
+        uses: nuhrberg/pytest-summary@main
+        with:
+          extensions: pytest-cov
+          options: --doctest-modules --cov-report term --cov-report xml:results/coverage-${{ matrix.python-version }}-${{matrix.os}}.xml --cov=niceml
+          paths: tests/**
+          output: results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
+          show: "fail, skip"
+      - name: ⬆️ Upload pytest results
+        uses: actions/upload-artifact@v3
+        env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: pytest-results-${{ matrix.python-version }}-${{matrix.os}}
+          path: |
+            results
+            .test_report.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+      - name: 🖊️ Write job summary
+        run: |
+          echo "# 🧪 Test summary for python ${{ matrix.python-version }}-${{matrix.os}}" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{matrix.os}}" == "windows-latest" ]]
+          then
+            type results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+          else
+            cat results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md >> $GITHUB_STEP_SUMMARY
+          fi
+        shell: bash
+        if: ${{ always() }}
