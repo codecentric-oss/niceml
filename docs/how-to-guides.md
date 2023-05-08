@@ -7,12 +7,7 @@ provided in this project.
 
 ## How to implement a new dashboard component
 
-- Inherit from SingleExpVisComponent vs. LinearVisComponent
-- Build a Class for your component
-- Add Class to dashboard configuration
-- Add functionality to your component
-
-- run dashboard
+More documentation will be provided soon.
 
 ## How to use a remote system in the dashboard
 
