@@ -43,7 +43,7 @@ class ModelCallbackFactory(CallbackFactory):
         target_model_fs = join_location_w_path(
             exp_context.fs_config, self.model_subfolder
         )
-        file_formats = dict(run_id=exp_context.run_id, short_id=exp_context.short_id)
+        file_formats = {"run_id": exp_context.run_id, "short_id": exp_context.short_id}
         return ModelCheckpoint(
             target_model_fs, file_formats=file_formats, **self.kwargs
         )
@@ -74,7 +74,7 @@ class CamCallbackFactory(CallbackFactory):  # pylint: disable=too-few-public-met
 
         Examples:
         callbacks:
-            - type: ccmlops.callbacks.callback_factories.cam_callback_factory
+            - type: niceml.callbacks.callback_factories.cam_callback_factory
             params:
                 image_location: *experiment_path
                 images:

@@ -1,0 +1,86 @@
+site_name: niceML
+site_url: https://niceml.cc/
+repo_url: https://github.com/codecentric-oss/niceml
+repo_name: codecentric-oss/niceml
+edit_uri: edit/main/docs/
+theme:
+  name: material
+  font:
+    text: Source Sans Pro
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+  features:
+#    - navigation.tabs
+#    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+#    - toc.integrate
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.tooltips
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+    - content.action.edit
+    - content.action.view
+  language: en
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: teal
+      accent: purple
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: teal
+      accent: lime
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/codecentric-oss/niceml
+markdown_extensions:
+  - toc:
+      permalink: True
+  - def_list
+  - mdx_include:
+      base_path: docs
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - attr_list
+#  - pymdownx.emoji:
+#      emoji_index: !!python/name:materialx.emoji.twemoji
+#      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+plugins:
+  - mkdocstrings  # Use docstrings for documentation
+  - search
+
+nav:  # Sort the pages
+  - index.md
+  - Tutorials:
+    - Getting Started: tutorials.md
+    - First Steps for your Use-case: first-steps.md
+  - How-to Guides:
+    - How-to-guides: how-to-guides.md
+    - Frequently Asked Questions: faq.md
+  - Documentation:
+    - concepts.md
+
+copyright: |
+  &copy; 2023 <a href="https://www.codecentric.de/"  target="_blank" rel="noopener">codecentric AG</a>

@@ -31,7 +31,7 @@ def created_test_image_path(tmp_dir) -> Tuple[List[str], dict]:
     save = True
 
     classes, output_location = generate_test_images(
-        location=dict(uri=tmp_dir),
+        location={"uri": tmp_dir},
         sample_count=sample_count,
         seed=seed,
         max_number=max_number,

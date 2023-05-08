@@ -1,7 +1,7 @@
 import pytest
 from omegaconf import OmegaConf
 
-from niceml.utilities.omegaconfutils import register_ccml_resolvers
+from niceml.utilities.omegaconfutils import register_niceml_resolvers
 
 
 @pytest.mark.parametrize(
@@ -21,10 +21,10 @@ from niceml.utilities.omegaconfutils import register_ccml_resolvers
     ],
 )
 def test_str_sep_resolver(input: str, target):
-    cfg = OmegaConf.create(dict(target=input))
+    cfg = OmegaConf.create({"target": input})
     assert cfg.target == target
 
 
 def test_register_resolvers_multiple_times():
-    register_ccml_resolvers()
-    register_ccml_resolvers()
+    register_niceml_resolvers()
+    register_niceml_resolvers()

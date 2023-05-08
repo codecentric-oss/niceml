@@ -22,7 +22,9 @@ SCORE_THRESHOLD = 0.25
         NmsFilter(score_threshold=SCORE_THRESHOLD, iou_threshold=0.3),
     ],
 )
-def test_nms_and_unifiedfilter(prediction_filter: PredictionFilter):
+def test_nms_and_unifiedfilter(
+    prediction_filter: PredictionFilter,
+):  # pylint: disable=too-many-locals
     score_thres = SCORE_THRESHOLD
     rng = np.random.default_rng(seed=123)
     classes = ["0", "1"]

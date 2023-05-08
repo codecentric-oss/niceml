@@ -42,7 +42,7 @@ def test_copy_to_filesystem(source_fs, target_fs, source_tmp_dir, target_tmp_dir
     with source_fs.open(join(source_tmp_dir, source_file_path), "wb") as source_file:
         source_file.write(source_file_content)
 
-    copy_info = CopyInfo(dict(uri=source_tmp_dir), copy_filelist=[source_file_path])
+    copy_info = CopyInfo({"uri": source_tmp_dir}, copy_filelist=[source_file_path])
     copy_info.copy_to_filesystem(target_fs, join(target_tmp_dir, "example"))
     assert target_fs.exists(join(target_tmp_dir, source_file_path))
     with target_fs.open(join(target_tmp_dir, source_file_path), "rb") as file:
@@ -57,8 +57,8 @@ def test_copy_fileinfo(source_fs, target_fs, source_tmp_dir, target_tmp_dir):
         source_file.write(source_file_content)
 
     copy_info = CopyFileInfo(
-        input_location=dict(uri=join(source_tmp_dir, source_file_path)),
-        output_location=dict(uri=join(target_tmp_dir, source_file_path)),
+        input_location={"uri": join(source_tmp_dir, source_file_path)},
+        output_location={"uri": join(target_tmp_dir, source_file_path)},
         checksum=md5_from_file(join(source_tmp_dir, source_file_path), source_fs),
     )
 

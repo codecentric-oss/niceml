@@ -5,13 +5,13 @@ from tempfile import TemporaryDirectory, mkstemp
 from typing import Any, Dict, Iterable, Optional
 
 import yaml
+from dagster import Field, Map, config_mapping
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 from hydra.utils import instantiate
 
 from niceml.scripts.hydraconfreader import load_hydra_conf
-from niceml.utilities.omegaconfutils import register_ccml_resolvers
-from dagster import Field, Map, config_mapping
+from niceml.utilities.omegaconfutils import register_niceml_resolvers
 
 
 def instantiate_from_yaml(
@@ -35,7 +35,7 @@ def prepend_hydra_search_paths(
 
 
 @config_mapping
-def hydra_conf_mapping(config: Dict[str, Any], drop: Iterable[str] = ("globals",)):
+def hydra_conf_mapping(config: Dict[str, Any]):
     """Load hydra configuration from ``config``.
 
     Args:
@@ -45,7 +45,8 @@ def hydra_conf_mapping(config: Dict[str, Any], drop: Iterable[str] = ("globals",
              for interpolation during processing but not enter the processed
              configuration. Default: ``("globals",)``.
     """
-    register_ccml_resolvers()
+    drop: Iterable[str] = ("globals",)
+    register_niceml_resolvers()
     config = json.loads(json.dumps(config))
     config_dir = TemporaryDirectory()  # pylint: disable=consider-using-with
     new_search_paths = [f"file://{config_dir}"]
@@ -78,7 +79,7 @@ class HydraInitField(Field):
             description = target_class.__doc__
         if default_value is None:
             impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-            default_value = dict(_target_=f"{impl_str}{target_class}")
+            default_value = {"_target_": f"{impl_str}{target_class}"}
         super().__init__(
             dict, description=description, default_value=default_value, **kwargs
         )
@@ -99,7 +100,7 @@ class HydraMapField(Field):
             description = target_class.__doc__
         if default_value is None:
             impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-            default_value = dict(value=dict(_target_=f"{impl_str}{target_class}"))
+            default_value = {"value": {"_target_": f"{impl_str}{target_class}"}}
         super().__init__(
             Map(str, dict),
             description=description,
