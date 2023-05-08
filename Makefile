@@ -15,3 +15,6 @@ train_semseg:
 
 dashboard:
 	poetry run streamlit run niceml/dashboard/dashboard.py configs/dashboard/local.yaml
+
+patch_mac_m1:
+	conda install -y grpcio --force-reinstall

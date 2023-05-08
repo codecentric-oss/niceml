@@ -35,7 +35,7 @@ def prepend_hydra_search_paths(
 
 
 @config_mapping
-def hydra_conf_mapping(config: Dict[str, Any], drop: Iterable[str] = ("globals",)):
+def hydra_conf_mapping(config: Dict[str, Any]):
     """Load hydra configuration from ``config``.
 
     Args:
@@ -45,6 +45,7 @@ def hydra_conf_mapping(config: Dict[str, Any], drop: Iterable[str] = ("globals",
              for interpolation during processing but not enter the processed
              configuration. Default: ``("globals",)``.
     """
+    drop: Iterable[str] = ("globals",)
     register_ccml_resolvers()
     config = json.loads(json.dumps(config))
     config_dir = TemporaryDirectory()  # pylint: disable=consider-using-with
