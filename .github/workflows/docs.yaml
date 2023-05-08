@@ -1,4 +1,4 @@
-name: documentation
+name: 📓 Create documentation
 on:
   workflow_call:
 permissions:
