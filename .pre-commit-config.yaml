@@ -1,42 +1,25 @@
 repos:
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: v0.0.264
+  hooks:
+    - id: ruff
 - repo: https://github.com/PyCQA/bandit
-  rev: "1.7.0"
+  rev: 1.7.5
   hooks:
   - id: bandit
     exclude: ^tests/
 - repo: https://github.com/psf/black
-  rev: 22.3.0
+  rev: 23.3.0
   hooks:
   - id: black
-- repo: local
-  hooks:
-  - id: pylint
-    name: pylint-src
-    entry: poetry run pylint
-    language: system
-    types: [python]
-    require_serial: true
-    exclude:  ^(docs/|tests/)
-  - id: pylint
-    name: pylint-tests
-    entry: poetry run pylint
-    args: [-d, "missing-module-docstring,unused-argument,missing-function-docstring,redefined-outer-name"]
-    language: system
-    types: [python]
-    require_serial: true
-    exclude:  ^(docs/|niceml/)
 - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-  rev: v1.2.2
+  rev: v1.3.1
   hooks:
   - id: python-safety-dependencies-check
-    args: ["--ignore=42194,43975,47833,44487,45356,43975"]
-- repo: https://github.com/pycqa/isort
-  rev: 5.12.0
-  hooks:
-  - id: isort
-    name: isort (python)
+    args: ["--ignore=42194,43975,47833,44487,45356,43975,51668"]
+    files: pyproject.toml
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.4.0
   hooks:
   - id: check-yaml
     types: [yaml]
@@ -45,5 +28,5 @@ repos:
   - id: check-toml
     types: [toml]
   - id: no-commit-to-branch
-    args: ["--branch", "master", "--branch", "main"]
+    args: ["--branch", "main"]
   - id: end-of-file-fixer

@@ -38,7 +38,7 @@ jobs:
           semantic-release publish
         env:
           GH_TOKEN: ${{secrets.RELEASE_WORKFLOW}}
-          REPOSITORY_PASSWORD: ${{secrets.PYPI_TEST_TOKEN}}
+          REPOSITORY_PASSWORD: ${{secrets.PYPI_TOKEN}}
           REPOSITORY_USERNAME: __token__
   documentation:
     uses: ./.github/workflows/docs.yaml
