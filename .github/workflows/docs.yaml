@@ -20,7 +20,7 @@ jobs:
       - name: 🔨Install dependencies
         run: |
           poetry config virtualenvs.create false
-          poetry install --no-interaction --no-ansi -E docs
+          poetry install --no-interaction --no-ansi --with dev -E docs
       - name: 📥 Caching
         uses: actions/cache@v2
         with:
