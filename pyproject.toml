@@ -1,10 +1,40 @@
 [tool.poetry]
 name = "niceml"
-version = "0.1.2"
-description = ""
-authors = ["Denis Stalz-John <denis.stalz-john@codecentric.de>"]
+version = "0.1.1"
+description = "Welcome to niceML 🍦, a Python-based MLOps framework that uses TensorFlow and Dagster. This framework streamlines the development, and maintenance of machine learning models, providing an end-to-end solution for building efficient and scalable pipelines. You will find detailed documentation, tutorials, and examples in this repository."
+authors = [
+    "Denis Stalz-John <denis.stalz-john@codecentric.de>",
+    "Nils Uhrberg <nils.uhrberg@codecentric.de>",
+    "Anke Koke <anke.koke@codecentric.de>"
+]
+homepage = "niceml.io"
 readme = "README.md"
-packages = [{ "include" = "niceml" }]
+keywords = ["tensorflow", "scikit-learn", "streamlit"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: MacOS",
+    "Operating System :: POSX :: Linux",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: Tensorflow",
+    "Framework :: Dagster",
+    "Typing :: Typed"
+]
+
+packages = [
+    {include = "niceml"},
+    {include = "niceml/py.typed"}
+]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.9.7 || >3.9.7,<3.11"
