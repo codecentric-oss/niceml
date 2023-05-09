@@ -1,0 +1,4 @@
+_target_: niceml.mlcomponents.predictionhandlers.objdetpredictionhandler.ObjDetPredictionHandler
+prediction_filter:
+  _target_: niceml.utilities.boundingboxes.filtering.thresholdfilter.ThresholdFilter
+  score_threshold: 0.5

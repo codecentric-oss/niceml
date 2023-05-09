@@ -1,0 +1,4 @@
+_target_: niceml.config.trainparams.TrainParams
+epochs: ${niceml.to_int:${oc.env:TRAINING_EPOCHS,2}}
+steps_per_epoch: ${niceml.to_int:${oc.env:STEPS_PER_EPOCH,null}}
+validation_steps: ${niceml.to_int:${oc.env:VALIDATION_STEPS,null}}

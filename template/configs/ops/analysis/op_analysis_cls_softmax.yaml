@@ -1,0 +1,12 @@
+# op for classification analysis with softmax
+result_analyzer:
+  _target_: niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer
+  metrics:
+    - _target_: niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric
+      function: accuracy
+      source_col: class_idx
+      target_cols_prefix: pred_
+    - _target_: niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric
+      function: confusion_matrix
+      source_col: class_idx
+      target_cols_prefix: pred_
