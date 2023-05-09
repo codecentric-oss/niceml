@@ -1,21 +1,26 @@
 name: 🍦 Create Release
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+    types:
+      - closed
 permissions:
   contents: write
 
 jobs:
   test:
+    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/pytest.yaml
   build:
+    if: ${{ github.event.pull_request.merged }}
     name: 🏗️ Build package and publish to pypi
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v3
+        ref: 'main'
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_WORKFLOW }}
@@ -41,4 +46,5 @@ jobs:
           REPOSITORY_PASSWORD: ${{secrets.PYPI_TOKEN}}
           REPOSITORY_USERNAME: __token__
   documentation:
+    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/docs.yaml

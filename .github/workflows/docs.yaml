@@ -1,14 +1,16 @@
-name: documentation
+name: 📓 Documentation
 on:
   workflow_call:
 permissions:
   contents: write
 jobs:
-  deploy:
+  docs:
+    name: 📓 Publish documentation
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v3
+        ref: 'main'
       - name: 🐍Setup Python
         uses: actions/setup-python@v4
         with:
