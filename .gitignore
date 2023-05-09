@@ -231,7 +231,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
-*.env
+
 env/
 venv/
 ENV/
@@ -296,4 +296,3 @@ exp_cache
 cache
 image_cache
 /tmp/
-

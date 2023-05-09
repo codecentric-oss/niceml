@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "niceml"
-version = "0.1.2"
+version = "0.1.1"
 description = ""
 authors = ["Denis Stalz-John <denis.stalz-john@codecentric.de>"]
 readme = "README.md"
@@ -20,7 +20,6 @@ pympler = "^1.0.1"
 cattrs = "^22.2.0"
 isodate = "^0.6.1"
 
-tensorflow-io-gcs-filesystem = {version = "0.31.0", optional = true}
 scikit-learn = "^1.2.2"
 pandera = "^0.14.5"
 schema = "^0.7.5"
@@ -30,15 +29,23 @@ tensorflow-macos = { version = "2.9.0", optional = true}
 streamlit = {version = "^1.22.0", optional = true}
 tensorflow = {version = "2.9.0", optional = true}
 tensorflow-metal = {version = "^0.8.0", optional = true}
+tensorflow-io-gcs-filesystem = {version = "0.31.0", optional = true}
+mkdocs-material = {version = "^9.1.9", optional = true}
+mkdocstrings = {version = "^0.21.2", optional = true}
+mdx-include = {version = "^1.4.2", optional = true}
+mkdocs = {version = "^1.4.3", optional = true}
+
 tornado = ">=6.0.3,<6.3.1"
 networkx = "^3.1"
 mkdocs-gen-files = "^0.5.0"
 
 
 [tool.poetry.extras]
-tensorflow = ["tensorflow","tensorflow-io-gcs-filesystem"]
+tensorflow = ["tensorflow"]
+tensorflow-windows = ["tensorflow","tensorflow-io-gcs-filesystem"]
 tensorflow-macos = ["tensorflow-macos", "tensorflow-metal"]
 visu = ["altair", "streamlit"]
+docs = ["mkdocs","mkdocs-material","mkdocstrings","mdx-include"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
@@ -51,19 +58,21 @@ mkdocs-material = "^9.1.11"
 mkdocstrings = "^0.21.2"
 mdx-include = "^1.4.2"
 
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
 version_variable = [
-    "niceml/__init__.py:__version__"
+    "niceml/__init__.py:__version__",
+    "pyproject.toml:tool.poetry.version"
 ]
 version_toml = [
     "pyproject.toml:tool.poetry.version"
 ]
 
-version_source="commit"
+version_source="tag"
 major_on_zero = false
 branch = "main"
 upload_to_PyPI = true
