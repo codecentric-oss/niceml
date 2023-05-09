@@ -48,9 +48,6 @@ pytest = "^7.3.1"
 pre-commit = "^3.2.2"
 pytest-cov = "^4.0.0"
 python-semantic-release = "^7.33.3"
-mkdocs-material = {version = "^9.1.9", optional = true}
-mkdocstrings = {version = "^0.21.2", optional = true}
-mdx-include = {version = "^1.4.2", optional = true}
 
 
 [build-system]
@@ -68,7 +65,7 @@ version_toml = [
 
 version_source="tag"
 major_on_zero = false
-branch = "hotfix/release-workflow"
+branch = "main"
 upload_to_PyPI = true
 upload_to_release = true
 build_command = "poetry build"
