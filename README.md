@@ -1,6 +1,10 @@
 # This is the readme for niceml
-[![🧪 Pytest](https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml/badge.svg)](
+[![🧪 Pytest](
+https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml/badge.svg)](
 https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](
+https://opensource.org/licenses/MIT)
+![PyPI](https://img.shields.io/pypi/v/niceml)
 
 After cloning this repo, you can use the Makefile as an entry point:
 
@@ -11,6 +15,6 @@ After cloning this repo, you can use the Makefile as an entry point:
 - `make train_semseg` to train a semantic segmentation model
 - `make dashboard` to start the dashboard
 
-Further documentation is available [here](niceml.io)
+Further documentation is available [here](https://niceml.io)
 
 A lot more documentation will follow soon!

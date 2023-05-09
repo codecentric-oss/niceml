@@ -4,6 +4,9 @@ install:
 install_macos:
 	poetry install -E tensorflow-macos -E visu
 
+install_windows:
+	poetry install -E tensorflow-windows -E visu
+
 pytest:
 	poetry run pytest ./tests
 
