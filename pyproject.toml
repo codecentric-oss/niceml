@@ -34,7 +34,7 @@ tensorflow-metal = {version = "^0.8.0", optional = true}
 tensorflow-io-gcs-filesystem = {version = "0.31.0", optional = true}
 tornado = ">=6.0.3,<6.3.1"
 toml = "^0.10.2"
-invoke = "^2.1.1"
+invoke = ">=1.4.1,<2"
 
 
 [tool.poetry.extras]
