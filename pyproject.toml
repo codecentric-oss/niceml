@@ -7,7 +7,6 @@ authors = [
     "Nils Uhrberg <nils.uhrberg@codecentric.de>",
     "Anke Koke <anke.koke@codecentric.de>"
 ]
-homepage = "niceml.io"
 readme = "README.md"
 keywords = ["tensorflow", "scikit-learn", "streamlit"]
 classifiers = [
@@ -28,11 +27,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed"
 ]
-
 packages = [
     {include = "niceml"},
     {include = "niceml/py.typed"}
 ]
+
+[tool.poetry.urls]
+"homepage" = "https://niceml.io"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.9.7 || >3.9.7,<3.11"
