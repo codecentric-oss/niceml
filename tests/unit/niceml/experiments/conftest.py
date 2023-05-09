@@ -62,9 +62,22 @@ def experiment_data() -> ExperimentData:
         exp_dir=f"PREFIX-{run_id}-id_hnk0",
     )
     data_train_conf = {
-        "_target_": "ccmlops.datasets.imageclsdata.ImageClsDataGenerator",
-        "batch_size": 16,
-        "image_location": "data/classification",
+        "_target_": "niceml.utilities.imagegeneration.NumberDataGenerator",
+        "location": "data/numbers",
+        "sample_count": 10,
+        "seed": 42,
+        "max_number": 5,
+        "img_size": {
+            "_target_": "niceml.utilities.imagesize.ImageSize",
+            "width": 256,
+            "height": 256,
+        },
+        "font_size_min": 40,
+        "font_size_max": 80,
+        "detection_labels": True,
+        "max_amount": 3,
+        "rotate": True,
+        "sub_dir": "sub",
     }
     config_data = {
         "data_train": data_train_conf,
