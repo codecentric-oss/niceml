@@ -45,6 +45,10 @@ pre-commit = "^3.2.2"
 pytest-cov = "^4.0.0"
 python-semantic-release = "^7.33.3"
 black = "^23.3.0"
+mkdocs = "^1.4.3"
+mkdocs-material = "^9.1.11"
+mkdocstrings = "^0.21.2"
+mdx-include = "^1.4.2"
 
 [build-system]
 requires = ["poetry-core"]
