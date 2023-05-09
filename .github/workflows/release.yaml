@@ -10,11 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  test:
-    if: ${{ github.event.pull_request.merged }}
-    uses: ./.github/workflows/pytest.yaml
   build:
-    needs: test
     if: ${{ github.event.pull_request.merged }}
     name: 🏗️ Build package and publish to pypi
     runs-on: ubuntu-latest
