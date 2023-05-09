@@ -10,7 +10,8 @@ jobs:
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v3
-        ref: 'main'
+        with:
+          ref: 'main'
       - name: 🐍Setup Python
         uses: actions/setup-python@v4
         with:
