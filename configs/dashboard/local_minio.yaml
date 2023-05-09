@@ -1,5 +1,5 @@
 # run dashboard locally with access to minio storage
-title: CCML-Dashboard
+title: niceML-Dashboard
 icon: ":rocket:"
 exp_cache:
   _target_: niceml.experiments.localexperimentcache.LocalExperimentCache

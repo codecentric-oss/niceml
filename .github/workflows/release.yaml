@@ -1,0 +1,42 @@
+name: 🍦 Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    uses: ./.github/workflows/pytest.yaml
+  build:
+    name: 🏗️ Build package and publish to pypi
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_WORKFLOW }}
+      - name: 🐍Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: 🔨 Setup poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: "1.4.0"
+      - name: 🔨Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --no-ansi --with dev
+      - name: 🍦 Release new version
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "action@github.com"
+          semantic-release publish
+        env:
+          GH_TOKEN: ${{secrets.RELEASE_WORKFLOW}}
+          REPOSITORY_PASSWORD: ${{secrets.PYPI_TEST_TOKEN}}
+          REPOSITORY_USERNAME: __token__
+  documentation:
+    uses: ./.github/workflows/docs.yaml
