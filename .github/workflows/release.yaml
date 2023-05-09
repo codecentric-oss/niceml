@@ -46,4 +46,5 @@ jobs:
           REPOSITORY_PASSWORD: ${{secrets.PYPI_TOKEN}}
           REPOSITORY_USERNAME: __token__
   documentation:
+    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/docs.yaml
