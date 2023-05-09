@@ -22,12 +22,10 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Operating System :: MacOS",
-    "Operating System :: POSX :: Linux",
+    "Operating System :: POSIX :: Linux",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Framework :: Tensorflow",
-    "Framework :: Dagster",
     "Typing :: Typed"
 ]
 
