@@ -75,6 +75,9 @@ markdown_extensions:
 plugins:
   - mkdocstrings  # Use docstrings for documentation
   - search
+  - gen-files:
+      scripts:
+        - docs/jobsdoc.py
 
 nav:  # Sort the pages
   - index.md
@@ -86,8 +89,8 @@ nav:  # Sort the pages
     - Frequently Asked Questions: faq.md
   - Concepts:
     - Use Hydra and Dagster: hydra-dagster.md
-  - Documentation:
-    - concepts.md
+  - References:
+    - Dagster Jobs: jobsdoc.md
 
 copyright: |
   &copy; 2023 <a href="https://www.codecentric.de/"  target="_blank" rel="noopener">codecentric AG</a>
