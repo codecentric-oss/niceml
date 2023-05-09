@@ -77,7 +77,7 @@ def experiment_data() -> ExperimentData:
         "detection_labels": True,
         "max_amount": 3,
         "rotate": True,
-        "sub_dir": "sub",
+        "sub_dir": "train",
     }
     config_data = {
         "data_train": data_train_conf,

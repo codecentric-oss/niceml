@@ -102,10 +102,10 @@ def test_dict_keys_to_string_format_func_diff_types(input_value, target):
 @pytest.mark.parametrize(
     "info_path,target",
     [
-        ([["datasets", "data_train", "batch_size"], ["test"]], 16),
+        ([["datasets", "data_train", "sample_count"], ["test"]], 10),
         (["datasets", "test"], None),
-        ([["datasets", "test"], ["datasets", "data_train", "batch_size"]], 16),
-        (["datasets", "data_train", "batch_size"], 16),
+        ([["datasets", "test"], ["datasets", "data_train", "sample_count"]], 10),
+        (["datasets", "data_train", "sample_count"], 10),
     ],
 )
 def test_config_info_extractor_default(
