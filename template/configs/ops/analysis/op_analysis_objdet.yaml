@@ -1,0 +1,4 @@
+# op for object detection analysis
+result_analyzer:
+  _target_: niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer
+  metrics: []

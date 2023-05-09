@@ -1,0 +1,9 @@
+_target_: niceml.mlcomponents.predictionhandlers.combinationpredictionhandler.CombinationPredictionHandler
+handlers:
+  - _target_: niceml.mlcomponents.predictionhandlers.semsegpredictionhandler.SemSegMaskPredictionHandler
+  - _target_: niceml.mlcomponents.predictionhandlers.semsegpredictionhandler.SemSegBBoxPredictionHandler
+    instance_finder:
+      _target_: niceml.mlcomponents.resultanalyzers.instancefinders.multichannelinstancefinder.MultiChannelInstanceFinder
+      min_area: 1
+      max_area: 100000
+      threshold: 0.2

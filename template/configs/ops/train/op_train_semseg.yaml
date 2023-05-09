@@ -1,0 +1,69 @@
+defaults:
+  - op_train_base.yaml@_here_
+  - /shared/datasets@data_train: dataset_semseg_test.yaml
+  - /shared/datasets@data_validation: dataset_semseg_test.yaml
+  - _self_
+
+data_description:
+  _target_: niceml.data.datadescriptions.semsegdatadescritption.SemSegDataDescription
+  input_image_size:
+    _target_: niceml.utilities.imagesize.ImageSize
+    width: 1024
+    height: 1024
+  output_image_size:
+    _target_: niceml.utilities.imagesize.ImageSize
+    width: 16
+    height: 16
+  classes:
+    _target_: niceml.data.datadescriptions.semsegdatadescritption.create_number_semseg_datadescription
+    max_number: 3
+
+model:
+  _target_: niceml.dlframeworks.tensorflow.models.unets.mobilenetv2_unet
+  use_input_scale: true
+  allow_preconvolution: true
+  activation: sigmoid
+  alpha: 1.0
+  downscale_layer_factory:
+    _target_: niceml.dlframeworks.tensorflow.models.layerfactory.DownscaleConvBlockFactory
+    channel_list: [128, 128, 128]
+  post_layer_factory:
+    _target_: niceml.dlframeworks.tensorflow.models.layerfactory.Conv2DBlockFactory
+    channel_list: [1024, 1024]
+    kernel_size: 1
+    dropout_values: [0.25, 0.25]
+
+learner:
+  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  model_compiler:
+    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    run_eagerly: ${niceml.to_bool:${oc.env:RUN_EAGERLY,false}}
+    loss:
+      _target_: niceml.dlframeworks.tensorflow.losses.semseglosses.SemSegFocalLoss
+      alpha: 0.25
+      gamma: 2.0
+    # Optimizer is used in the experiment
+    optimizer:
+      _target_: tensorflow.keras.optimizers.RMSprop
+      learning_rate: 0.0001
+      decay: 0.000001
+    metrics:
+      - _target_: niceml.dlframeworks.tensorflow.kerasmetrics.MeanIoU
+      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgPosPredSemSeg
+      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgNegPredSemSeg
+      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgPosTargetCountSemSeg
+      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgNegTargetCountSemSeg
+
+data_train:
+  datainfo_listing:
+    sub_dir: train
+  set_name: train
+  shuffle: true
+  net_data_logger:
+    _target_: niceml.data.netdataloggers.semsegnetdatalogger.SemSegNetDataLogger
+    max_log: 10
+    scale: True
+data_validation:
+  datainfo_listing:
+    sub_dir: validation
+  set_name: validation

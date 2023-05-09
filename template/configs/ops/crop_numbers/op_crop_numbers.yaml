@@ -1,0 +1,3 @@
+clear_folder: True
+output_location: ${globals.data_location}
+sub_dir: numbers_cropped_split

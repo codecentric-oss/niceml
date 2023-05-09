@@ -1,0 +1,25 @@
+# train binary classification
+defaults:
+  # experiment
+  - ops/experiment@ops.experiment.config: op_experiment_default.yaml
+  # train
+  - /ops/train@ops.train.config: op_train_cls_binary.yaml
+  # prediction
+  - /ops/prediction@ops.prediction.config: op_prediction_cls.yaml
+  # analysis
+  - /ops/analysis@ops.analysis.config: op_analysis_cls_binary.yaml
+  # experiment tests
+  - /ops/exptests@ops.exptests.config.tests: exptests_default.yaml
+  # experiment locations
+  - shared/locations@globals: exp_locations.yaml
+  - _self_
+
+hydra:
+  searchpath:
+    - file://configs
+
+globals:
+  exp_name: SampleClsBinary
+  exp_prefix: CLB
+  data_location:
+    uri: ${oc.env:DATA_URI,./data}/numbers_cropped_split

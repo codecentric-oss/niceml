@@ -1,0 +1,24 @@
+# train object detection with numbers dataset
+defaults:
+  # experiment
+  - /ops/experiment@ops.experiment.config: op_experiment_default.yaml
+  # train
+  - /ops/train@ops.train.config: op_train_objdet.yaml
+  # prediction
+  - /ops/prediction@ops.prediction.config: op_prediction_objdet.yaml
+  # analysis
+  - /ops/analysis@ops.analysis.config: op_analysis_objdet.yaml
+  # experiment tests
+  - /ops/exptests@ops.exptests.config.tests: exptests_default.yaml
+  - shared/locations@globals: exp_locations.yaml
+  - _self_
+
+hydra:
+  searchpath:
+    - file://configs
+
+globals:
+  exp_name: ObjDet
+  exp_prefix: OBJDET
+  data_location:
+    uri: ${oc.env:DATA_URI,./data}/number_data_split

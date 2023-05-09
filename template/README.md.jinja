@@ -1,0 +1,49 @@
+# {{name}}
+
+{{description}}
+
+## Setup environment variables
+niceML uses environment variables for the configuration of experiments and pipelines.
+These can be set via an .env file. During the initialization of the project, an .env file was already created for you.
+There you have to adjust the following parameters before starting the first pipelines.
+- DATA_URI
+- DEFAULT_EXP_PREFIX
+- DESCRIPTION
+- EVAL_EXPERIMENT_ID
+
+For the beginning it is sufficient to use the given examples.
+
+## Generate data
+niceML provides a dataset that can be used for various deep learning algorithms.
+- Object detection
+- Semantic segmentation
+- Image classification
+- Regression
+
+Before training a model for the above algorithms can be started, this data set must be generated.
+
+---
+**NOTE**
+
+To configure the generation of the data, the file `configs/ops/data_generation/op_data_generation_number.yaml` can be customized.
+Some environment variables are used there. To customize these variables, you can edit them in the `.env` file.
+
+---
+
+The following command can be used to create the data set based on the configuration.
+
+```bash
+niceml gendata [config-path]
+```
+
+niceML uses dagster as a data pipeline orchestrator. The generation of the dataset is also a pipeline with several steps. A default configuration for this pipeline is stored in niceML. In this configuration, the individual steps of the pipeline are configured and normally do not need to be adjusted.
+
+## Trainieren eines Modells
+
+After the dataset has been created, training of a model can be performed. For the different algorithms included in niceML, there is already a default configuration in the directory `configs/jobs/job_train`.
+
+To start a training the absolute path to one of these yaml files must be specified ( e.g. `configs/jobs/job_train/job_train_semseg/job_train_semseg_number.yaml`).
+
+```bash
+niceml train <config_path>
+```
