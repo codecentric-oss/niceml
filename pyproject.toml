@@ -32,6 +32,7 @@ tensorflow = {version = "2.9.0", optional = true}
 tensorflow-metal = {version = "^0.8.0", optional = true}
 tornado = ">=6.0.3,<6.3.1"
 networkx = "^3.1"
+mkdocs-gen-files = "^0.5.0"
 
 
 [tool.poetry.extras]
