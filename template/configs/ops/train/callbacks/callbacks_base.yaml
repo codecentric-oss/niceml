@@ -1,0 +1,15 @@
+# Callbacks used for training
+# $RUN_ID is replaced with a timestring
+# $SHORT_ID is an alphanumeric hash value of the $RUN_ID (easier to remember and search for)
+
+_target_: niceml.mlcomponents.callbacks.callbackinitializer.CallbackInitializer
+callback_list:
+  - _target_: niceml.dlframeworks.tensorflow.callbacks.callback_factories.InitCallbackFactory
+    callback:
+      _target_: niceml.dlframeworks.tensorflow.callbacks.nancheckcallback.LossNanCheckCallback
+  - _target_: niceml.dlframeworks.tensorflow.callbacks.callback_factories.LoggingOutputCallbackFactory
+callback_dict:
+  save_model:
+    # Stores the model after each epoch
+    _target_: niceml.dlframeworks.tensorflow.callbacks.callback_factories.ModelCallbackFactory
+    model_subfolder: models/model-id_{short_id}-ep{epoch:03d}.hdf5

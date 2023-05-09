@@ -1,0 +1,16 @@
+_target_: niceml.data.datasets.genericdataset.GenericDataset
+batch_size: 2
+datainfo_listing:
+  _target_: niceml.data.datainfolistings.objdetdatainfolisting.ObjDetDataInfoListing
+  location: ${globals.data_location}
+data_loader:
+  _target_: niceml.data.dataloaders.objdetdataloader.ObjDetDataLoader
+target_transformer:
+  _target_: niceml.mlcomponents.targettransformer.objdettargettransformer.ObjDetTargetTransformer
+  anchor_generator:
+    _target_: niceml.mlcomponents.objdet.anchorgenerator.AnchorGenerator
+  anchor_encoder:
+    _target_: niceml.mlcomponents.objdet.anchorencoding.OptimizedAnchorEncoder
+input_transformer:
+  _target_: niceml.mlcomponents.targettransformer.imageinputtransformer.ImageInputTransformer
+shuffle: false

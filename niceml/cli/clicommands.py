@@ -1,6 +1,12 @@
 """Module for clicommands provided with the package"""
+import os
+from os.path import join
+
+import copier
+import toml
 from dotenv import load_dotenv
 from invoke import task
+
 
 load_dotenv(".env")
 
@@ -42,6 +48,53 @@ def gendata(context, config_path):
 def execute(context, job_name, config_path):
     """Starts a job with given name"""
     execute_job(context, job_name, config_path)
+
+
+@task
+def init(context):
+    """Initializes an empty niceml project"""
+
+    old_pyproject_toml = toml.load(
+        join(os.path.abspath(os.getcwd()), "pyproject.toml")
+    )["tool"]["poetry"]
+
+    attributes_of_interest = [
+        "name",
+        "version",
+        "description",
+        "authors",
+        "packages",
+        "dependencies",
+    ]
+    copier_data_dict = {}
+
+    for attribute in attributes_of_interest:
+        try:
+            attribute_value = old_pyproject_toml[attribute]
+        except KeyError:
+            continue
+        copier_data_dict[attribute] = f"{attribute_value}"
+
+        if attribute == "name":
+            package_name = attribute_value.replace(" ", "")
+            package_name = package_name.replace("-", "")
+            package_name = package_name.replace("_", "")
+            copier_data_dict["package_name"] = package_name
+
+        if attribute == "authors":
+            copier_data_dict[attribute] = attribute_value
+
+        if attribute == "dependencies":
+            copier_data_dict[attribute] = toml.dumps(
+                attribute_value, encoder=toml.TomlPreserveInlineDictEncoder()
+            )
+
+    copier.run_auto(
+        src_path="gh:codecentric-oss/niceml",
+        dst_path=f"{os.path.abspath(os.getcwd())}",
+        data=copier_data_dict,
+        overwrite=True,
+    )
 
 
 def execute_job(context, job_name, config_path):

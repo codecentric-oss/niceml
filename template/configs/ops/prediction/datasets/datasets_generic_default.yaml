@@ -1,0 +1,12 @@
+test:
+  datainfo_listing:
+    sub_dir: test
+  set_name: test
+train_eval:
+  datainfo_listing:
+    sub_dir: train
+  set_name: train
+validation:
+  datainfo_listing:
+    sub_dir: validation
+  set_name: validation

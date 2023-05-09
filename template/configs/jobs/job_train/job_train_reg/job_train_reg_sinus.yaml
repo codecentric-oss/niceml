@@ -1,0 +1,121 @@
+# train regression with generated sinus dataset
+defaults:
+  - /shared/datasets@ops.train.config.data_train: dataset_reg_sinus_test.yaml
+  - /shared/datasets@ops.train.config.data_validation: dataset_reg_sinus_test.yaml
+  - /shared/datasets@ops.prediction.config.datasets.validation: dataset_reg_sinus_test.yaml
+  - /shared/datasets@ops.prediction.config.datasets.test: dataset_reg_sinus_test.yaml
+  - /shared/datasets@ops.prediction.config.datasets.train_eval: dataset_reg_sinus_test.yaml
+  - /ops/train/callbacks@ops.train.config.callbacks: callbacks_base.yaml
+  - /ops/train/exp_initializer@ops.train.config.exp_initializer: exp_initializer_default.yaml
+  - /ops/experiment@ops.experiment.config: op_experiment_default.yaml
+  - shared/locations@globals: exp_locations.yaml
+  - _self_
+
+hydra:
+  searchpath:
+    - file://configs
+
+globals:
+  exp_name: SampleReg
+  exp_prefix: REGSIN
+
+ops:
+
+  train:
+    config:
+      train_params:
+        _target_: niceml.config.trainparams.TrainParams
+        epochs: ${niceml.to_int:${oc.env:TRAINING_EPOCHS,5}}
+      data_description:
+        _target_: niceml.data.datadescriptions.regdatadescription.RegDataDescription
+        inputs:
+          - key: xs
+            type: scalar
+        targets:
+          - key: ys
+            type: scalar
+      data_train:
+        set_name: train
+        shuffle: true
+        df_loader:
+          sample_count: 40000
+          seed: 12345
+      data_validation:
+        set_name: validation
+        df_loader:
+          sample_count: 2000
+          seed: 145
+      model:
+        _target_: niceml.dlframeworks.tensorflow.models.mlp.OwnMLP
+        activation: tanh
+        final_activation: tanh
+        hidden_layers:
+          - 25
+          - 35
+          - 12
+      model_load_custom_objects:
+        _target_: niceml.mlcomponents.modelcompiler.modelcustomloadobjects.ModelCustomLoadObjects
+      learner:
+        _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+        model_compiler:
+          _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+          loss: mse
+          # Optimizer used in the experiment
+          optimizer:
+            _target_: tensorflow.keras.optimizers.Adam
+          metrics: [ "mean_squared_error" ]
+
+  prediction:
+    config:
+      prediction_handler:
+        _target_: niceml.mlcomponents.predictionhandlers.vectorpredictionhandler.VectorPredictionHandler
+      model_loader:
+        _target_: niceml.dlframeworks.tensorflow.kerasmodelloader.KerasModelLoader
+      datasets:
+        test:
+          set_name: test
+          df_loader:
+            sample_count: 2000
+            seed: 42
+        train_eval:
+          set_name: train
+          df_loader:
+            sample_count: 2000
+            seed: 12345
+        validation:
+          set_name: validation
+          df_loader:
+            sample_count: 2000
+            seed: 145
+
+  analysis:
+    config:
+      result_analyzer:
+        _target_: niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer
+        metrics:
+        - _target_: niceml.mlcomponents.resultanalyzers.dataframes.regmetric.RegMetric
+          source_col: ys
+          target_col: pred_0000
+          function: mse
+          function_name: mse
+        - _target_: niceml.mlcomponents.resultanalyzers.dataframes.regmetric.RegMetric
+          source_col: ys
+          target_col: pred_0000
+          function: mae
+          function_name: mae
+
+  exptests:
+    config:
+      tests:
+        _target_: niceml.experiments.experimenttests.testinitializer.ExpTestProcess
+        test_list:
+          - _target_: niceml.experiments.experimenttests.validateexps.ModelsSavedExpTest
+          - _target_: niceml.experiments.experimenttests.validateexps.ParqFilesNoNoneExpTest
+          - _target_: niceml.experiments.experimenttests.validateexps.ExpEmptyTest
+          - _target_: niceml.experiments.experimenttests.checkfilesfolderstest.CheckFilesFoldersTest
+            folders:
+              - configs
+            files:
+              - configs/train/model_load_custom_objects.yaml
+              - configs/train/data_description.yaml
+              - train_logs.csv

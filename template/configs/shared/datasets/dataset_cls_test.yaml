@@ -1,0 +1,12 @@
+_target_: niceml.data.datasets.genericdataset.GenericDataset
+batch_size: 2
+datainfo_listing:
+  _target_: niceml.data.datainfolistings.clsdatainfolisting.DirClsDataInfoListing
+  location: ${globals.data_location}
+data_loader:
+  _target_: niceml.data.dataloaders.clsdataloader.ClsDataLoader
+target_transformer:
+  _target_: niceml.mlcomponents.targettransformer.targettransformercls.TargetTransformerClassification
+input_transformer:
+  _target_: niceml.mlcomponents.targettransformer.imageinputtransformer.ImageInputTransformer
+shuffle: false

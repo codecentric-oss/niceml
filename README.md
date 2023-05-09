@@ -1,10 +1,12 @@
-# This is the readme for niceml
+# This is the readme for niceML
 [![🧪 Pytest](
 https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml/badge.svg)](
 https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](
 https://opensource.org/licenses/MIT)
-![PyPI](https://img.shields.io/pypi/v/niceml)
+[![PyPI](https://img.shields.io/pypi/v/niceml)](
+https://pypi.org/project/niceml/
+)
 
 After cloning this repo, you can use the Makefile as an entry point:
 

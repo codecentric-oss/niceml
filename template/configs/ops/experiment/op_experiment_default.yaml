@@ -1,0 +1,2 @@
+exp_out_location: ${globals.experiment_location}
+exp_folder_pattern: ${globals.exp_prefix}-$RUN_ID-id_$SHORT_ID

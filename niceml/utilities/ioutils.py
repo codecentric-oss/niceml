@@ -1,7 +1,7 @@
 """Module for helper functions for io operations"""
 import json
 from os.path import dirname, join, relpath
-from typing import List, Optional
+from typing import List, Optional, Any, Tuple
 
 import fastparquet
 import pandas as pd
@@ -9,6 +9,8 @@ import yaml
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 from PIL import Image
+
+from niceml.utilities.fsspec.locationutils import join_fs_path
 
 
 def list_dir(
@@ -271,3 +273,33 @@ def read_image(
         raise FileNotFoundError(f"ImageFile not found: {filepath}")
     with file_system.open(filepath, "rb") as file:
         return Image.open(file, **kwargs).copy()
+
+
+def find_and_read_file(
+    filepath: str,
+    read_func,
+    search_paths: Optional[List[str]] = None,
+    file_system: Optional[AbstractFileSystem] = None,
+    **kwargs,
+) -> Tuple[str, Any]:
+    """
+    Tries to find a file in a list of search paths and reads it with given read function
+
+    Args:
+        filepath: path to file
+        search_paths: list of paths to search for file
+        read_func: function to read the file
+        file_system: Allow the function to be used with different file systems; default = local
+
+    Returns:
+        Content of file
+    """
+    cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
+    search_paths = search_paths or []
+    if cur_fs.exists(filepath):
+        return filepath, read_func(filepath, file_system=cur_fs, **kwargs)
+    for path in search_paths:
+        cur_path = join_fs_path(cur_fs, path, filepath)
+        if cur_fs.exists(cur_path):
+            return cur_path, read_func(cur_path, file_system=cur_fs, **kwargs)
+    raise FileNotFoundError(f"File not found: {filepath}")
