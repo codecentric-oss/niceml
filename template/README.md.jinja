@@ -2,8 +2,19 @@
 
 {{description}}
 
+## Setup environment variables
+niceML uses environment variables for the configuration of experiments and pipelines.
+These can be set via an .env file. During the initialization of the project, an .env file was already created for you.
+There you have to adjust the following parameters before starting the first pipelines.
+- DATA_URI
+- DEFAULT_EXP_PREFIX
+- DESCRIPTION
+- EVAL_EXPERIMENT_ID
+
+For the beginning it is sufficient to use the given examples.
+
 ## Generate data
-CCMl provides a dataset that can be used for various deep learning algorithms.
+niceML provides a dataset that can be used for various deep learning algorithms.
 - Object detection
 - Semantic segmentation
 - Image classification
