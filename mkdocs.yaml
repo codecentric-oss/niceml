@@ -63,6 +63,11 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.mark
   - attr_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 #  - pymdownx.emoji:
 #      emoji_index: !!python/name:materialx.emoji.twemoji
 #      emoji_generator: !!python/name:materialx.emoji.to_svg
@@ -79,6 +84,8 @@ nav:  # Sort the pages
   - How-to Guides:
     - How-to-guides: how-to-guides.md
     - Frequently Asked Questions: faq.md
+  - Concepts:
+    - Use Hydra and Dagster: hydra-dagster.md
   - Documentation:
     - concepts.md
 
