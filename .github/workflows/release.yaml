@@ -14,6 +14,7 @@ jobs:
     if: ${{ github.event.pull_request.merged }}
     name: 🏗️ Build package and publish to pypi
     runs-on: ubuntu-latest
+    concurrency: build
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v3
