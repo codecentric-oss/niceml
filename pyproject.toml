@@ -103,6 +103,7 @@ version_toml = [
 ]
 
 version_source="tag"
+commit_version_number = true
 major_on_zero = false
 branch = "main"
 upload_to_PyPI = true
