@@ -8,7 +8,9 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from niceml.experiments.expdatalocalstorageloader import create_expdata_from_local_storage
+from niceml.experiments.expdatalocalstorageloader import (
+    create_expdata_from_local_storage,
+)
 from niceml.experiments.experimentdata import ExperimentData
 from niceml.experiments.experimenterrors import (
     EmptyExperimentError,
@@ -24,8 +26,8 @@ class ExperimentManager(object):
     def __init__(self, experiments: List[ExperimentData] = None):
         """Manages a list of experiments"""
         self.experiments = [] if experiments is None else experiments
-        self.exp_dict = {exp.get_short_id(): exp for exp in self.experiments}
-        self.exp_dict.update({exp.get_run_id(): exp for exp in self.experiments})
+        self.exp_dict = {exp.get_short_id(): exp for exp in self.experiment_outputs}
+        self.exp_dict.update({exp.get_run_id(): exp for exp in self.experiment_outputs})
 
     def add_experiment(self, experiment: ExperimentData):
         """Adds an experiment to the manager"""
