@@ -9,10 +9,10 @@ storage_handler:
   storages:
     dev:
       _target_: niceml.data.storages.localstorage.LocalStorage
-      working_directory: ${oc.env:OUTPUT_PATH,./experiments}
+      working_directory: ${oc.env:EXPERIMENT_URI,./experiment_outputs}
     prod:
       _target_: niceml.data.storages.localstorage.LocalStorage
-      working_directory: ${oc.env:OUTPUT_PATH,./experiments}
+      working_directory: ${oc.env:EXPERIMENT_URI,./experiment_outputs}
 df_loader_factory:
   _target_: niceml.data.dataloaders.dfloaders.RemoteDiskCachedDfLoaderFactory
   cache_dir: ./cache/dataframes
@@ -68,7 +68,7 @@ component:
             column_amount: 4
             image_loader:
               _target_: niceml.data.dataloaders.imageloaders.SimpleImageLoader
-              working_dir: ${oc.env:OUTPUT_PATH,experiments}
+              working_dir: ${oc.env:EXPERIMENT_URI,experiment_outputs}
       - _target_: niceml.dashboard.components.linearviscomponent.LinearVisComponent
         component_name: Download
         vis_components:

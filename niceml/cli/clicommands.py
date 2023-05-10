@@ -18,7 +18,7 @@ def dagit(context):
 
 
 @task(help={"config_path": "config_path to your dashboard configuration"})
-def dashboard(context, config_path):
+def dashboard(context, config_path="configs/dashboard/local.yaml"):
     """Starts the experiment dashboard"""
     import niceml.dashboard.dashboard as db_module  # pylint: disable=import-outside-toplevel
 
@@ -39,7 +39,9 @@ def evaluation(context, config_path):
 
 
 @task(help={"config_path": "config_path to your job_data_generation job config"})
-def gendata(context, config_path):
+def gendata(
+    context, config_path="configs/jobs/job_data_generation/job_data_generation.yaml"
+):
     """Starts a job_data_generation job"""
     execute_job(context, "job_data_generation", config_path)
 
