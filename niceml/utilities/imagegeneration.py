@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from hashlib import md5
 from os.path import join
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import numpy as np
 from attrs import asdict
@@ -72,8 +72,7 @@ class NumberDataGenerator:
         return output_location
 
 
-# pylint: disable=too-many-arguments,too-many-locals
-def generate_test_images(
+def generate_test_images(  # noqa: PLR0913
     location: Union[dict, LocationConfig],
     sample_count: int,
     seed: int = 1234,
@@ -143,9 +142,7 @@ def generate_test_images(
     return list(set(classes)), location
 
 
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-locals
-def generate_number_image(
+def generate_number_image(  # noqa: PLR0913
     random_generator,
     location: Union[dict, LocationConfig] = None,
     max_number: int = 10,
@@ -156,6 +153,7 @@ def generate_number_image(
     detection_label: bool = False,
     max_amount: int = 3,
     save: bool = False,
+    bg_probability: int = 0.5,
 ) -> Tuple[ImageType, ImageType, List[Union[ObjDetInstanceLabel, None]]]:
     """
     Creates a series of generated images with random numbers on them and saves them,
@@ -174,7 +172,7 @@ def generate_number_image(
         max_amount: Maximum number of numbers in a single image
         rotate: Whether the drawn numbers should be rotated randomly or not
         save: Save the generated images to given output location
-
+        bg_probability: Probability to choose a random background image
     Returns:
         The generated image, its mask_img and the instance_labels of the numbers
     """
@@ -182,7 +180,7 @@ def generate_number_image(
     random_font_size = random_generator.integers(font_size_min, font_size_max, 1)[0]
     amount_of_numbers_on_image = random_generator.integers(1, max_amount + 1, 1)[0]
 
-    if random_generator.random() > 0.5:
+    if random_generator.random() > bg_probability:
         img = Image.new(
             "RGB",
             img_size.to_pil_size(),
@@ -247,12 +245,12 @@ def generate_number_image(
                 labels=instance_labels,
             )
 
-            save_imagelabel_as_json(data=label, location=location, name=file_name)
+            save_image_label_as_json(data=label, location=location, name=file_name)
 
     return img, mask_img, instance_labels
 
 
-def draw_number_on_image(
+def draw_number_on_image(  # noqa: PLR0913
     img: ImageType,
     random_generator,
     max_number: int,
@@ -326,9 +324,7 @@ def draw_number_on_image(
     return img, number_to_draw, text_layer, number_position, rotation, mask_img
 
 
-# pylint: disable=too-many-arguments
-# Six is reasonable in this case.
-def create_objdet_instance_label_from_text_label(
+def create_objdet_instance_label_from_text_label(  # noqa: PLR0913
     class_name: str,
     img_size: ImageSize = None,
     bounding_box_width: int = None,
@@ -366,6 +362,42 @@ def create_objdet_instance_label_from_text_label(
     return ObjDetInstanceLabel(
         class_name=class_name, bounding_box=bounding_box, rotation=rotation
     )
+
+
+def convert_image_to_df_row(
+    identifier: str,
+    label: str,
+    image: Union[np.ndarray, ImageType],
+    target_size: Optional[Union[Tuple[int, int], ImageSize]] = None,
+) -> dict:
+    """
+    Takes an image and converts it to a row of data for a pandas DataFrame.
+
+    Args:
+        identifier: str: Value to identify the image
+        label: str: Target label of the image
+        image: Union[np.ndarray,ImageType]: Image to convert into a dataframe row
+        target_size: Optional[Union[Tuple[int, int]: Specify the target size of the image
+    Returns:
+        A dictionary representing a dataframe row
+    """
+    df_row = {"identifier": identifier, "label": label}
+    if isinstance(image, np.ndarray):
+        image = Image.fromarray(image)
+    image = image.convert(mode="L")
+    image = np.asarray(image, dtype=np.uint8)
+
+    if target_size:
+        if isinstance(target_size, ImageSize):
+            target_size = target_size.to_numpy_shape()
+        image = np.resize(image, target_size)
+    else:
+        target_size = image.shape
+
+    for y in range(target_size[0]):
+        for x in range(target_size[1]):
+            df_row[f"px_{y}_{x}"] = image[y, x]
+    return df_row
 
 
 def crop_text_layer_to_text(text_layer: ImageType) -> ImageType:
@@ -450,7 +482,7 @@ def save_image(img: ImageType, name: str, file_path: str):
     img.save(f"{path}/{name}.png")
 
 
-def save_imagelabel_as_json(
+def save_image_label_as_json(
     data: ObjDetImageLabel, location: Union[dict, LocationConfig], name: str
 ):
     """Saves an ObjDetImageLabel to a file_path and creates folders if not exist"""

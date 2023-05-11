@@ -1,22 +1,25 @@
-"""Module for op crop_numbers"""
-import json
-from os.path import basename, dirname, join, splitext
-from typing import Union
+"""Module for functions to convert images into tabular data"""
 
-from attrs import asdict
-from hydra.utils import ConvertMode, instantiate
+import json
+from os.path import splitext, join, basename
+from typing import Union, Tuple
+
+import pandas as pd
+from dagster import op, Field, OpExecutionContext
+from hydra.types import ConvertMode
+from hydra.utils import instantiate
 from tqdm import tqdm
 
-from niceml.utilities.boundingboxes.bboxlabeling import ObjDetImageLabel
+from niceml.config.hydra import HydraInitField
 from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
     join_location_w_path,
     open_location,
 )
-from niceml.utilities.imagegeneration import load_label_from_json
-from niceml.utilities.ioutils import list_dir, read_image, write_image
+from niceml.utilities.imagegeneration import convert_image_to_df_row
+from niceml.utilities.imagesize import ImageSize
+from niceml.utilities.ioutils import list_dir, read_image, write_parquet
 from niceml.utilities.splitutils import clear_folder
-from dagster import Field, OpExecutionContext, op
 
 
 @op(
@@ -40,12 +43,24 @@ from dagster import Field, OpExecutionContext, op
             default_value=False,
             description="Flag if the output folder should be cleared before the split",
         ),
+        "target_image_shape": HydraInitField(
+            ImageSize,
+            description="Image size to which the images should be scaled",
+        ),
     }
 )
-def crop_numbers(  # pylint: disable=too-many-locals
-    context: OpExecutionContext, input_location: dict
-):
-    """Crops the numbers from the input images and stores them separately"""
+def image_to_tabular_data(context: OpExecutionContext, input_location: dict):
+    """
+    The image_to_tabular_data function takes in a location of images
+    and converts them to tabular data.
+
+    Args:
+        context: OpExecutionContext: Pass in the configuration of the operation
+        input_location: dict: Specify the location of the input data
+
+    Returns:
+        The output_location
+    """
     op_config = json.loads(json.dumps(context.op_config))
 
     instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
@@ -61,6 +76,7 @@ def crop_numbers(  # pylint: disable=too-many-locals
         clear_folder(output_location)
     name_delimiter: str = instantiated_op_config["name_delimiter"]
     recursive: bool = instantiated_op_config["recursive"]
+    target_size: Tuple[int, int] = instantiated_op_config["target_image_shape"]
 
     with open_location(input_location) as (input_fs, input_root):
         image_files = [
@@ -68,35 +84,26 @@ def crop_numbers(  # pylint: disable=too-many-locals
             for cur_file in list_dir(
                 input_root, recursive=recursive, file_system=input_fs
             )
-            if splitext(cur_file)[1] == ".png" and "mask" not in cur_file
+            if splitext(cur_file)[1] == ".png"
         ]
-
+        df_rows = []
         for cur_file in tqdm(image_files):
-            label_file = f"{splitext(cur_file)[0]}.json"
-            if not input_fs.isfile(join(input_root, label_file)):
-                continue
             img = read_image(join(input_root, cur_file), file_system=input_fs)
-            image_label: ObjDetImageLabel = load_label_from_json(
-                input_location, label_file
-            )
-            for lbl_idx, cur_label in enumerate(image_label.labels):
-                class_name = cur_label.class_name
-                file_id = basename(splitext(cur_file)[0])
-                crop_box = cur_label.bounding_box.get_absolute_ullr(convert_to_int=True)
-                number_image = img.crop(crop_box)
-                cur_out_folder = dirname(cur_file)
-                out_filename = (
-                    f"{file_id}{name_delimiter}{lbl_idx:03d}"
-                    f"{name_delimiter}{class_name}.png"
+            label = splitext(cur_file)[0].split(sep=name_delimiter)[-1]
+            df_rows.append(
+                convert_image_to_df_row(
+                    identifier=basename(cur_file),
+                    label=label,
+                    image=img,
+                    target_size=target_size,
                 )
-                with open_location(output_location) as (output_fs, output_root):
-                    write_image(
-                        number_image,
-                        join(output_root, cur_out_folder, out_filename),
-                        file_system=output_fs,
-                    )
+            )
+        dataframe: pd.DataFrame = pd.DataFrame(df_rows)
 
-    if isinstance(output_location, LocationConfig):
-        output_location = asdict(output_location)
-
+        with open_location(output_location) as (output_fs, output_root):
+            write_parquet(
+                dataframe=dataframe,
+                filepath=join(output_root, "numbers_tabular_data.parq"),
+                file_system=output_fs,
+            )
     return output_location
