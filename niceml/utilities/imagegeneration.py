@@ -1,7 +1,7 @@
 """Module for functions to generate test image dataset"""
 from copy import copy
 from dataclasses import dataclass
-from hashlib import md5
+from hashlib import sha256
 from os.path import join
 from pathlib import Path
 from typing import List, Tuple, Union, Optional
@@ -234,7 +234,7 @@ def generate_number_image(  # noqa: PLR0913
             raise AttributeError(
                 "You have to pass a file_path if you want to save the image"
             )
-        file_name: str = md5(img.tobytes()).hexdigest()[:8]
+        file_name: str = sha256(img.tobytes()).hexdigest()[:8]
         with open_location(location) as (cur_fs, root_path):
             write_image(img, join(root_path, file_name + ".png"), cur_fs)
             write_image(mask_img, join(root_path, f"{file_name}_mask.png"), cur_fs)
