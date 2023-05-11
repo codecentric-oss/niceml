@@ -89,6 +89,7 @@ nav:  # Sort the pages
     - Frequently Asked Questions: faq.md
   - Concepts:
     - Use Hydra and Dagster: hydra-dagster.md
+    - Use the niceML Dashboard: dashboard.md
   - References:
     - Dagster Jobs: jobsdoc.md
 

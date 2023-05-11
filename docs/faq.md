@@ -43,7 +43,38 @@ Save everything, and you are ready to run and debug your experiment.
 > **Tipp:** You can also add a run configuration for the dashboard. Just set the module name to `streamlit
 > and the parameters to `run niceml/dashboard/dashboard.py configs/dashboard/<path to your dashboard yaml>`
 
-## With which use-cases can **niceML** help me?
+## What is the setup of the trainings pipeline?
+
+The training process consists of three steps: training, prediction, and
+analysis. Each step serves a specific purpose in the training pipeline:
+
+1. **Training**: During this step, the model learns from the training 
+data to improve its performance. The model parameters are updated
+iteratively based on the calculated loss and optimization algorithm.
+
+2. **Prediction**: After training, the trained model is used to make
+predictions on unseen data. This step allows you to evaluate the
+model's performance on new images and assess its ability to identify
+objects accurately.
+
+3. **Analysis**: Once the prediction step is complete, niceML performs
+an analysis of the trained model. This may include computing additional
+metrics, or providing insights into the model's behavior and
+performance, as well as checking if the training process was successful.
+
+## Which information does niceML show, when a training is run?
+
+During the training process, niceML provides real-time updates on the
+progress:
+
+- First, niceML will give an overview about the **layers of the model**
+being trained. This allows you to inspect the architecture and
+understand the composition of the model.
+- A progress bar indicates the **number of images that have
+already been processed** by the training.
+- The **loss and other metrics** are being calculated and displayed
+during the training. This allows you to monitor the performance of the
+model.
 
 ## Can I use PyTorch with **niceML**?
 
