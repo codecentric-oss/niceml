@@ -1,90 +1,242 @@
-# Tutorials
+# niceML Tutorial
 
-This part of the project documentation focuses on a
-**learning-oriented** approach. You'll learn how to
-get started with the code in this project.
+Welcome to the tutorial for niceML, a Python package that helps you set
+up your machine learning projects faster. niceML provides pipelines for
+a variety of ML tasks, including
 
-## Getting started
+- Object Detection,
+- Semantic Segmentation,
+- Regression,
+- Classification,
+- and more.
 
-This is a short tutorial to get you started with **niceML**.
-You will 
+In this tutorial, we will 
+- walk you through the **installation** process,
+- demonstrate how to **generate a test data set**,
+- **train a semantic segmentation** with niceMLs default configuration
+and 
+- use introduce you to the awesome **niceML-dashboard**.
 
-- generate a test dataset,
-- train your first Semantic Segmentation Model and
-- take a look at the results using the **niceML** dashboard.
+## Prerequisites
 
-### 0. Installation
+Before we get started, please ensure that you have the following
+prerequisites:
 
-> **Note:** If you already installed **niceML** and tested your installation, you can head on to Step 3.
+- Python verision between 3.8.0 - 3.11.0 installed on your system
+- Poetry package manager installed ([Install Poetry](
+https://python-poetry.org/docs/#installation))
+- Basic knowledge of Python programming
 
-After cloning the **niceML** repository to your computer, you can use the Makefile as an entry point.
-At frist you should install all needed packages for training and the dashboard.
-Use the
+## Installation
 
-```ssh
-make install
+To install niceML, follow these steps:
+
+### Step 1: Create a New Project
+
+First, create a new directory for your project and navigate into it 
+using your terminal or command prompt:
+
+```bash
+mkdir niceml-tutorial
+cd niceml-tutorial
 ```
 
-command in your console or, if you want to use the Apple Silicon GPU, type in
+### Step 2: Initialize a Poetry Project
 
-```ssh
-make install_macos
+Next, initialize a new Poetry project within your project directory:
+
+```bash
+poetry init --no-interaction
 ```
 
-To test, whether your installation works, run
+This will create a `pyproject.toml` file, which will serve as the
+configuration file for your poetry project.
 
-```ssh
-make pytest
+### Step 3: Add niceML as a Dependency
+
+To add niceML as a dependency to your project, use the following
+command:
+
+```bash
+poetry add niceML
 ```
 
-and check that all tests ran successfully.
+This will automatically resolve and install the latest compatible
+version of niceML and its required dependencies.
 
-### 1. Generate test data
+### Step 4: Verify Installation
 
-**niceML** provides a test dataset of images with random numbers at random positions on them.
-To generate the dataset, run:
+You can verify that niceML is installed correctly by checking for the
+version of your niceml installation.
 
-```ssh
-make generate_data
+```bash
+niceml --version
 ```
 
-### 2. Train a Semantic Segmentation
+If the version information is shown, congratulations! You have
+successfully installed niceML.
 
-There are a few already configured pipelines you can use to train your model.
-To start a test training using semantic segmentation, run:
+## Getting Started
 
-```ssh
-make train_semseg
+Now let's start your first training and view the results in the
+dashboard. For this we will use test data that niceML generates for you.
+But first, you need to initialize your niceML project, to get your
+initial configurations.
+
+### Step 1: Initialize niceML
+
+To initialize niceML for your project, run the following command:
+
+```bash
+niceml init
 ```
 
-### 3. Start the dashboard
+This command will guide you through a series of questions to set up
+niceML for your project. Provide the following answers based on your
+system and preferences:
 
-The dashboard helps you to evaluate your trainings results. To start the dashboard locally, run:
+- `Do you want to use our pre-commit hooks?` Answer: Yes
 
-```ssh
-make dashboard
+  (If you prefer to use your own pre-commit hooks, answer No)
+- `Should Poetry take care of creating a virtual environment?` Answer: 
+  No
+
+    (If you followed our installation guide, you are already using a
+  poetry environment)
+- `Do you use Apple Silicon as a GPU?` Answer: No
+
+    (If you are using Apple Silicon as a GPU, answer Yes)
+- `Is Windows your operating system?` Answer: No
+
+  (If you are using Windows as your operating system, answer Yes)
+- `Do you want to use our awesome dashboard?` Answer: Yes
+  
+    (This is where the experiment results can be shown)
+
+Once you have answered all the questions, niceML will be initialized
+according to your operating system and including the awesome dashboard.
+If you find two new folders named `niceml-tutorial` (or whatever name
+you chose for your project) and  `configs` within your project,
+everything is prepared for your first experiment.
+
+### Step 2: Optional: Adjust the .env File
+
+Among the files generated by `niceml init`, you will find a `.env` file
+with some general configuration parameters. Later, you can adjust the
+parameters according to your needs.
+
+If you like, you can define a new name of the data directory by setting
+the `DATA_URI` parameter or specify the output file of the experiments
+by setting the `EXPERIMENT_URI` parameter. Leave the other parameters as
+they are for now.
+
+### Step 3: Generate test data
+
+niceML allows you to create a test dataset of sample images with numbers
+randomly placed on them. Along with the images, it also generates label
+information that indicates the locations of the numbers on each image.
+
+```bash
+niceml generate
 ```
 
-On the dashboard you can get an overview of your trainings. 
-E.g. how many epochs the model was trained, what image size was used,
-how different metrics performed during the training.
-You can also have a look at the image data and configurations used.
-If you want to use the dashboard for remote trainings in the future,
-you are also able to download certain training files.
+After the command execution is complete, you will find the generated
+images in the specified `DATA_URI` directory. Go have a look before we
+continue.
 
-Perform another Semantic Segmentation or one of the other experiment types.
-You can get an overview of the currently available trainings types by looking at
-the Makefile or the following codeblock, which is basically copied from the Makefile:
+### Step 4: Train your first model
 
-```ssh
-make train_semseg # Semantic Segmentation
-make train_objdet # Object Detection
-make train_regression # Regression
-make train_classification_multitarget # Multitarget Classification
-make train_classification_binary # Binary Classification
-make train_classification_softmax # Classification using Softmax
+You will now train your first model using the easy-to-use command-line
+interface of niceml: `niceml train <path to your configuration yaml>`.
+In this tutorial, we will train a Semantic Segmentation using the
+default configuration.
+
+```bash
+niceml train configs/jobs/job_train/job_train_semseg/job_train_semseg_number.yaml
 ```
 
-After you ran a few trainings, you can make yourself familiar with the different dashboard components.
-In the future you may write your own dashboard components, which can be easily implemented.
-If you are interested, take a look at this tutorial: [How to implement a new dashboard component](how-to-guides.md)
+This command instructs niceML to start training a semantic segmentation
+model based on the configuration file `job_train_semseg_number.yaml`.
+The training may take a few minutes.
+
+#### Monitoring
+
+During the training process, niceML provides real-time updates on the
+progress:
+
+- First, niceML will give an overview about the layers of the model being
+trained. This allows you to inspect the architecture and understand the
+composition of the model.
+- A progress bar indicates the number of images that have
+already been processed by the training.
+- The loss and other metrics are being calculated and displayed during the
+training. This allows you to monitor the performance of the model.
+
+#### A short insight into the training process
+
+The training process consists of three steps: training, prediction, and
+analysis. Each step serves a specific purpose in the training pipeline:
+
+1. **Training**: During this step, the model learns from the training 
+data to improve its performance. The model parameters are updated
+iteratively based on the calculated loss and optimization algorithm.
+
+2. **Prediction**: After training, the trained model is used to make
+predictions on unseen data. This step allows you to evaluate the
+model's performance on new images and assess its ability to identify
+objects accurately.
+
+3. **Analysis**: Once the prediction step is complete, niceML performs
+an analysis of the trained model. This may include computing additional
+metrics, or providing insights into the model's behavior and
+performance, as well as checking if the training process was successful.
+
+#### Checking the Experiment Output
+
+After the training is completed, you can check the experiment output in
+the new `EXPERIMENT_URI` folder. You will notice another new folder was
+created with the prefix `SEMSEG`, followed by the current date and a
+four-letter experiment ID in its name. This folder contains the trained
+model, its configurations, net data, performance results and other
+relevant information for the trained semantic segmentation model.
+
+If the training was completed without any errors and the experiment
+output folder was created, you successfully ran your first training with
+niceML. Very good, you are almost done!
+
+### Step 5: Exploring Results in the niceML Dashboard
+
+niceML provides a nice and simple dashboard that allows you to visualize
+and explore the results of your machine learning experiments.
+
+To launch the niceML dashboard, simply execute the following command:
+
+```bash
+niceml dashboard
+```
+
+This command will start the dashboard using the default configuration
+file `configs/dashboard/local.yaml`. When the local dashboard server is
+up, the dashboard will open in a new tab in your default web browser.
+Otherwise, you can click on the dashboard link in the terminal.
+
+<div style="text-align: center;">
+<img src="dashboard.png" alt="niceML-Dashboard" width="1000">
+</div>
+
+Try it out and navigate through the tabs. 
+
+> **Note**: If you want to know more about the features of the
+> dashboard, you can find more information [here](dashboard.md)
+
+## Recap
+
+Congratulations! You have learned how to 
+
+- install niceML (`poetry add niceml`),
+- initialize niceML for your project (`niceml init`),
+- generate a test data set (`niceml generate`),
+- train a model using default configuration (`niceml train <config
+yaml>`),
+- and use the dashboard to evaluate its performance (`niceml
+dashboard`).
