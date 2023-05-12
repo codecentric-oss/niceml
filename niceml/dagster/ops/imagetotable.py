@@ -1,7 +1,9 @@
 """Module for functions to convert images into tabular data"""
 
 import json
+from collections import defaultdict
 from os.path import splitext, join, basename
+from pathlib import Path
 from typing import Union, Tuple
 
 import pandas as pd
@@ -43,9 +45,14 @@ from niceml.utilities.splitutils import clear_folder
             default_value=False,
             description="Flag if the output folder should be cleared before the split",
         ),
-        "target_image_shape": HydraInitField(
+        "target_image_size": HydraInitField(
             ImageSize,
             description="Image size to which the images should be scaled",
+        ),
+        "use_dirs_as_subsets": Field(
+            bool,
+            default_value=True,
+            description="Flag if the subdirectories should be used as subset names",
         ),
     }
 )
@@ -76,7 +83,8 @@ def image_to_tabular_data(context: OpExecutionContext, input_location: dict):
         clear_folder(output_location)
     name_delimiter: str = instantiated_op_config["name_delimiter"]
     recursive: bool = instantiated_op_config["recursive"]
-    target_size: Tuple[int, int] = instantiated_op_config["target_image_shape"]
+    target_size: Tuple[int, int] = instantiated_op_config["target_image_size"]
+    use_dirs_as_subsets: bool = instantiated_op_config["use_dirs_as_subsets"]
 
     with open_location(input_location) as (input_fs, input_root):
         image_files = [
@@ -86,11 +94,16 @@ def image_to_tabular_data(context: OpExecutionContext, input_location: dict):
             )
             if splitext(cur_file)[1] == ".png"
         ]
-        df_rows = []
+        df_row_dict = defaultdict(list)
         for cur_file in tqdm(image_files):
             img = read_image(join(input_root, cur_file), file_system=input_fs)
             label = splitext(cur_file)[0].split(sep=name_delimiter)[-1]
-            df_rows.append(
+            if use_dirs_as_subsets:
+                target_name = Path(cur_file).parts[0]
+
+            else:
+                target_name = "_all_"
+            df_row_dict[target_name].append(
                 convert_image_to_df_row(
                     identifier=basename(cur_file),
                     label=label,
@@ -98,12 +111,15 @@ def image_to_tabular_data(context: OpExecutionContext, input_location: dict):
                     target_size=target_size,
                 )
             )
-        dataframe: pd.DataFrame = pd.DataFrame(df_rows)
 
-        with open_location(output_location) as (output_fs, output_root):
-            write_parquet(
-                dataframe=dataframe,
-                filepath=join(output_root, "numbers_tabular_data.parq"),
-                file_system=output_fs,
-            )
+        for subset_name, cur_df_row in df_row_dict.items():
+            subset_name = f"_{subset_name}" if subset_name != "_all_" else ""
+            dataframe: pd.DataFrame = pd.DataFrame(cur_df_row)
+
+            with open_location(output_location) as (output_fs, output_root):
+                write_parquet(
+                    dataframe=dataframe,
+                    filepath=join(output_root, f"numbers_tabular_data{subset_name}.parq"),
+                    file_system=output_fs,
+                )
     return output_location

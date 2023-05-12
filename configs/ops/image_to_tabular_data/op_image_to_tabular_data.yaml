@@ -1,7 +1,8 @@
 clear_folder: True
 output_location: ${globals.data_location}
 sub_dir: numbers_tabular_data
-target_image_shape:
+target_image_size:
   _target_: niceml.utilities.imagesize.ImageSize
   width: 10
   height: 10
+use_dirs_as_subsets: True
