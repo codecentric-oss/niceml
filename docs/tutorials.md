@@ -4,6 +4,7 @@ Welcome to the tutorial for niceML, a Python package that helps you set
 up your machine learning projects faster.
 
 In this tutorial, we will 
+
 - walk you through the **installation** process,
 - **initialize** a new niceML project,
 - demonstrate how to **generate a test data set**,
@@ -18,7 +19,7 @@ Let's get started!
 Before we get started, please ensure that you have the following
 prerequisites:
 
-- Python verision between 3.8.0 - 3.11.0 installed on your system
+- Python version between 3.8.0 - 3.11.0 installed on your system
 - Poetry package manager installed ([Install Poetry](
 https://python-poetry.org/docs/#installation))
 - Basic knowledge of Python programming
@@ -88,22 +89,16 @@ niceML for your project. Provide the following answers based on your
 system and preferences:
 
 - `Do you want to use our pre-commit hooks?` Answer: Yes
-
   (If you prefer to use your own pre-commit hooks, answer No)
 - `Should Poetry take care of creating a virtual environment?` Answer: 
-  No
-
-    (If you followed our installation guide, you are already using a
+  No (If you followed our installation guide, you are already using a
   poetry environment)
-- `Do you use Apple Silicon as a GPU?` Answer: No
-
-    (If you are using Apple Silicon as a GPU, answer Yes)
-- `Is Windows your operating system?` Answer: No
-
-  (If you are using Windows as your operating system, answer Yes)
-- `Do you want to use our awesome dashboard?` Answer: Yes
-  
-    (This is where the experiment results can be shown)
+- `Do you use Apple Silicon as a GPU?` Answer: No (If you are using
+  Apple Silicon as a GPU, answer Yes)
+- `Is Windows your operating system?` Answer: No (If you are using
+  Windows as your operating system, answer Yes)
+- `Do you want to use our awesome dashboard?` Answer: Yes (This is where
+  the experiment results can be shown)
 
 Once you have answered all the questions, niceML will be initialized
 according to your operating system and including the awesome dashboard.
