@@ -26,8 +26,8 @@ class ExperimentManager(object):
     def __init__(self, experiments: List[ExperimentData] = None):
         """Manages a list of experiments"""
         self.experiments = [] if experiments is None else experiments
-        self.exp_dict = {exp.get_short_id(): exp for exp in self.experiment_outputs}
-        self.exp_dict.update({exp.get_run_id(): exp for exp in self.experiment_outputs})
+        self.exp_dict = {exp.get_short_id(): exp for exp in self.experiments}
+        self.exp_dict.update({exp.get_run_id(): exp for exp in self.experiments})
 
     def add_experiment(self, experiment: ExperimentData):
         """Adds an experiment to the manager"""
