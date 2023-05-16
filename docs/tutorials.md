@@ -132,10 +132,11 @@ of the numbers on the images.
 To generate the test data, run the following command:
 
 ```bash
-niceml generate
+niceml gendata
 ```
 
-This will generate the test data according to the default configuration.
+This will generate the test data according to the default configuration
+(`configs/jobs/job_data_generation/job_data_generation.yaml`).
 You can later configure your own data generation settings if needed.
 You will find the generated images in the specified `DATA_URI`
 directory. Go have a look before we continue.
@@ -165,11 +166,13 @@ The training process consists of three steps: training, prediction, and
 analysis. Each step contributes to the overall training process and
 evaluation of the model.
 
-> **Note**: You can find more details about the [trainings pipeline](
-> faq.md#what-is-the-setup-of-the-trainings-pipeline) and the
-> provided [monitoring](
-> faq.md#which-information-does-niceml-show-when-a-training-is-run) by
-> following the links.
+!!! tip
+
+    You can find more details about the [trainings pipeline](
+    faq.md#what-is-the-setup-of-the-trainings-pipeline) and the
+    provided [monitoring](
+    faq.md#which-information-does-niceml-show-when-a-training-is-run) by
+    following the links.
 
 #### Checking the Experiment Output
 
@@ -205,8 +208,10 @@ Otherwise, you can click on the dashboard link in the terminal.
 
 Try out navigating through the tabs and options of the dashboard. 
 
-> **Note**: If you want to know more about the features of the
-> dashboard, you can find more information [here](dashboard.md).
+!!! tip
+
+    If you want to know more about the features of the
+    dashboard, you can find more information [here](dashboard.md).
 
 ## Recap
 

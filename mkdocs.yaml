@@ -63,6 +63,7 @@ markdown_extensions:
   - footnotes
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.snippets
   - pymdownx.mark
   - attr_list
   - pymdownx.superfences:
@@ -77,6 +78,7 @@ markdown_extensions:
 plugins:
   - mkdocstrings  # Use docstrings for documentation
   - search
+  - table-reader
   - gen-files:
       scripts:
         - docs/jobsdoc.py
@@ -85,7 +87,7 @@ nav:  # Sort the pages
   - index.md
   - Tutorials:
     - Getting Started: tutorials.md
-    - First Steps for your Use-case: first-steps.md
+    - Generating Test Data: generate-data.md
   - How-to Guides:
     - How-to-guides: how-to-guides.md
     - Frequently Asked Questions: faq.md
