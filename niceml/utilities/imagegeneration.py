@@ -38,7 +38,6 @@ class NumberDataGenerator:
 
     location: Union[dict, LocationConfig]
     sample_count: int
-    seed: int
     max_number: int
     img_size: ImageSize
     font_size_min: int
@@ -47,6 +46,7 @@ class NumberDataGenerator:
     max_amount: int
     rotate: bool
     sub_dir: str = ""
+    seed: Optional[int] = None
 
     def generate_images(self) -> dict:
         """Generate images based on a configuration (self).
@@ -77,7 +77,7 @@ class NumberDataGenerator:
 def generate_test_images(  # noqa: PLR0913
     location: Union[dict, LocationConfig],
     sample_count: int,
-    seed: int = 1234,
+    seed: Optional[int] = 1234,
     max_number=10,
     img_size: ImageSize = ImageSize(256, 256),
     font_size_min: int = 80,
@@ -155,7 +155,6 @@ def generate_number_image(  # noqa: PLR0913
     detection_label: bool = False,
     max_amount: int = 3,
     save: bool = False,
-    bg_probability: int = 0.5,
 ) -> Tuple[ImageType, ImageType, List[Union[ObjDetInstanceLabel, None]]]:
     """
     Creates a series of generated images with random numbers on them and saves them,
@@ -174,7 +173,6 @@ def generate_number_image(  # noqa: PLR0913
         max_amount: Maximum number of numbers in a single image
         rotate: Whether the drawn numbers should be rotated randomly or not
         save: Save the generated images to given output location
-        bg_probability: Probability to choose a random background image
     Returns:
         The generated image, its mask_img and the instance_labels of the numbers
     """
