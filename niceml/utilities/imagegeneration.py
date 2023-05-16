@@ -222,6 +222,7 @@ def generate_number_image(  # noqa: PLR0913
     img_array = np.asarray(img)
     augmented_img = augmentations(image=img_array)["image"]
     img = Image.fromarray(augmented_img)
+    
     mask_img = Image.new("L", img.size, color=255)
     for _ in range(amount_of_numbers_on_image):
         (
