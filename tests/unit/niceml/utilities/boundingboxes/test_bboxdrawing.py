@@ -1,3 +1,4 @@
+import random
 from collections import defaultdict
 
 import numpy as np
@@ -14,6 +15,7 @@ def test_draw_labels_on_image():
     # Given
     img_size = ImageSize(1024, 1024)
     random_generator = np.random.default_rng(seed=42)
+    random.seed(42) # Required by albumentation
 
     img, _, gt_labels = generate_number_image(
         random_generator=random_generator,
@@ -32,7 +34,7 @@ def test_draw_labels_on_image():
                     class_index=gt_label.class_index,
                     bounding_box=shift_bbox_by_percentage(
                         bbox_coords=gt_label.bounding_box.get_absolute_xywh(),
-                        percentage=0.2,
+                        percentage=0.05,
                         direction=1,
                         axis=1,
                     ),
@@ -72,6 +74,7 @@ def test_draw_labels_on_image():
         image=img,
         pred_bbox_label_list=pred_labels,
         gt_bbox_label_list=gt_labels,
+        iou_threshold=0.3
     )
     by_color = defaultdict(int)
 
