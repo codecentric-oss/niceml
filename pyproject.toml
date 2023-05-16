@@ -89,6 +89,9 @@ mdx-include = "^1.4.2"
 mkdocs = "^1.4.3"
 
 [tool.ruff]
+select = ["E","F","D100", "D101","D102", "D103", "D104","D105","D106","D107","PT","PL"]
+fixable = ["E","F","D","PT","PL"]
+exclude = ["./tests/**"]
 line-length = 100
 
 [build-system]
