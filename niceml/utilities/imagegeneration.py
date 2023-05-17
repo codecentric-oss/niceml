@@ -1,4 +1,5 @@
 """Module for functions to generate test image dataset"""
+import random
 from copy import copy
 from dataclasses import dataclass
 from hashlib import sha256
@@ -6,11 +7,12 @@ from os.path import join
 from pathlib import Path
 from typing import List, Tuple, Union, Optional
 
+import albumentations as alb
 import numpy as np
-from attrs import asdict
 from PIL import Image, ImageDraw, ImageOps
 from PIL.Image import Image as ImageType
 from PIL.ImageFont import FreeTypeFont
+from attrs import asdict
 from tqdm import tqdm
 
 from niceml.utilities.boundingboxes.bboxlabeling import (
@@ -36,7 +38,6 @@ class NumberDataGenerator:
 
     location: Union[dict, LocationConfig]
     sample_count: int
-    seed: int
     max_number: int
     img_size: ImageSize
     font_size_min: int
@@ -45,6 +46,7 @@ class NumberDataGenerator:
     max_amount: int
     rotate: bool
     sub_dir: str = ""
+    seed: Optional[int] = None
 
     def generate_images(self) -> dict:
         """Generate images based on a configuration (self).
@@ -75,7 +77,7 @@ class NumberDataGenerator:
 def generate_test_images(  # noqa: PLR0913
     location: Union[dict, LocationConfig],
     sample_count: int,
-    seed: int = 1234,
+    seed: Optional[int] = 1234,
     max_number=10,
     img_size: ImageSize = ImageSize(256, 256),
     font_size_min: int = 80,
@@ -109,7 +111,7 @@ def generate_test_images(  # noqa: PLR0913
     """
 
     random_generator = np.random.default_rng(seed=seed)
-
+    random.seed(seed)  # Setting the seed of `random` is required by albumentation
     images, _, labels = list(
         map(
             list,
@@ -153,7 +155,6 @@ def generate_number_image(  # noqa: PLR0913
     detection_label: bool = False,
     max_amount: int = 3,
     save: bool = False,
-    bg_probability: int = 0.5,
 ) -> Tuple[ImageType, ImageType, List[Union[ObjDetInstanceLabel, None]]]:
     """
     Creates a series of generated images with random numbers on them and saves them,
@@ -172,30 +173,54 @@ def generate_number_image(  # noqa: PLR0913
         max_amount: Maximum number of numbers in a single image
         rotate: Whether the drawn numbers should be rotated randomly or not
         save: Save the generated images to given output location
-        bg_probability: Probability to choose a random background image
     Returns:
         The generated image, its mask_img and the instance_labels of the numbers
     """
+
+    augmentations = alb.Compose(
+        [
+            alb.ShiftScaleRotate(p=0.5),
+            alb.HorizontalFlip(p=0.5),
+            alb.RandomBrightnessContrast(p=0.3),
+            alb.OneOf(
+                [
+                    alb.OpticalDistortion(p=0.3),
+                    alb.GridDistortion(p=0.1),
+                ],
+                p=0.2,
+            ),
+            alb.OneOf(
+                [
+                    alb.CLAHE(clip_limit=2),
+                    alb.Sharpen(),
+                    alb.Emboss(),
+                    alb.RandomBrightnessContrast(),
+                ],
+                p=0.3,
+            ),
+            alb.HueSaturationValue(p=0.3),
+            alb.PiecewiseAffine(scale=0.3, p=0.35),
+        ]
+    )
+
     instance_labels: List[Union[ObjDetInstanceLabel, None]] = []
     random_font_size = random_generator.integers(font_size_min, font_size_max, 1)[0]
     amount_of_numbers_on_image = random_generator.integers(1, max_amount + 1, 1)[0]
 
-    if random_generator.random() > bg_probability:
-        img = Image.new(
-            "RGB",
-            img_size.to_pil_size(),
-            get_random_color(random_generator=random_generator),
-        )
-    else:
-        bg_image_paths = [
-            file
-            for file in Path(
-                f"{Path(__file__).parent.resolve()}/assets/bg_images"
-            ).iterdir()
-            if file.is_file()
-        ]
-        random_bg = random_generator.integers(0, len(bg_image_paths) - 1, 1)[0]
-        img = Image.open(bg_image_paths[random_bg]).resize(img_size.to_pil_size())
+    bg_image_paths = [
+        file
+        for file in Path(
+            f"{Path(__file__).parent.resolve()}/assets/bg_images"
+        ).iterdir()
+        if file.is_file()
+    ]
+    random_bg = random_generator.integers(0, len(bg_image_paths) - 1, 1)[0]
+    img = Image.open(bg_image_paths[random_bg]).resize(img_size.to_pil_size())
+
+    img_array = np.asarray(img)
+    augmented_img = augmentations(image=img_array)["image"]
+    img = Image.fromarray(augmented_img)
+    
     mask_img = Image.new("L", img.size, color=255)
     for _ in range(amount_of_numbers_on_image):
         (

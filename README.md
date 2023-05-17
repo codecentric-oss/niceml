@@ -1,7 +1,6 @@
 # This is the readme for niceML
-[![🧪 Pytest](
-https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml/badge.svg)](
-https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yml)
+[![🧪 pytest](https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yaml/badge.svg)](
+https://github.com/codecentric-oss/niceml/actions/workflows/pytest.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](
 https://opensource.org/licenses/MIT)
 [![PyPI](https://img.shields.io/pypi/v/niceml)](

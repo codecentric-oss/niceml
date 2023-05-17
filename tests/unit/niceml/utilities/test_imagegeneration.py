@@ -42,7 +42,7 @@ def test_single_image_generation():
     unique_color = np.unique(arr_sum)
 
     for label in labels:
-        assert label.class_name in ["8", "7", "3"]
+        assert label.class_name in ["4", "9", "4"]
     assert img_size.to_pil_size() == img.size
     assert unique_color.size > 1
 
