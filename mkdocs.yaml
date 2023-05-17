@@ -29,18 +29,20 @@ theme:
     - content.action.view
   language: en
   palette:
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       toggle:
-        icon: material/brightness-7
+        icon: material/weather-night
         name: Switch to dark mode
       primary: teal
-      accent: purple
-    - scheme: slate
+      accent: amber
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       toggle:
-        icon: material/brightness-4
+        icon: material/weather-sunny
         name: Switch to light mode
       primary: teal
-      accent: lime
+      accent: yellow
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -61,6 +63,7 @@ markdown_extensions:
   - footnotes
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.snippets
   - pymdownx.mark
   - attr_list
   - pymdownx.superfences:
@@ -75,6 +78,7 @@ markdown_extensions:
 plugins:
   - mkdocstrings  # Use docstrings for documentation
   - search
+  - table-reader
   - gen-files:
       scripts:
         - docs/jobsdoc.py
@@ -83,12 +87,13 @@ nav:  # Sort the pages
   - index.md
   - Tutorials:
     - Getting Started: tutorials.md
-    - First Steps for your Use-case: first-steps.md
+    - Generating Test Data: generate-data.md
   - How-to Guides:
     - How-to-guides: how-to-guides.md
     - Frequently Asked Questions: faq.md
   - Concepts:
     - Use Hydra and Dagster: hydra-dagster.md
+    - Use the niceML Dashboard: dashboard.md
   - References:
     - Dagster Jobs: jobsdoc.md
 

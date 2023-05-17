@@ -89,6 +89,7 @@ mkdocs-material = "^9.1.9"
 mkdocstrings = "^0.21.2"
 mdx-include = "^1.4.2"
 mkdocs = "^1.4.3"
+mkdocs-table-reader-plugin = "^2.0"
 
 [tool.ruff]
 select = ["E","F","D100", "D101","D102", "D103", "D104","D105","D106","D107","PT","PL"]

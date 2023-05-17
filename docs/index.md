@@ -14,7 +14,6 @@ All you have to do is configure your pipeline, and you're ready to go!
 You can also add your own components to the build-in dashboard, 
 where you can compair the results and performance of your ML models.
 
-## Table of contents
 
 The documentation of **niceML** is separated into four paths:
 
