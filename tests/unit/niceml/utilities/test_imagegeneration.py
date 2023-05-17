@@ -1,6 +1,6 @@
 from pathlib import Path
+from typing import Optional, Tuple
 
-import numpy as np
 from PIL import Image, ImageDraw
 
 from niceml.utilities.boundingboxes.bboxlabeling import (
@@ -17,6 +17,11 @@ from niceml.utilities.imagesize import ImageSize
 from niceml.utilities.imageutils import get_font
 from niceml.utilities.splitutils import clear_folder
 from tests.unit.niceml.data.conftest import objdet_image_label_path
+
+import numpy as np
+import pytest
+
+from niceml.utilities.imagegeneration import convert_image_to_df_row
 
 
 def test_single_image_generation():
@@ -37,7 +42,7 @@ def test_single_image_generation():
     unique_color = np.unique(arr_sum)
 
     for label in labels:
-        assert label.class_name in ["8", "7", "3"]
+        assert label.class_name in ["4", "9", "4"]
     assert img_size.to_pil_size() == img.size
     assert unique_color.size > 1
 
@@ -99,3 +104,55 @@ def test_crop_text_layer_to_text():
     text_layer = crop_text_layer_to_text(text_layer)
 
     assert (57, 87) == text_layer.size
+
+
+@pytest.mark.parametrize(
+    "identifier, label, image, target_size, expected_output",
+    [
+        (
+            "test_image",
+            "positive",
+            np.zeros((4, 4), dtype=np.uint8),
+            (2, 2),
+            {
+                "identifier": "test_image",
+                "label": "positive",
+                "px_0_0": 0,
+                "px_0_1": 0,
+                "px_1_0": 0,
+                "px_1_1": 0,
+            },
+        ),
+        (
+            "test_image_2",
+            "negative",
+            np.ones((3, 3), dtype=np.uint8),
+            None,
+            {
+                "identifier": "test_image_2",
+                "label": "negative",
+                "px_0_0": 1,
+                "px_0_1": 1,
+                "px_0_2": 1,
+                "px_1_0": 1,
+                "px_1_1": 1,
+                "px_1_2": 1,
+                "px_2_0": 1,
+                "px_2_1": 1,
+                "px_2_2": 1,
+            },
+        ),
+    ],
+)
+def test_convert_image_to_df_row(
+    identifier: str,
+    label: str,
+    image: np.ndarray,
+    target_size: Optional[Tuple],
+    expected_output: dict,
+):
+    # call the function with the test data
+    df_row = convert_image_to_df_row(identifier, label, image, target_size)
+
+    # check the output
+    assert df_row == expected_output
