@@ -27,10 +27,11 @@ tab of the run configuration.
 
 Save everything, and you are ready to run and debug your experiment.
 
-> **Tipp:** You can also add a run configuration for the dashboard.
-> Just set the module name to `streamlit` and the parameters to `run
-> niceml/dashboard/dashboard.py configs/dashboard/<path to your
-> dashboard yaml>`
+!!! tip
+    You can also add a run configuration for the dashboard.
+    Just set the module name to `streamlit` and the parameters to `run
+    niceml/dashboard/dashboard.py configs/dashboard/<path to your
+    dashboard yaml>`
 
 ## What is the setup of the trainings pipeline?
 

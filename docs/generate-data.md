@@ -117,7 +117,7 @@ bounding box information
 - `set_infos`: <setname> probability = probability of a split (train,
   test, validation)
 
-## Conclusion
+## Recap
 
 Congratulations! You have learned how to
 
