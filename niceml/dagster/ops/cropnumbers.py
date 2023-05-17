@@ -3,6 +3,7 @@ import json
 from os.path import basename, dirname, join, splitext
 from typing import Union
 
+from attrs import asdict
 from hydra.utils import ConvertMode, instantiate
 from tqdm import tqdm
 
@@ -44,9 +45,7 @@ from dagster import Field, OpExecutionContext, op
 def crop_numbers(  # pylint: disable=too-many-locals
     context: OpExecutionContext, input_location: dict
 ):
-
-    """Crops the numbers from the input images and stores them seperately"""
-
+    """Crops the numbers from the input images and stores them separately"""
     op_config = json.loads(json.dumps(context.op_config))
 
     instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
@@ -96,5 +95,8 @@ def crop_numbers(  # pylint: disable=too-many-locals
                         join(output_root, cur_out_folder, out_filename),
                         file_system=output_fs,
                     )
+
+    if isinstance(output_location, LocationConfig):
+        output_location = asdict(output_location)
 
     return output_location
