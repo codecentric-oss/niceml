@@ -111,7 +111,7 @@ def generate_test_images(  # noqa: PLR0913
     """
 
     random_generator = np.random.default_rng(seed=seed)
-    random.seed(seed)  # Required for albumentations
+    random.seed(seed)  # Setting the seed of `random` is required by albumentation
     images, _, labels = list(
         map(
             list,
