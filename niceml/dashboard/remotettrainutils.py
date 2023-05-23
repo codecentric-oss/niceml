@@ -1,7 +1,7 @@
-"""Module for the loading the experiments for the dashboard"""
+"""module for the loading the experiments for the dashboard"""
 from typing import List, Optional
 
-import streamlit as st
+from nicegui import ui
 
 from niceml.data.dataloaders.factories.dfloaderfactory import DfLoaderFactory
 from niceml.data.dataloaders.factories.imageloaderfactory import ImageLoaderFactory
@@ -16,8 +16,7 @@ from niceml.experiments.experimentmanager import ExperimentManager
 from niceml.experiments.localexperimentcache import ExperimentCache
 
 
-@st.cache_resource()
-def exp_manager_factory(*args):  # pylint: disable=unused-argument
+def exp_manager_factory(*params):
     """Factory for the experiment manager cached with streamlit"""
     return ExperimentManager([])
 
@@ -25,8 +24,7 @@ def exp_manager_factory(*args):  # pylint: disable=unused-argument
 def query_experiments(storage: StorageInterface) -> List[ExperimentInfo]:
     """Query the experiments from the cloud storage"""
 
-    @st.cache_data(ttl=3600)
-    def _local_query_exps(*args):  # pylint: disable=unused-argument
+    def _local_query_exps(*args):
         exp_info_list: List[ExperimentInfo] = storage.list_experiments()
         return exp_info_list
 
@@ -72,7 +70,6 @@ def load_experiments(
     load_exp_info_list: List[ExperimentInfo] = []
 
     # pylint: disable = unused-argument
-    @st.cache_data()
     def _check_and_load_cache(
         *args,
     ) -> List[ExperimentData]:
@@ -102,9 +99,9 @@ def load_experiments(
     experiments = _check_and_load_cache(exp_info_list, exp_cache_count)
     if len(load_exp_info_list) > 0:
         load_exp_count = len(load_exp_info_list)
-        prog_bar = st.progress(0)
-        status_text = st.empty()
-        status_text.text(f"Cached 0/{load_exp_count} experiments")
+        # prog_bar = st.progress(0)
+        # status_text = st.empty()
+        # status_text.text(f"Cached 0/{load_exp_count} experiments")
 
         for idx, dir_info in enumerate(dir_info_list):
             df_loader = df_loader_factory.create_df_loader(storage, dir_info)
@@ -119,26 +116,38 @@ def load_experiments(
                     and experiment.get_short_id() not in local_exp_cache
                 ):
                     local_exp_cache.save_experiment(experiment)
-            prog_bar.progress(idx / load_exp_count)
-            status_text.text(f"Cached {idx}/{load_exp_count} experiments")
-        status_text.text(f"Cached {load_exp_count}/{load_exp_count} experiments")
-        prog_bar.progress(1.0)
-        st.success("Done")
+            # prog_bar.progress(idx / load_exp_count)
+            # status_text.text(f"Cached {idx}/{load_exp_count} experiments")
+        # status_text.text(f"Cached {load_exp_count}/{load_exp_count} experiments")
+        # prog_bar.progress(1.0)
+        # st.success("Done")
     return experiments
 
 
 def download_visu(experiment_downloader: ExperimentDownloader):
     """Download the visualization files for the experiment"""
-    selected_extensions = []
-    for ext in experiment_downloader.get_all_extensions():
-        if st.checkbox(ext):
-            selected_extensions.append(ext)
-    if st.button("Download"):
+
+    def download(*args):
+        container.clear()
+        selected_extensions = []
+        for checkbox in checkboxes:
+            if checkbox.value:
+                selected_extensions.append(checkbox.text)
+
         to_download_files = experiment_downloader.get_downloads(selected_extensions)
         download_count = len(to_download_files)
-        status_text = st.empty()
-        prog_bar = st.progress(0)
-        for idx, file in enumerate(to_download_files):
-            status_text.text(f"({idx + 1}/{download_count}) - File: {file.source_file}")
-            prog_bar.progress((idx + 1) / download_count)
-            file()
+        with container:
+            status_bar = ui.linear_progress(0)
+            status_text = ui.label()
+            for idx, download_file in enumerate(to_download_files):
+                status_text.text = (
+                    f"({idx+1}/{download_count}) - File: {download_file.source_file}"
+                )
+                status_bar.set_value((idx + 1) / download_count)
+                download_file()
+
+    checkboxes = []
+    for ext in experiment_downloader.get_all_extensions():
+        checkboxes.append(ui.checkbox(ext))
+    ui.button("Download", on_click=lambda: download())
+    container = ui.column().classes("w-full")

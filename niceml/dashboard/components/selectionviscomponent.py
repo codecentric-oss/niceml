@@ -1,7 +1,7 @@
-"""Module for SelectionVisComponent for the dashboard"""
+""" module for selection vis component """
 from typing import List, Optional, Tuple
 
-import streamlit as st
+from nicegui import ui
 from PIL import Image
 
 from niceml.config.subsetnames import get_eval_save_names
@@ -14,7 +14,7 @@ from niceml.experiments.experimentmanager import ExperimentManager
 
 
 class SelectionVisComponent(ExpVisComponent):
-    """Dashboard component where one can select one subcomponent to visualize"""
+    """A component where you can select one sub component"""
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -30,6 +30,7 @@ class SelectionVisComponent(ExpVisComponent):
         self.expanded = expanded
         self.subset_names = subset_names or get_eval_save_names()
         self.use_subset_selection = use_subset_selection
+        self.container = None
 
     def _render(
         self,
@@ -37,10 +38,27 @@ class SelectionVisComponent(ExpVisComponent):
         storage_interface: StorageInterface,
         exp_ids: List[str],
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
-        """Render function to display component on dashboard"""
+
+        """Render function to display component in streamlit"""
         if len(exp_ids) > 0:
-            exp_id, subset_name = self.get_exp_id_and_subset_name(exp_ids)
+            self.get_exp_id_and_subset_name(
+                exp_manager,
+                storage_interface,
+                exp_ids,
+                subset_name,
+            )
+
+    def full_render(
+        self,
+        exp_manager: ExperimentManager,
+        storage_interface: StorageInterface,
+        exp_id: List[str],
+        subset_name: Optional[str] = None,
+    ):
+        self.container.clear()
+        with self.container:
             for comp in self.vis_components:
                 comp.render(
                     exp_manager,
@@ -50,32 +68,59 @@ class SelectionVisComponent(ExpVisComponent):
                 )
 
     def get_images(self) -> List[Image.Image]:
-        """Returns images from subcomponents"""
+        """Returns images from sub components"""
         images: List[Image.Image] = []
         for _, vis_comp in self.vis_components:
             images += vis_comp.get_images()
         return images
 
-    def get_exp_id_and_subset_name(self, exp_ids: List[str]) -> Tuple[str, str]:
-        """Gets the experiment id and subset name from the user selection via streamlit"""
+    def get_exp_id_and_subset_name(
+        self,
+        exp_manager: ExperimentManager,
+        storage_interface: StorageInterface,
+        exp_ids: List[str],
+        subset_name: Optional[str] = None,
+    ) -> Tuple[str, str]:
+        """Gets the exp_id and subset_name from the user via streamlit"""
         if self.use_subset_selection:
-            col1, col2 = st.columns(2)
-            exp_id = col1.selectbox(
-                "Select ExpID",
-                options=exp_ids,
-                key=f"selectbox-expid-{self.component_name}",
-            )
-            subset_name = col2.selectbox(
-                "Select subset",
-                options=self.subset_names,
-                key=f"selectbox-subset" f"-{self.component_name}",
-            )
+            with ui.row().classes("w-full"):
+                with ui.column().classes("w-1/2"):
+                    # Todo Fix
+                    exp_id = ui.select(
+                        exp_ids,
+                        label="Select ExpID",
+                        value=f"selectbox-expid-{self.component_name}",
+                        on_change=lambda e: self.full_render(
+                            exp_manager=exp_manager,
+                            storage_interface=storage_interface,
+                            exp_id=e.value,
+                            subset_name=subset_name,
+                        ),
+                    ).classes("w-72")
+                with ui.column().classes("w-1/2"):
+                    subset_name = ui.select(
+                        self.subset_names,
+                        label="Select subset",
+                        value=f"selectbox-subset" f"-{self.component_name}",
+                        on_change=lambda e: self.full_render(
+                            exp_manager=exp_manager,
+                            storage_interface=storage_interface,
+                            exp_id=exp_ids,
+                            subset_name=e.value,
+                        ),
+                    ).classes("w-72")
         else:
-            exp_id = st.selectbox(
-                "Select ExpID",
-                options=exp_ids,
-                key=f"selectbox-expid-{self.component_name}",
-            )
+            exp_id = ui.select(
+                exp_ids,
+                label="Select ExpID",
+                value=f"selectbox-expid-{self.component_name}",
+                on_change=lambda e: self.full_render(
+                    exp_manager=exp_manager,
+                    storage_interface=storage_interface,
+                    exp_id=e.value,
+                    subset_name="",
+                ),
+            ).classes("w-72")
             subset_name = ""
-
-        return exp_id, subset_name
+        self.container = ui.column()
+        # return exp_id.value, subset_name
