@@ -17,10 +17,11 @@ where you can compair the results and performance of your ML models.
 
 The documentation of **niceML** is separated into four paths:
 
-1. [Getting Started](tutorials.md)
-2. [How-To Guides](how-to-guides.md)
-3. [First Steps for your Use-case](first-steps.md)
-4. [Concept Overview](concepts.md)
+1. Tutorials
+2. How-To Guides
+3. Concepts
+4. References
+
 
 Quickly find what you're looking for depending on
 your use case by looking at the provided pages.
