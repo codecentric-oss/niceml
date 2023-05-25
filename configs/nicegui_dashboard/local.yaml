@@ -21,16 +21,16 @@ image_loader_factory:
   cache_dir: ./cache/images
 
 sidebar_filters:
-  - _target_: niceml.dashboard.nicegui.ngfilter.ContainFilter
+  - _target_: niceml.experimental.nicegui.ngfilter.ContainFilter
     meta_function:
       _target_: niceml.experiments.metafunctions.ExperimentInfoExtraction
       name: prefix
       key: EXPERIMENT_PREFIX
-  - _target_: niceml.dashboard.nicegui.ngdatefilter.ContainDateFilter
-  - _target_: niceml.dashboard.nicegui.ngfilter.ContainFilter
+  - _target_: niceml.experimental.nicegui.ngdatefilter.ContainDateFilter
+  - _target_: niceml.experimental.nicegui.ngfilter.ContainFilter
     meta_function:
       _target_: niceml.experiments.metafunctions.ModelExtractor
-  - _target_: niceml.dashboard.nicegui.ngslider.ContainSliderFilter
+  - _target_: niceml.experimental.nicegui.ngslider.ContainSliderFilter
     meta_function:
       _target_: niceml.experiments.metafunctions.EpochsExtractor
     default_min: 0

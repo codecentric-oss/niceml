@@ -1,14 +1,11 @@
 import os
 import sys
+from typing import List
+
 import numpy as np
-
-from typing import List, Dict
-
 from hydra.utils import instantiate
 from nicegui import ui
 
-from niceml.dashboard.nicegui.ngfilter import NGFilterManager
-from niceml.dashboard.nicegui.ngframe import NgFrameFactory, SiteRefs
 from niceml.dashboard.remotettrainutils import (
     exp_manager_factory,
     load_experiments,
@@ -17,12 +14,12 @@ from niceml.dashboard.remotettrainutils import (
 )
 from niceml.data.storages.storagehandler import StorageHandler
 from niceml.data.storages.storageinterface import StorageInterface
+from niceml.experimental.nicegui.ngfilter import NGFilterManager
+from niceml.experimental.nicegui.ngframe import SiteRefs, NgFrameFactory
 from niceml.experiments.experimentdata import ExperimentData
 from niceml.experiments.experimentinfo import ExperimentInfo
 from niceml.experiments.filters.experimentfilter import ExperimentFilter
 from niceml.scripts.hydraconfreader import load_hydra_conf
-from niceml.experiments.experimentmanager import ExperimentManager
-
 
 
 class Dashboard:
