@@ -2,8 +2,8 @@
 
 from typing import Optional
 
-import streamlit as st
 import yaml
+from nicegui import ui
 
 from niceml.dashboard.components.expviscomponent import SingleExpVisComponent
 from niceml.data.storages.storageinterface import StorageInterface
@@ -20,9 +20,10 @@ class ConfigVisComponent(SingleExpVisComponent):
         storage_interface: StorageInterface,
         exp_id: str,
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
         """
-        Rendering a select box to select a configuration file of the experiment and display its
+        Rendering a selectbox to select a configuration file of the experiment and display its
         contents as a yaml-formatted code block.
 
         Args:
@@ -32,8 +33,20 @@ class ConfigVisComponent(SingleExpVisComponent):
             subset_name: Name of the dataset
 
         """
-        exp: ExperimentData = exp_manager.get_exp_by_id(exp_id)
-        config_data = exp.get_config_dict()
-        sel_conf = st.selectbox("Config file", options=sorted(config_data.keys()))
-        yaml_code = yaml.dump(config_data[sel_conf])
-        st.code(yaml_code, language="yaml")
+        self.exp: ExperimentData = exp_manager.get_exp_by_id(exp_id)
+
+        sel_conf = ui.select(
+            sorted(self.exp.exp_dict_data.keys()),
+            label="Config file",
+            on_change=lambda e: self.update_config(e.value),
+        ).classes("w-96")
+        self.container = ui.column()
+
+    def update_config(self, configs):
+        self.container.clear()
+        with self.container:
+            ui.markdown(
+                f"<pre><code>"
+                f"{yaml.dump(self.exp.exp_dict_data[configs])}"
+                f"</code></pre>"
+            )

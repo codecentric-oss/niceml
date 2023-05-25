@@ -4,7 +4,8 @@ from os.path import basename
 from typing import List, Optional
 
 import numpy as np
-import streamlit as st
+from matplotlib import pyplot as plt
+from nicegui import ui
 
 from niceml.dashboard.netdataloggerviscomponent import NetDataLoggerVisComponent
 from niceml.data.dataloaders.interfaces.imageloader import ImageLoader
@@ -44,15 +45,11 @@ class ImageNetDataLoggerVisComponent(NetDataLoggerVisComponent):
         storage_interface: StorageInterface,
         exp_id: str,
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
         exp: ExperimentData = exp_manager.get_exp_by_id(exp_id)
         net_data_paths = exp.get_file_paths(ExperimentFilenames.NET_DATA_FOLDER, ".png")
-        net_data_paths.sort()
-        if len(net_data_paths) == 0:
-            st.info("No data was logged for this experiment.")
-            return
 
-        @st.cache_data()
         def _load_net_data(
             *args,  # pylint: disable = unused-argument
         ) -> List[np.ndarray]:
@@ -61,14 +58,28 @@ class ImageNetDataLoggerVisComponent(NetDataLoggerVisComponent):
                 self.image_loader(filepath=net_data_path)
                 for net_data_path in net_data_paths[: self.max_output]
             ]
-
+        if len(net_data_paths) == 0:
+            ui.label("No data was logged for this experiment.")
+            return
         images = _load_net_data(exp_id, subset_name)
-        columns = st.columns(self.column_amount)
+
+        with ui.row().classes("w-full no-wrap"):
+            col = [ui.column().classes("w-1/2") for _ in range(self.column_amount)]
+
         for idx, image in enumerate(images):
-            col = columns[idx % self.column_amount]
-            col.image(
-                image, caption=self._get_image_caption(exp_data=exp, net_data_idx=idx)
-            )
+            if (idx % self.column_amount) == 0:
+
+                with col[idx % self.column_amount]:
+                    with ui.pyplot():
+                        plt.imshow(image, interpolation="nearest")
+                        plt.title(self._get_image_caption(exp_data=exp, net_data_idx=idx))
+                        plt.axis("off")
+            else:
+                with col[idx % self.column_amount]:
+                    with ui.pyplot():
+                        plt.imshow(image, interpolation="nearest")
+                        plt.title(self._get_image_caption(exp_data=exp, net_data_idx=idx))
+                        plt.axis("off")
 
     @staticmethod
     def _get_image_caption(exp_data: ExperimentData, net_data_idx: int) -> str:
