@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "niceml"
-version = "0.3.0"
+version = "0.4.0"
 description = "Welcome to niceML 🍦, a Python-based MLOps framework that uses TensorFlow and Dagster. This framework streamlines the development, and maintenance of machine learning models, providing an end-to-end solution for building efficient and scalable pipelines."
 authors = [
     "Denis Stalz-John <denis.stalz-john@codecentric.de>",
