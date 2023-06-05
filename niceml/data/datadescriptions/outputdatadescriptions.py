@@ -27,6 +27,10 @@ class OutputImageDataDescription(DataDescription, ABC):
             self.get_output_channel_count(),
         )
 
+    @abstractmethod
+    def get_use_void_class(self) -> bool:
+        """Returns whether the model uses a default class (e.g. background)"""
+
 
 class OutputVectorDataDescription(DataDescription, ABC):
     """DataDescription used by models with vectors as output"""

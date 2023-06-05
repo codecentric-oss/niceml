@@ -1,4 +1,4 @@
-"""Module for semseg prediction handlers"""
+"""module for semseg prediction handlers"""
 import logging
 from os.path import join
 from typing import List, Tuple
@@ -9,20 +9,27 @@ import pandas as pd
 from PIL import Image
 
 from niceml.data.datadescriptions.datadescription import DataDescription
-from niceml.data.datadescriptions.outputdatadescriptions import OutputImageDataDescription
+from niceml.data.datadescriptions.outputdatadescriptions import (
+    OutputImageDataDescription,
+)
 from niceml.data.datainfos.datainfo import DataInfo
-from niceml.data.dataiterators.boundingboxdataiterator import DETECTION_INDEX_COLUMN_NAME
+from niceml.data.dataiterators.boundingboxdataiterator import (
+    DETECTION_INDEX_COLUMN_NAME,
+)
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
 from niceml.mlcomponents.resultanalyzers.instancefinders.instancefinder import (
     InstanceFinder,
 )
-from niceml.mlcomponents.resultanalyzers.instancefinders.maskinstance import MaskInstance
+from niceml.mlcomponents.resultanalyzers.instancefinders.maskinstance import (
+    MaskInstance,
+)
 from niceml.mlcomponents.resultanalyzers.tensors.semsegdataiterator import (
     SemSegPredictionContainer,
 )
 from niceml.utilities.boundingboxes.boundingbox import get_bounding_box_attributes
+from niceml.utilities.commonutils import check_instance
 
 
 class SemSegMaskPredictionHandler(PredictionHandler):
@@ -32,22 +39,34 @@ class SemSegMaskPredictionHandler(PredictionHandler):
         """
         This prediction handler converts a tensor to the maximum prediction image
 
-        Parameters
-        ----------
-        img_extension: str
-            Type of the images to write.
+        Args:
+            img_extension: Type of the images to write
+            prediction_suffix: Suffix for prediction columns
         """
         super().__init__()
         self.img_extension = img_extension
         self.prediction_suffix = prediction_suffix
 
     def __enter__(self):
+        """Enter SemSegMaskPredictionHandler"""
         return self
 
     def add_prediction(self, data_info_list: List[DataInfo], prediction_batch):
         """After each prediction this is processed to store the images."""
 
+        output_data_description: OutputImageDataDescription = check_instance(
+            self.data_description, OutputImageDataDescription
+        )
+
+        expected_shape_dimensions = 4
+        if (
+            len(prediction_batch.shape) < expected_shape_dimensions
+        ):  # If the batch size is 1, an additional dimension is necessary and added below
+            prediction_batch = np.expand_dims(prediction_batch, 0)
         for prediction, data_info in zip(prediction_batch, data_info_list):
+            if output_data_description.get_use_void_class():
+                # remove background class from prediction array
+                prediction = prediction[:, :, :-1]
             values = np.max(prediction, axis=2) * 255
             value_idxes = np.argmax(prediction, axis=2)
             target_array = np.stack(
@@ -64,12 +83,13 @@ class SemSegMaskPredictionHandler(PredictionHandler):
             )
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        """Exit SemSegMaskPredictionHandler"""
         pass
 
 
 class SemSegBBoxPredictionHandler(PredictionHandler):
     """Prediction handler to convert a tensor to bounding box information corresponding
-    to `ObjDetPredictionHandler` based on found  instances in a prediction mask."""
+    to `ObjDetPredictionHandler` based on found instances in a prediction mask."""
 
     def __init__(
         self,
@@ -78,6 +98,17 @@ class SemSegBBoxPredictionHandler(PredictionHandler):
         pred_identifier: str = "image_filepath",
         detection_idx_col: str = DETECTION_INDEX_COLUMN_NAME,
     ):
+        """
+        Initialize SemSegBBoxPredictionHandler. Takes a list of
+        arguments, which are passed to it when an object of this type is
+        created.
+
+        Args:
+            instance_finder: InstanceFinder for prediction identification
+            prediction_prefix: Prefix the column names of the predictions
+            pred_identifier: Specify the column name of the image filepaths
+            detection_idx_col: Specify the name of the column in which detection indices are stored
+        """
         super().__init__()
         self.prediction_prefix = prediction_prefix
         self.instance_finder = instance_finder
@@ -93,6 +124,15 @@ class SemSegBBoxPredictionHandler(PredictionHandler):
         filename: str,
         data_description: DataDescription,
     ):
+        """
+        The set_params function is called by the ExperimentContext object when it
+        is time to set up a new experiment.
+
+        Args:
+            exp_context: experiment context to pass to the instance finder
+            filename: Specifies the name of the dataset
+            data_description: Stores the data description of the dataset
+        """
         super().set_params(exp_context, filename, data_description)
         self.instance_finder.initialize(
             data_description=data_description,
@@ -101,6 +141,7 @@ class SemSegBBoxPredictionHandler(PredictionHandler):
         )
 
     def __enter__(self):
+        """Enter SemSegBBoxPredictionHandler"""
         self.data = []
         if isinstance(self.data_description, OutputImageDataDescription):
             for class_count in range(self.data_description.get_output_channel_count()):
@@ -114,20 +155,28 @@ class SemSegBBoxPredictionHandler(PredictionHandler):
         detection_index: int,
     ):
         """Adds a prediction entry to `self.data`"""
-
         col_list: list = [identifier, detection_index] + predictions
         self.data.append(dict(zip(self.data_columns, col_list)))
 
     # pylint: disable = too-many-locals
     def add_prediction(self, data_info_list: List[DataInfo], prediction_batch):
-        """After each prediction, this is processed to find  instances in a mask
+        """After each prediction, this is processed to find instances in a mask
         and create bounding box coordinates from the found instances"""
 
+        expected_shape_dimensions = 4
         if (
-            len(prediction_batch.shape) < 4
-        ):  # If the batch size is 1 a additional dimension is necessary and added below
+            len(prediction_batch.shape) < expected_shape_dimensions
+        ):  # If the batch size is 1, an additional dimension is necessary and added below
             prediction_batch = np.expand_dims(prediction_batch, 0)
+
+        output_data_description: OutputImageDataDescription = check_instance(
+            self.data_description, OutputImageDataDescription
+        )
+
         for prediction, data_info in zip(prediction_batch, data_info_list):
+            if output_data_description.get_use_void_class():
+                # remove background class from prediction array
+                prediction = prediction[:, :, :-1]
             values = np.max(prediction, axis=2)
 
             value_idxes = np.argmax(prediction, axis=2)
@@ -202,7 +251,6 @@ def create_bbox_prediction_from_mask_instances(
     for error_info in mask_instances:
         # pylint: disable = no-member
         for error in error_info.instance_contours:
-
             poly = cv2.approxPolyDP(error.contour, epsilon=1, closed=True)
             # epsilon is the approximation accuracy
             # (max difference between the original and the approximation)
