@@ -1,5 +1,4 @@
 """Module for focal loss for semantic segmentation"""
-
 import tensorflow as tf
 from keras.backend import epsilon
 
@@ -7,12 +6,19 @@ from keras.backend import epsilon
 class SemSegFocalLoss(tf.losses.Loss):  # pylint: disable=too-few-public-methods
     """Implements Focal loss"""
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, weight: float = 1.0):
+    def __init__(
+        self,
+        alpha: float = 0.25,
+        gamma: float = 2.0,
+        weight: float = 1.0,
+        use_background_class: bool = False,
+    ):
         """initialize SemSegFocalLoss parameters"""
         super().__init__(reduction="none", name="SemSegFocalLoss")
         self._alpha = alpha
         self._gamma = gamma
         self._weight = weight
+        self.use_background_class = use_background_class
 
     def call(self, y_true, y_pred):
         """Calculate SemSegFocalLoss based on prediction and ground-truth array
@@ -35,6 +41,14 @@ class SemSegFocalLoss(tf.losses.Loss):  # pylint: disable=too-few-public-methods
         targets = tf.where(tf.equal(y_true, 1.0), y_pred, (1.0 - y_pred))
 
         binary_cross_entropy = -tf.math.log(targets + epsilon())
+
+        # set all prediction values of void_class to 0
+        if self.use_background_class:
+            shape = tf.shape(y_true)
+            zeros_tensor = tf.zeros(shape)
+            y_true = tf.concat(
+                [y_true[:, :, :, :-1], zeros_tensor[:, :, :, -1:]], axis=-1
+            )
 
         alpha = tf.where(tf.equal(y_true, 1.0), self._alpha, (1.0 - self._alpha))
         loss = alpha * tf.pow(1.0 - targets, self._gamma) * binary_cross_entropy
