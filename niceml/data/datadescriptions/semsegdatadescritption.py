@@ -5,7 +5,9 @@ from typing import List
 import numpy as np
 
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
-from niceml.data.datadescriptions.outputdatadescriptions import OutputImageDataDescription
+from niceml.data.datadescriptions.outputdatadescriptions import (
+    OutputImageDataDescription,
+)
 from niceml.utilities.imagesize import ImageSize
 
 
@@ -43,6 +45,7 @@ class SemSegDataDescription(InputImageDataDescription, OutputImageDataDescriptio
     input_image_size: ImageSize
     output_image_size: ImageSize
     channel_count: int = 3
+    use_background_class: bool = False
 
     def get_input_image_size(self) -> ImageSize:
         """Returns the input size of the image(s)"""
@@ -67,6 +70,10 @@ class SemSegDataDescription(InputImageDataDescription, OutputImageDataDescriptio
     def get_class_name_from_idx(self, idx: int) -> str:
         """Returns the class name of the class at position `idx` in `self.classes`"""
         return self.get_output_channel_names()[idx]
+
+    def get_use_void_class(self) -> bool:
+        """returns bool to use background_class"""
+        return self.use_background_class
 
 
 def create_number_semseg_datadescription(
