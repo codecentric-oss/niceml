@@ -11,7 +11,9 @@ from tensorflow.keras.models import Model
 
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
-from niceml.data.datadescriptions.outputdatadescriptions import OutputImageDataDescription
+from niceml.data.datadescriptions.outputdatadescriptions import (
+    OutputImageDataDescription,
+)
 from niceml.dlframeworks.tensorflow.models.layerfactory import LayerFactory
 from niceml.dlframeworks.tensorflow.models.premodellayers import add_premodel_layers
 from niceml.mlcomponents.models.modelfactory import ModelFactory
@@ -90,16 +92,28 @@ class UNetModel(ModelFactory):
 
     # pylint: disable=too-many-locals
     def create_model(self, data_description: DataDescription) -> Any:
+        """
+        Create a model for the given data description.
+
+        Args:
+            data_description: Data description the model is based on
+        Returns:
+            A Unet model object
+        """
         input_dd: InputImageDataDescription = check_instance(
             data_description, InputImageDataDescription
         )
         output_dd: OutputImageDataDescription = check_instance(
             data_description, OutputImageDataDescription
         )
-        if not self.allow_preconvolution and input_dd.get_input_channel_count() != 3:
+        expected_input_channels = 3
+        if (
+            not self.allow_preconvolution
+            and input_dd.get_input_channel_count() != expected_input_channels
+        ):
             raise Exception(
-                f"Input channels must have the size of 3! Instead "
-                f"{input_dd.get_input_channel_count()}"
+                f"Input channels must have the size of {expected_input_channels}!"
+                f" Instead size == {input_dd.get_input_channel_count()}"
             )
         input_image_size = input_dd.get_input_image_size()
         output_image_size = output_dd.get_output_image_size()
@@ -156,6 +170,8 @@ class UNetModel(ModelFactory):
 
         output_conv_name = "output_conv" if self.use_output_scale else "output"
         filters = output_dd.get_output_channel_count()
+        if output_dd.get_use_void_class():
+            filters += 1
         actual_layer = layers.Conv2D(
             name=output_conv_name,
             filters=filters,

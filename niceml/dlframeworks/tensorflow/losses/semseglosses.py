@@ -1,4 +1,4 @@
-"""Module for focal loss for semantic segementation"""
+"""Module for focal loss for semantic segmentation"""
 
 import tensorflow as tf
 from keras.backend import epsilon
@@ -8,17 +8,21 @@ class SemSegFocalLoss(tf.losses.Loss):  # pylint: disable=too-few-public-methods
     """Implements Focal loss"""
 
     def __init__(self, alpha: float = 0.25, gamma: float = 2.0, weight: float = 1.0):
+        """initialize SemSegFocalLoss parameters"""
         super().__init__(reduction="none", name="SemSegFocalLoss")
         self._alpha = alpha
         self._gamma = gamma
         self._weight = weight
 
     def call(self, y_true, y_pred):
-        """
-        Parameters
-        ----------
-        y_true: np.ndarray with shape (batch_size x height x width x num_classes)
-        y_pred: np.ndarray with shape (batch_size x height x width x num_classes)
+        """Calculate SemSegFocalLoss based on prediction and ground-truth array
+
+        Args:
+            y_true: np.ndarray with shape (batch_size x height x width x num_classes)
+            y_pred: np.ndarray with shape (batch_size x height x width x num_classes)
+
+        Returns:
+            Focal loss
         """
         normalizer = tf.cast(
             tf.shape(y_true, out_type=tf.int32)[1]
