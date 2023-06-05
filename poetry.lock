@@ -1089,6 +1089,7 @@ files = [
     {file = "fastparquet-2023.4.0-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:c79c10a81fa877499bbff7cd2f4d6f3d3273ddf293c2a235c222503caf6bdb77"},
     {file = "fastparquet-2023.4.0-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:79cae0f83b67a7f1f0f7cee865fdfb80bb44a2e05c112ec5f7170c3d758a30a4"},
     {file = "fastparquet-2023.4.0-cp39-cp39-win_amd64.whl", hash = "sha256:86b6dc5ff409d1fa76aa1da24ebeb93b85dd795e2c5c56d4106957c78b236ee7"},
+    {file = "fastparquet-2023.4.0.tar.gz", hash = "sha256:917e6d288ea07e10b28b5fa4b4c0b70f60b14971ece3ba5bf30690320a53aa70"},
 ]
 
 [package.dependencies]
@@ -1910,13 +1911,13 @@ format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-
 
 [[package]]
 name = "keras"
-version = "2.9.0"
+version = "2.8.0"
 description = "Deep learning for humans."
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "keras-2.9.0-py2.py3-none-any.whl", hash = "sha256:55911256f89cfc9343c9fbe4b61ec45a2d33d89729cbe1ab9dcacf8b07b8b6ab"},
+    {file = "keras-2.8.0-py2.py3-none-any.whl", hash = "sha256:744d39dc6577dcd80ff4a4d41549e92b77d6a17e0edd58a431d30656e29bc94e"},
 ]
 
 [[package]]
@@ -4061,14 +4062,14 @@ testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (
 
 [[package]]
 name = "six"
-version = "1.16.0"
+version = "1.15.0"
 description = "Python 2 and 3 compatibility utilities"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 files = [
-    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
-    {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+    {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
+    {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
 ]
 
 [[package]]
@@ -4262,13 +4263,13 @@ doc = ["reno", "sphinx", "tornado (>=4.5)"]
 
 [[package]]
 name = "tensorboard"
-version = "2.9.0"
+version = "2.8.0"
 description = "TensorBoard lets you watch Tensors Flow"
 category = "main"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "tensorboard-2.9.0-py3-none-any.whl", hash = "sha256:bd78211076dca5efa27260afacfaa96cd05c7db12a6c09cc76a1d6b2987ca621"},
+    {file = "tensorboard-2.8.0-py3-none-any.whl", hash = "sha256:65a338e4424e9079f2604923bdbe301792adce2ace1be68da6b3ddf005170def"},
 ]
 
 [package.dependencies]
@@ -4278,12 +4279,12 @@ google-auth-oauthlib = ">=0.4.1,<0.5"
 grpcio = ">=1.24.3"
 markdown = ">=2.6.8"
 numpy = ">=1.12.0"
-protobuf = ">=3.9.2"
+protobuf = ">=3.6.0"
 requests = ">=2.21.0,<3"
 setuptools = ">=41.0.0"
 tensorboard-data-server = ">=0.6.0,<0.7.0"
 tensorboard-plugin-wit = ">=1.6.0"
-werkzeug = ">=1.0.1"
+werkzeug = ">=0.11.15"
 wheel = ">=0.26"
 
 [[package]]
@@ -4312,60 +4313,48 @@ files = [
 
 [[package]]
 name = "tensorflow"
-version = "2.9.0"
+version = "2.8.0"
 description = "TensorFlow is an open source machine learning framework for everyone."
 category = "main"
 optional = true
-python-versions = ">=3.7"
+python-versions = "*"
 files = [
-    {file = "tensorflow-2.9.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:2125efb61952821b69446875ccccf8cdcc6c838c21224f70668b51965a0cdf91"},
-    {file = "tensorflow-2.9.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c93690a4abe2c3d804c035e1f51721a87fd60097459e783dce93600f399e1073"},
-    {file = "tensorflow-2.9.0-cp310-cp310-win_amd64.whl", hash = "sha256:dd2eb802a254b6a120c64843c4b727e7dc0fc412055a1542ad792dbb358da27d"},
-    {file = "tensorflow-2.9.0-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:92f48fa903ac5cad7bbd8231b10f34d4369ca62dd5f0c7ca975603056e466cd3"},
-    {file = "tensorflow-2.9.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:71bcbd327dc8ba664190e78dcdfc94f839e558c08ffc55e4930ac1fdd05b4246"},
-    {file = "tensorflow-2.9.0-cp37-cp37m-win_amd64.whl", hash = "sha256:d7a73577f7b5cac106b9b9c8fc1c2e6dec4a2e5890328eef3b6ce6a58d5fcaee"},
-    {file = "tensorflow-2.9.0-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:e41c998e1e865baabd58fb30d4536282af894931218e2f6dda2ab0aad57af7d1"},
-    {file = "tensorflow-2.9.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6bf4f872a246bff9993b800acabe3daeca647f6dfa62acc58ce6c90ab7f5596e"},
-    {file = "tensorflow-2.9.0-cp38-cp38-win_amd64.whl", hash = "sha256:6b049df845b08c76e36f420a93f071895cc1de9bdfc09df8bd3712bc8c9eafd4"},
-    {file = "tensorflow-2.9.0-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:f9167b594af16becdf882a6d9a44851cde7fa8e9619a07f8c10a9d8eb31ead1d"},
-    {file = "tensorflow-2.9.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4ffe5c36e45552d98ff1b0a7edfa7592626e307515affbb11924bf48da40989a"},
-    {file = "tensorflow-2.9.0-cp39-cp39-win_amd64.whl", hash = "sha256:bb17b23d96588c97869b58fd874887ea7e25efa69d80122f5a6d1a26e8cb897e"},
+    {file = "tensorflow-2.8.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:78c3ba2e0c952aa9eb388200f1923e40287f9357492a464188ca3043e35edc52"},
+    {file = "tensorflow-2.8.0-cp310-cp310-manylinux2010_x86_64.whl", hash = "sha256:2a520538e77a52fb428acb05e300c960844fd1d2c3918ca8ca14127edba6f83b"},
+    {file = "tensorflow-2.8.0-cp310-cp310-win_amd64.whl", hash = "sha256:b7170844ae6b048d82a9d7a61b2fa627f2e16cb829267bf0ce4b3a0de0a61054"},
+    {file = "tensorflow-2.8.0-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:fa4a723368d5f748b6f4ec305cf7c26b98e4a6a8c2ce1425f8ae10383a37bcfc"},
+    {file = "tensorflow-2.8.0-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:05fb161c6b2a6c4b8317a703a0a6d7f7aa6b5e3c6ea31bbc4f44ef96b89c3344"},
+    {file = "tensorflow-2.8.0-cp37-cp37m-win_amd64.whl", hash = "sha256:291fa84f1022914580810ad76732fb254e44a8a609128e1c58873a12b2f81559"},
+    {file = "tensorflow-2.8.0-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:dd0f9f113ebc21b73fcd349db1629e187b8686395b8146d100eb1706a943bbc0"},
+    {file = "tensorflow-2.8.0-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:8489b4f1771e146f752b0eaeb57acf183bd07357e4550464e7dff18b3b656b5d"},
+    {file = "tensorflow-2.8.0-cp38-cp38-win_amd64.whl", hash = "sha256:da38d4043185267e7316ae5dc98d18e89c8af4170859f64798e7a3607fd606e3"},
+    {file = "tensorflow-2.8.0-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:52f225fecc688281b3ae2cba2b52d3ed6215ed4a3ffb686b9cfd09885ca65563"},
+    {file = "tensorflow-2.8.0-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:9d91a989e5455ae713c03fd7236071ab3f232ad8ff2831f2658072933546091f"},
+    {file = "tensorflow-2.8.0-cp39-cp39-win_amd64.whl", hash = "sha256:b360c13b3e58b9a5c0780cbdb6b549eea73f620275fa203f8508fe418ae02735"},
 ]
 
 [package.dependencies]
-absl-py = ">=1.0.0"
+absl-py = ">=0.4.0"
 astunparse = ">=1.6.0"
-flatbuffers = ">=1.12,<2"
-gast = ">=0.2.1,<=0.4.0"
+flatbuffers = ">=1.12"
+gast = ">=0.2.1"
 google-pasta = ">=0.1.1"
 grpcio = ">=1.24.3,<2.0"
 h5py = ">=2.9.0"
-keras = ">=2.9.0rc0,<2.10.0"
+keras = ">=2.8.0rc0,<2.9"
 keras-preprocessing = ">=1.1.1"
-libclang = ">=13.0.0"
+libclang = ">=9.0.1"
 numpy = ">=1.20"
 opt-einsum = ">=2.3.2"
-packaging = "*"
 protobuf = ">=3.9.2"
 setuptools = "*"
 six = ">=1.12.0"
-tensorboard = ">=2.9,<2.10"
-tensorflow-estimator = ">=2.9.0rc0,<2.10.0"
+tensorboard = ">=2.8,<2.9"
 tensorflow-io-gcs-filesystem = ">=0.23.1"
 termcolor = ">=1.1.0"
+tf-estimator-nightly = "2.8.0.dev2021122109"
 typing-extensions = ">=3.6.6"
 wrapt = ">=1.11.0"
-
-[[package]]
-name = "tensorflow-estimator"
-version = "2.9.0"
-description = "TensorFlow Estimator."
-category = "main"
-optional = true
-python-versions = ">=3.7"
-files = [
-    {file = "tensorflow_estimator-2.9.0-py2.py3-none-any.whl", hash = "sha256:e9762bb302f51bc1eb2f35d19f0190a6a2d809d754d5def788c4328fe3746744"},
-]
 
 [[package]]
 name = "tensorflow-io-gcs-filesystem"
@@ -4405,61 +4394,54 @@ tensorflow-rocm = ["tensorflow-rocm (>=2.11.0,<2.12.0)"]
 
 [[package]]
 name = "tensorflow-macos"
-version = "2.9.0"
+version = "2.8.0"
 description = "TensorFlow is an open source machine learning framework for everyone."
 category = "main"
 optional = true
-python-versions = ">=3.7"
+python-versions = "*"
 files = [
-    {file = "tensorflow_macos-2.9.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:744533ba0ccf6edb9176b6b9694a10b77e241da3441643a322cc47ba78060653"},
-    {file = "tensorflow_macos-2.9.0-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:5a08aaa79e1696950f7dca7bafadde653e7dff471fee5e4fa49c88c7085748bd"},
-    {file = "tensorflow_macos-2.9.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:4dd571e8d95eb47c39306a271a2f4abc56e5a671e2ac94176f18320bddf20f0c"},
-    {file = "tensorflow_macos-2.9.0-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:1d9fb99c1b510e5024ddd088d8898863c794ae38fb9dbd1cb53168111b4289ea"},
-    {file = "tensorflow_macos-2.9.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:dd1eb944fea34265a7878486f1525bcdc825ecd04f669faa05165f5b8f967523"},
-    {file = "tensorflow_macos-2.9.0-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:7e7d4ae094076968c5fc1dcf66992d03358272b41e22ec2497dbc8d8bf97f870"},
+    {file = "tensorflow_macos-2.8.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:10c53c1331844bf9eba4dbf6de6c1fd94f7787df00582fb32f8f3f17f7b4c024"},
+    {file = "tensorflow_macos-2.8.0-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:53834b7d08e2e07f3e8b5821abfe87fdd693e54d97281f5fa8a626394bd6cd49"},
+    {file = "tensorflow_macos-2.8.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:7f522e7b478f2bbd1707632edb0942e22df7878142c60316876fd0269a80d1e7"},
 ]
 
 [package.dependencies]
-absl-py = ">=1.0.0"
+absl-py = ">=0.4.0"
 astunparse = ">=1.6.0"
-flatbuffers = ">=1.12,<2"
-gast = ">=0.2.1,<=0.4.0"
+flatbuffers = ">=1.12"
+gast = ">=0.2.1"
 google-pasta = ">=0.1.1"
 grpcio = ">=1.24.3,<2.0"
 h5py = ">=2.9.0"
-keras = ">=2.9.0rc0,<2.10.0"
+keras = ">=2.8.0rc0,<2.9"
 keras-preprocessing = ">=1.1.1"
-libclang = ">=13.0.0"
+libclang = ">=9.0.1"
 numpy = ">=1.20"
 opt-einsum = ">=2.3.2"
-packaging = "*"
 protobuf = ">=3.9.2"
 setuptools = "*"
 six = ">=1.12.0"
-tensorboard = ">=2.9,<2.10"
-tensorflow-estimator = ">=2.9.0rc0,<2.10.0"
+tensorboard = ">=2.8,<2.9"
 termcolor = ">=1.1.0"
+tf-estimator-nightly = "2.8.0.dev2021122109"
 typing-extensions = ">=3.6.6"
 wrapt = ">=1.11.0"
 
 [[package]]
 name = "tensorflow-metal"
-version = "0.8.0"
+version = "0.4.0"
 description = "TensorFlow acceleration for Mac GPUs."
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "tensorflow_metal-0.8.0-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:bbbb28df62e20d707420f4c52d04bf87f5e5990fa36ad3ad49cf43883b2a2e15"},
-    {file = "tensorflow_metal-0.8.0-cp310-cp310-macosx_12_0_x86_64.whl", hash = "sha256:cafbfc62cd24cc6fbde64ab29a2981b87eee489534ba8f01e8609582312e62bd"},
-    {file = "tensorflow_metal-0.8.0-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:b6e6b0b516be4d52c9149436bdd99df85f1e6a3453ff811d59b5eef1e2368834"},
-    {file = "tensorflow_metal-0.8.0-cp38-cp38-macosx_12_0_x86_64.whl", hash = "sha256:15d5fa9fec83c96940e8588e6b4140cda53f859778af713c617dc8be86025636"},
-    {file = "tensorflow_metal-0.8.0-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:8a4ef5f4804d4becf9c59d376512b1f160477e408c5d00cd4f647c6d64728531"},
-    {file = "tensorflow_metal-0.8.0-cp39-cp39-macosx_12_0_x86_64.whl", hash = "sha256:6172d4deed9ab87146d7392ccba5c0ff5511deb51c8af2de89cad31720380741"},
+    {file = "tensorflow_metal-0.4.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:85c59b1b2c3c9ec8a08db3987741b0cd2ed4813e8786e3d6ac8c674ad11d49a8"},
+    {file = "tensorflow_metal-0.4.0-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:9c02e410e9d5ef833f82817b4cc1776826b929d5bc2b47f30df08ce64c65d789"},
+    {file = "tensorflow_metal-0.4.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:be7b38ec6f0bfb06cc7869200d6664b61b3073820f7bea9215f47f3376d4455f"},
 ]
 
 [package.dependencies]
-six = ">=1.15.0"
+six = ">=1.15.0,<1.16.0"
 wheel = ">=0.35,<1.0"
 
 [[package]]
@@ -4476,6 +4458,17 @@ files = [
 
 [package.extras]
 tests = ["pytest", "pytest-cov"]
+
+[[package]]
+name = "tf-estimator-nightly"
+version = "2.8.0.dev2021122109"
+description = "TensorFlow Estimator."
+category = "main"
+optional = true
+python-versions = "*"
+files = [
+    {file = "tf_estimator_nightly-2.8.0.dev2021122109-py2.py3-none-any.whl", hash = "sha256:0065a04e396b2890bd19761fc1de7559ceafeba12839f8db2c7e7473afaaf612"},
+]
 
 [[package]]
 name = "threadpoolctl"
@@ -5246,4 +5239,4 @@ visu = ["altair", "streamlit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9.7 || >3.9.7,<3.11"
-content-hash = "45874d8f3f099a423c3c5ca044d0ee12f829427f83118d9e85fb90a5514b2b22"
+content-hash = "51bfad05aa54eaff5428f1906543248f9aa9395254f801ad193916dd3a9418f6"
