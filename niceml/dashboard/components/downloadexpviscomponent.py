@@ -24,7 +24,7 @@ class DownloadVisu(ExpVisComponent):
         """Generate the visualization for the experiment data download"""
         experiment_id = st.selectbox("Download data of experiment", exp_ids)
         experiment_filepath = exp_manager.get_exp_by_id(experiment_id).dir_name
-        download_directory = join("experiment_outputs", basename(experiment_filepath))
+        download_directory = join("experiments", basename(experiment_filepath))
         include_models = st.checkbox("Include Models", value=True)
         if st.button("Create zip file"):
             self._download_experiment_files(
