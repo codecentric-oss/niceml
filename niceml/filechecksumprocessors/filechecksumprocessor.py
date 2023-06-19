@@ -1,24 +1,59 @@
+"""Module for abstract implementation of FileChecksumProcessor"""
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Any, Dict, Union
+from collections import defaultdict
+from multiprocessing.pool import Pool
+from os.path import join
+from typing import Tuple, List, Any, Dict, Union, Optional
+
+from pydantic.utils import deep_update
+from tqdm import tqdm
 
 from niceml.utilities.fsspec.locationutils import LocationConfig, open_location
-from niceml.utilities.ioutils import read_yaml
+from niceml.utilities.ioutils import read_yaml, list_dir, write_yaml
 
 
 class FileChecksumProcessor(ABC):
+    """FileChecksumProcessor that can be used as part of a pipeline to process
+    files based on the checksum"""
 
-    def __init__(self, input_location: Union[dict, LocationConfig], output_location: Union[dict, LocationConfig], lockfile_location: Union[dict, LocationConfig],
-                 debug: bool = False, process_count: int = 8):
+    # ruff: noqa: PLR0913
+    def __init__(
+        self,
+        input_location: Union[dict, LocationConfig],
+        output_location: Union[dict, LocationConfig],
+        lockfile_location: Union[dict, LocationConfig],
+        debug: bool = False,
+        process_count: int = 8,
+        batch_size: int = 16,
+    ):
+        """
+        FileChecksumProcessor that can be used as part of a pipeline to process
+        files based on the checksum.
+        Args:
+            input_location: Input location of the Processor
+            output_location: Output location of the Processor
+            lockfile_location: Location of the checksum lockfile
+            debug: Flag to activate the debug mode
+            process_count: Amount of processes for parallel execution
+            batch_size: Size of a batch
+        """
         self.input_location = input_location
         self.output_location = output_location
         self.lockfile_location = lockfile_location
         self.debug = debug
         self.process_count = process_count
+        self.lock_data: Dict[str, dict] = defaultdict(dict)
+        self.batch_size = batch_size
 
     def load_checksums(self) -> Dict[str, Dict[str, str]]:
         """Loads checksums from lockfile"""
         with open_location(self.lockfile_location) as (lockfile_fs, lockfile_path):
-            checksum_dict = read_yaml(lockfile_path, file_system=lockfile_fs)
+            try:
+                checksum_dict = read_yaml(
+                    join(lockfile_path, "lock.yaml"), file_system=lockfile_fs
+                )
+            except FileNotFoundError:
+                checksum_dict = defaultdict(dict)
         return checksum_dict
 
     @abstractmethod
@@ -27,52 +62,146 @@ class FileChecksumProcessor(ABC):
         returns them as lists of strings"""
 
     @abstractmethod
-    def generate_batches(self, input_file_list: List[str], output_file_list: List[str], changed_files_dict: Dict[str, Dict[str, bool]]) -> List[Any]:
+    def generate_batches(
+        self,
+        input_file_list: List[str],
+        changed_files_dict: Dict[str, Dict[str, bool]],
+        output_file_list: Optional[List[str]] = None,
+        force: bool = False,
+    ) -> List[Any]:
         """Generates batches of input and output files
         and returns them as a list"""
 
     def remove_not_required_outputs(self, output_file_list: List[str]) -> None:
         """Removes output files that are not required anymore"""
-        pass
+        with open_location(self.output_location) as (output_fs, output_root):
+            files_in_output_location = list_dir(
+                path=output_root, return_full_path=True, file_system=output_fs
+            )
+            file_diff = list(set(files_in_output_location) - set(output_file_list))
+            for file in file_diff:
+                output_fs.rm_file(join(output_root, file))
 
-    def find_changed_files(self, input_file_list: List[str], output_file_list: List[str], checksum_dict: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, bool]]:
+    def find_changed_files(
+        self,
+        input_file_list: List[str],
+        output_file_list: List[str],
+        checksum_dict: Dict[str, Dict[str, str]],
+    ) -> Dict[str, Dict[str, bool]]:
         """Filters input and output files that are not required to be reprocessed"""
-        input_files_changed = check_files_changed(self.input_location, input_file_list, checksum_dict["inputs"])
-        output_files_changed = check_files_changed(self.output_location, output_file_list, checksum_dict["outputs"])
+        input_files_changed = check_files_changed(
+            self.input_location,
+            input_file_list,
+            checksum_dict["inputs"] if "inputs" in checksum_dict else None,
+        )
+        output_files_changed = check_files_changed(
+            self.output_location,
+            output_file_list,
+            checksum_dict["outputs"] if "outputs" in checksum_dict else None,
+        )
 
         return dict(inputs=input_files_changed, outputs=output_files_changed)
 
     @abstractmethod
-    def process_batch(self, batch: Any):
-        """Processes a batch of files"""
+    def process(self, batch: Any) -> Dict[str, Any]:
+        """
+        Processes a batch of files.
+        Returns a dict of input and output files with the updated checksums
+        e.g. {"inputs":{"filename":"checksum"}, "outputs":{"filename":"checksum"}}
+        """
 
-    def process(self, force: bool = False) -> None:
+    def run_process(self, force: bool = False) -> None:
         """Processes files"""
         checksum_dict = self.load_checksums()
         input_file_list, output_file_list = self.list_files()
-        input_files_changed, output_files_changed = self.find_changed_files(input_file_list, output_file_list, checksum_dict)
+
         self.remove_not_required_outputs(output_file_list)
-        batches = self.generate_batches(input_file_list, output_file_list)
-        with Pool(self.threads) as pool:
+        checksum_dict = remove_deleted_checksums(
+            input_file_list=input_file_list,
+            output_file_list=output_file_list,
+            checksum_dict=checksum_dict,
+        )
+
+        changed_files_dict = (
+            self.find_changed_files(  # TODO right place or better in line 82
+                input_file_list, output_file_list, checksum_dict
+            )
+        )
+
+        processing_list = self.generate_batches(
+            input_file_list, changed_files_dict, force=force
+        )
+
+        with Pool(self.process_count) as pool:
             for idx, process_result in enumerate(
-                    pool.imap_unordered(self._process, tqdm(input_lenses_to_process))
+                tqdm(
+                    pool.imap_unordered(self.process, processing_list),
+                    total=len(processing_list),
+                    desc="Process batches",
+                )
             ):
                 if process_result is not None:
-                    lens_data_info, output_file_list = process_result
-                    cur_lock_dict: Dict[str, Optional[str]] = {
-                        "inputs": hex_leading_zeros(lens_data_info.deep_hash()),
-                        "outputs": get_file_list_hash(output_file_list),
-                    }
-                    self.lock_data[lens_data_info.lens_id] = cur_lock_dict
+                    self.lock_data = deep_update(self.lock_data, process_result)
                 if idx % 10 == 0:
                     with open_location(self.lockfile_location) as (
-                            lockfile_fs,
-                            lockfile_root,
+                        lockfile_fs,
+                        lockfile_root,
                     ):
-                        write_json(
-                            self.lock_data, lockfile_root, file_system=lockfile_fs
+                        write_yaml(
+                            dict(self.lock_data),
+                            join(lockfile_root, "lock.yaml"),
+                            file_system=lockfile_fs,
                         )
 
-def check_files_changed(location: Union[dict, LocationConfig], file_list: List[str], checksum_dict: Dict[str, str]) -> Dict[str, bool]:
+
+def remove_deleted_checksums(
+    input_file_list: List[str],
+    output_file_list: List[str],
+    checksum_dict: Dict[str, Dict[str, str]],
+) -> Dict[str, Dict[str, str]]:
+    """
+    Takes in a list of input files, a list of output files, and
+    a dictionary containing the checksums for all the files. It returns an updated version of that
+    dictionary with only those keys corresponding to either input or output file names.
+
+    Args:
+        input_file_list: List[str]: Specify the input files
+        output_file_list: List[str]: Specify the output files
+        checksum_dict: Dict[str,Dict[str,str]]: Dictionary with the checksums
+                        of the input and output files
+
+    Returns:
+        A dictionary of dictionaries with the updated checksums of the input and output files
+    """
+    existing_checksums = defaultdict(dict)
+    existing_checksums["inputs"] = {
+        key: value
+        for key, value in checksum_dict["inputs"].items()
+        if key in input_file_list
+    }
+    existing_checksums["outputs"] = {
+        key: value
+        for key, value in checksum_dict["outputs"].items()
+        if key in output_file_list
+    }
+    return existing_checksums
+
+
+def check_files_changed(
+    location: Union[dict, LocationConfig],
+    file_list: List[str],
+    checksum_dict: Optional[Dict[str, str]] = None,
+) -> Dict[str, bool]:
     """Checks if files in a location have changed"""
-    pass
+    changed_checksums_dict = {}
+    with open_location(location) as (location_fs, location_root):
+        for file_path in file_list:
+            if checksum_dict is not None:
+                if file_path in checksum_dict.keys():
+                    if location_fs.checksum(file_path) == checksum_dict[file_path]:
+                        changed_checksums_dict[file_path] = False
+                        continue
+
+            changed_checksums_dict[file_path] = True
+
+    return changed_checksums_dict
