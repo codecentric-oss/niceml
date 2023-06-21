@@ -78,18 +78,27 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
         with open_location(self.input_location) as (input_fs, input_path):
             input_files = list_dir(
                 path=input_path,
-                recursive=True,
+                recursive=self.recursive,
                 file_system=input_fs,
-                return_full_path=True,
             )
+            input_files = [
+                join_fs_path(input_fs, input_path, input_file)
+                for input_file in input_files
+                if splitext(input_file)[1] == ".zip"
+            ]
         with open_location(self.output_location) as (output_fs, output_path):
             output_fs.makedirs(output_path, exist_ok=True)
             output_files = list_dir(
                 path=output_path,
-                recursive=True,
+                recursive=self.recursive,
                 file_system=output_fs,
-                return_full_path=True,
             )
+            output_files = [
+                join_fs_path(output_fs, output_path, output_file)
+                for output_file in output_files
+                if splitext(output_file)[1] == ".parq"
+            ]
+
         return input_files, output_files
 
     def generate_batches(
@@ -143,17 +152,11 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
         checksums = defaultdict(dict)
 
         with open_location(self.input_location) as (input_file_system, input_root):
-            zip_files = list_dir(
-                input_root, recursive=self.recursive, file_system=input_file_system
-            )
-            zip_files = [file for file in zip_files if splitext(file)[1] == ".zip"]
-            for zip_file in tqdm(zip_files, desc="Extract zip files of current batch"):
-                zip_file_path = join_fs_path(input_file_system, input_root, zip_file)
-
-                with input_file_system.open(zip_file_path) as opened_zip_file:
-                    checksums["inputs"][zip_file_path] = input_file_system.checksum(
-                        zip_file_path
-                    )
+            for zip_file in tqdm(
+                batch["inputs"], desc="Extract zip files of current batch"
+            ):
+                with input_file_system.open(zip_file) as opened_zip_file:
+                    checksums["inputs"][zip_file] = input_file_system.checksum(zip_file)
 
                     zf = zipfile.ZipFile(opened_zip_file)
                     csv_files = zf.namelist()

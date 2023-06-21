@@ -2,13 +2,16 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from multiprocessing.pool import Pool
-from os.path import join
 from typing import Tuple, List, Any, Dict, Union, Optional
 
 from pydantic.utils import deep_update
 from tqdm import tqdm
 
-from niceml.utilities.fsspec.locationutils import LocationConfig, open_location
+from niceml.utilities.fsspec.locationutils import (
+    LocationConfig,
+    open_location,
+    join_fs_path,
+)
 from niceml.utilities.ioutils import read_yaml, list_dir, write_yaml
 
 
@@ -50,7 +53,8 @@ class FileChecksumProcessor(ABC):
         with open_location(self.lockfile_location) as (lockfile_fs, lockfile_path):
             try:
                 checksum_dict = read_yaml(
-                    join(lockfile_path, "lock.yaml"), file_system=lockfile_fs
+                    join_fs_path(lockfile_fs, lockfile_path, "lock.yaml"),
+                    file_system=lockfile_fs,
                 )
             except FileNotFoundError:
                 checksum_dict = defaultdict(dict)
@@ -75,12 +79,14 @@ class FileChecksumProcessor(ABC):
     def remove_not_required_outputs(self, output_file_list: List[str]) -> None:
         """Removes output files that are not required anymore"""
         with open_location(self.output_location) as (output_fs, output_root):
-            files_in_output_location = list_dir(
-                path=output_root, return_full_path=True, file_system=output_fs
-            )
+            files_in_output_location = list_dir(path=output_root, file_system=output_fs)
+            files_in_output_location = [
+                join_fs_path(output_fs, output_root, output_file)
+                for output_file in files_in_output_location
+            ]
             file_diff = list(set(files_in_output_location) - set(output_file_list))
             for file in file_diff:
-                output_fs.rm_file(join(output_root, file))
+                output_fs.rm_file(join_fs_path(output_fs, output_root, file))
 
     def find_changed_files(
         self,
@@ -142,14 +148,14 @@ class FileChecksumProcessor(ABC):
             ):
                 if process_result is not None:
                     self.lock_data = deep_update(self.lock_data, process_result)
-                if idx % 10 == 0:
+                if (idx % 10 == 0) or (len(processing_list) == (idx + 1)):
                     with open_location(self.lockfile_location) as (
                         lockfile_fs,
                         lockfile_root,
                     ):
                         write_yaml(
                             dict(self.lock_data),
-                            join(lockfile_root, "lock.yaml"),
+                            join_fs_path(lockfile_fs, lockfile_root, "lock.yaml"),
                             file_system=lockfile_fs,
                         )
 
