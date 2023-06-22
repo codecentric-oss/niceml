@@ -1,5 +1,5 @@
 """Module containing all dagster jobs"""
-from niceml.config.hydra import hydra_conf_mapping
+from niceml.config.hydra import hydra_conf_mapping_factory
 from niceml.dagster.ops.analysis import analysis
 from niceml.dagster.ops.copyexp import copy_exp
 from niceml.dagster.ops.cropnumbers import crop_numbers
@@ -16,7 +16,7 @@ from niceml.dagster.resources.locations import locations_resource
 from dagster import job
 
 
-@job(config=hydra_conf_mapping)
+@job(config=hydra_conf_mapping_factory())
 def job_data_generation():
     """Job for data generation"""
 
@@ -26,7 +26,7 @@ def job_data_generation():
     image_to_tabular_data(output_loc)
 
 
-@job(config=hydra_conf_mapping)
+@job(config=hydra_conf_mapping_factory())
 def job_train():
     """Job for training an experiment"""
     exp_context = experiment()  # pylint: disable=no-value-for-parameter
@@ -36,7 +36,7 @@ def job_train():
     exptests(exp_context)  # pylint: disable=no-value-for-parameter
 
 
-@job(config=hydra_conf_mapping)
+@job(config=hydra_conf_mapping_factory())
 def job_eval():
     """Job for evaluating experiment"""
     exp_context = localize_experiment()  # pylint: disable=no-value-for-parameter
@@ -47,7 +47,7 @@ def job_eval():
 
 
 @job(
-    config=hydra_conf_mapping,
+    config=hydra_conf_mapping_factory(),
     resource_defs={
         "locations": locations_resource,
     },
