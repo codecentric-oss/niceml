@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.1 (2023-06-22)
+### Fix
+* Update the version of dagster to 1.3.9 ([#34](https://github.com/codecentric-oss/niceml/issues/34)) ([`118643d`](https://github.com/codecentric-oss/niceml/commit/118643d5742d189ba414d34080897390939cfd24))
+
 ## v0.4.0 (2023-06-05)
 ### Feature
 * Softmax for Semantic Segmentation ([#30](https://github.com/codecentric-oss/niceml/issues/30)) ([`ec669b1`](https://github.com/codecentric-oss/niceml/commit/ec669b1bd9cf1c8e355707fcec75d3e1dcb50bde))
