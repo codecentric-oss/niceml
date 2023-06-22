@@ -9,7 +9,11 @@ import pytest
 from niceml.filechecksumprocessors.zippedcsvtoparqprocessor import (
     ZippedCsvToParqProcessor,
 )
-from niceml.utilities.fsspec.locationutils import LocationConfig, open_location
+from niceml.utilities.fsspec.locationutils import (
+    LocationConfig,
+    open_location,
+    join_fs_path,
+)
 from niceml.utilities.ioutils import write_csv, list_dir, read_parquet, read_yaml
 
 
@@ -44,13 +48,17 @@ def zipped_csv_processor(tmp_dir, csv_data):
         for idx, csv in enumerate(csv_data):
             write_csv(
                 data=csv,
-                filepath=join(input_root, "csv_data", f"data{idx}.csv"),
+                filepath=join_fs_path(
+                    input_fs, input_root, "csv_data", f"data{idx}.csv"
+                ),
                 file_system=input_fs,
             )
         shutil.make_archive(
-            join(input_root, "data"), "zip", join(input_root, "csv_data")
+            join_fs_path(input_fs, input_root, "data"),
+            "zip",
+            join_fs_path(input_fs, input_root, "csv_data"),
         )
-        input_fs.rm(join(input_root, "csv_data"), recursive=True)
+        input_fs.rm(join_fs_path(input_fs, input_root, "csv_data"), recursive=True)
     with open_location(zipped_csv_processor.output_location) as (
         output_fs,
         output_root,
@@ -124,7 +132,8 @@ def test_generate_batches(
 
 
 def test_process(csv_data, tmp_dir, zipped_csv_processor):
-    batch = {"inputs": ["data.zip"]}
+    with open_location(zipped_csv_processor.input_location) as (input_fs, input_root):
+        batch = {"inputs": [join_fs_path(input_fs, input_root, "data.zip")]}
     result = zipped_csv_processor.process(batch)
 
     assert "inputs" in result
