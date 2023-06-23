@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2023-06-23)
+### Feature
+* Add abstract `FileChecksumProcessor` and concrete class `ZippedCsvToParquetProcessor` ([#44](https://github.com/codecentric-oss/niceml/issues/44)) ([`a21d673`](https://github.com/codecentric-oss/niceml/commit/a21d67300705f3f1f4fc1515c567adef74ecfec5))
+* Implementation of filelocks ([#43](https://github.com/codecentric-oss/niceml/issues/43)) ([`9d4dacd`](https://github.com/codecentric-oss/niceml/commit/9d4dacd7e9b09a764f45fdf2dc1c5c701dc19535))
+
+### Fix
+* Added protobuf version ([#32](https://github.com/codecentric-oss/niceml/issues/32)) ([`1ce7e8f`](https://github.com/codecentric-oss/niceml/commit/1ce7e8f2c25d7ba9035ad13ab7df6753e9746497))
+
 ## v0.4.1 (2023-06-22)
 ### Fix
 * Update the version of dagster to 1.3.9 ([#34](https://github.com/codecentric-oss/niceml/issues/34)) ([`118643d`](https://github.com/codecentric-oss/niceml/commit/118643d5742d189ba414d34080897390939cfd24))
