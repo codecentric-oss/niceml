@@ -43,6 +43,7 @@ def zipped_csv_processor(tmp_dir, csv_data):
         output_location=LocationConfig(uri=join(tmp_dir, "outputs")),
         lockfile_location=LocationConfig(uri=tmp_dir),
         csv_seperator=",",
+        debug=False,
     )
     with open_location(zipped_csv_processor.input_location) as (input_fs, input_root):
         for idx, csv in enumerate(csv_data):

@@ -7,6 +7,7 @@ from typing import Tuple, List, Any, Dict, Union, Optional
 from pydantic.utils import deep_update
 from tqdm import tqdm
 
+from niceml.utilities.checksums import md5_from_file
 from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
     open_location,
@@ -138,26 +139,34 @@ class FileChecksumProcessor(ABC):
             input_file_list, changed_files_dict, force=force
         )
 
-        with Pool(self.process_count) as pool:
-            for idx, process_result in enumerate(
-                tqdm(
-                    pool.imap_unordered(self.process, processing_list),
-                    total=len(processing_list),
-                    desc="Process batches",
-                )
-            ):
-                if process_result is not None:
-                    self.lock_data = deep_update(self.lock_data, process_result)
-                if (idx % 10 == 0) or (len(processing_list) == (idx + 1)):
-                    with open_location(self.lockfile_location) as (
-                        lockfile_fs,
-                        lockfile_root,
-                    ):
-                        write_yaml(
-                            dict(self.lock_data),
-                            join_fs_path(lockfile_fs, lockfile_root, "lock.yaml"),
-                            file_system=lockfile_fs,
-                        )
+        def _process_result(result, index: int):
+            if result is not None:
+                self.lock_data = deep_update(self.lock_data, result)
+            if (index % 10 == 0) or (len(processing_list) == (index + 1)):
+                with open_location(self.lockfile_location) as (
+                    lockfile_fs,
+                    lockfile_root,
+                ):
+                    write_yaml(
+                        dict(self.lock_data),
+                        join_fs_path(lockfile_fs, lockfile_root, "lock.yaml"),
+                        file_system=lockfile_fs,
+                    )
+
+        if self.debug:
+            for idx, batch in enumerate(processing_list):
+                process_result = self.process(batch)
+                _process_result(process_result, idx)
+        else:
+            with Pool(self.process_count) as pool:
+                for idx, process_result in enumerate(
+                    tqdm(
+                        pool.imap_unordered(self.process, processing_list),
+                        total=len(processing_list),
+                        desc="Process batches",
+                    )
+                ):
+                    _process_result(process_result, idx)
 
 
 def remove_deleted_checksums(
@@ -204,7 +213,10 @@ def check_files_changed(
         for file_path in file_list:
             if checksum_dict is not None:
                 if file_path in checksum_dict.keys():
-                    if location_fs.checksum(file_path) == checksum_dict[file_path]:
+                    if (
+                        md5_from_file(file_path=file_path, file_system=location_fs)
+                        == checksum_dict[file_path]
+                    ):
                         changed_checksums_dict[file_path] = False
                         continue
 

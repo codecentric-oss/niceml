@@ -9,6 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from niceml.filechecksumprocessors.filechecksumprocessor import FileChecksumProcessor
+from niceml.utilities.checksums import md5_from_file
 from niceml.utilities.fsspec.locationutils import (
     open_location,
     LocationConfig,
@@ -156,7 +157,9 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                 batch["inputs"], desc="Extract zip files of current batch"
             ):
                 with input_file_system.open(zip_file) as opened_zip_file:
-                    checksums["inputs"][zip_file] = input_file_system.checksum(zip_file)
+                    checksums["inputs"][zip_file] = md5_from_file(
+                        file_path=zip_file, file_system=input_file_system
+                    )
 
                     zf = zipfile.ZipFile(opened_zip_file)
                     csv_files = zf.namelist()
@@ -173,12 +176,12 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                         )
                         with open_location(output_df_location) as (
                             output_file_system,
-                            output_root,
+                            output_df_path,
                         ):
                             write_parquet(
-                                df, output_root, file_system=output_file_system
+                                df, output_df_path, file_system=output_file_system
                             )
-                            checksums["outputs"][
-                                output_root
-                            ] = output_file_system.checksum(output_root)
+                            checksums["outputs"][output_df_path] = md5_from_file(
+                                file_path=output_df_path, file_system=output_file_system
+                            )
         return checksums
