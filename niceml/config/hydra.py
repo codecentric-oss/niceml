@@ -73,17 +73,29 @@ class HydraInitField(Field):
         target_class,
         description: Optional[str] = None,
         default_value: Optional[dict] = None,
+        example_value: Optional[dict] = None,
         **kwargs,
     ):
+        """
+        Used to configure Dagster Ops with a target class
+        :param target_class: class which is instantiated from the op
+        :param description: description of the class or field
+        :param default_value: default value of the field when nothing is provided
+        :param example_value: example value of the field shown in the documentation
+        :param kwargs: additional kwargs passed to the Field class
+        """
         if description is None:
             description = target_class.__doc__
         if default_value is None:
+            default_value = dict()
+        if example_value is None:
             impl_str: str = "implementation_of_" if isabstract(target_class) else ""
             default_value = {"_target_": f"{impl_str}{target_class}"}
         super().__init__(
             dict, description=description, default_value=default_value, **kwargs
         )
         self.target_class = target_class
+        self.example_value = example_value
 
 
 class HydraMapField(Field):
@@ -94,13 +106,24 @@ class HydraMapField(Field):
         target_class,
         description: Optional[str] = None,
         default_value: Optional[dict] = None,
+        example_value: Optional[dict] = None,
         **kwargs,
     ):
+        """
+        Used to configure Dagster Ops with a map
+        :param target_class: class which is instantiated from the op in the map
+        :param description: description of the class or field
+        :param default_value: default value of the field when nothing is provided
+        :param example_value: example value of the field shown in the documentation
+        :param kwargs: additional kwargs passed to the Field class
+        """
         if description is None:
             description = target_class.__doc__
         if default_value is None:
+            default_value = dict()
+        if example_value is None:
             impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-            default_value = {"value": {"_target_": f"{impl_str}{target_class}"}}
+            example_value = {"value": {"_target_": f"{impl_str}{target_class}"}}
         super().__init__(
             Map(str, dict),
             description=description,
@@ -108,3 +131,4 @@ class HydraMapField(Field):
             **kwargs,
         )
         self.target_class = target_class
+        self.example_value = example_value

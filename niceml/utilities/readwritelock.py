@@ -1,4 +1,5 @@
-"""Module for Read/Write lock for fsspec filesystems"""  # QUEST: still used?
+"""Module for Read/Write lock for fsspec filesystems"""
+import logging
 import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Union
@@ -33,14 +34,17 @@ class FileLock(ABC):
     def release(self):
         """Release the lock"""
 
+    @abstractmethod
+    def force_delete(self):
+        """Force delete the lock"""
+
     def __enter__(self):
+        """context manager enter method"""
         self.acquire()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.release()
-
-    def __del__(self):
+        """context manager exit method"""
         self.release()
 
 
@@ -56,6 +60,8 @@ class WriteLock(FileLock):
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
     ):
+        if write_lock_name == read_lock_name:
+            raise ValueError("write_lock_name and read_lock_name must be different")
         super().__init__(retry_time, timeout)
         self.path_config = path_config
         self.write = write
@@ -63,6 +69,7 @@ class WriteLock(FileLock):
         self.read_lock_name = read_lock_name
 
     def acquire(self):
+        """Acquire the lock"""
         if self.is_acquired:
             return
         with open_location(self.path_config) as (cur_fs, root_path):
@@ -89,7 +96,15 @@ class WriteLock(FileLock):
                     )
                 time.sleep(self.retry_time)
 
+    def force_delete(self):
+        """Force delete the lock"""
+        self.is_acquired = False
+        with open_location(self.path_config) as (cur_fs, root_path):
+            write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
+            release_lock_file(write_lock_path, cur_fs)
+
     def release(self):
+        """Release the lock"""
         if self.is_acquired:
             with open_location(self.path_config) as (cur_fs, root_path):
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
@@ -103,19 +118,20 @@ class ReadLock(FileLock):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         path_config: Union[LocationConfig, Dict[str, Any]],
-        write: bool = False,
         retry_time: float = 10,
         timeout: float = 172800,
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
     ):
+        if write_lock_name == read_lock_name:
+            raise ValueError("write_lock_name and read_lock_name must be different")
         super().__init__(retry_time, timeout)
         self.path_config = path_config
-        self.write = write
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
 
     def acquire(self):
+        """Acquire the lock"""
         if self.is_acquired:
             return
         with open_location(self.path_config) as (cur_fs, root_path):
@@ -133,7 +149,15 @@ class ReadLock(FileLock):
             increase_lock_file_usage(read_lock_path, cur_fs)
             self.is_acquired = True
 
+    def force_delete(self):
+        """Force delete the lock"""
+        self.is_acquired = False
+        with open_location(self.path_config) as (cur_fs, root_path):
+            write_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
+            release_lock_file(write_lock_path, cur_fs)
+
     def release(self):
+        """Release the lock"""
         if self.is_acquired:
             with open_location(self.path_config) as (cur_fs, root_path):
                 read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
@@ -167,8 +191,10 @@ def release_lock_file(
     """Release the lock file."""
     file_system = file_system or LocalFileSystem()
     if not file_system.exists(lock_file_path):
-        raise RuntimeError(f"Lock file {lock_file_path} does not exist.")
-    file_system.rm(lock_file_path)
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Lock file {lock_file_path} does not exist.")
+    else:
+        file_system.rm(lock_file_path)
 
 
 def increase_lock_file_usage(

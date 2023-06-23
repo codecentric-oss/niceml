@@ -1,7 +1,7 @@
 """Module for the analysis dagster op"""
 import json
 from os.path import join
-from typing import Dict
+from typing import Dict, Tuple
 
 from hydra.utils import ConvertMode, instantiate
 
@@ -13,14 +13,21 @@ from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames, OpNames
 from niceml.mlcomponents.resultanalyzers.analyzer import ResultAnalyzer
 from niceml.utilities.fsspec.locationutils import open_location
-from dagster import OpExecutionContext, op
+from dagster import OpExecutionContext, op, Out
+
+from niceml.utilities.readwritelock import FileLock
 
 
 # pylint: disable=use-dict-literal
-@op(config_schema=dict(result_analyzer=HydraInitField(ResultAnalyzer)))
+@op(
+    config_schema=dict(result_analyzer=HydraInitField(ResultAnalyzer)),
+    out={"expcontext": Out(), "filelock_dict": Out()},
+)
 def analysis(
-    context: OpExecutionContext, exp_context: ExperimentContext
-) -> ExperimentContext:
+    context: OpExecutionContext,
+    exp_context: ExperimentContext,
+    filelock_dict: Dict[str, FileLock],
+) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
     """This dagster op analysis the previous predictions applied by the model"""
     op_config = json.loads(json.dumps(context.op_config))
     write_op_config(op_config, exp_context, OpNames.OP_ANALYSIS.value)
@@ -46,4 +53,4 @@ def analysis(
         cur_pred_set.initialize(data_description, exp_context)
         result_analyzer(cur_pred_set, exp_context, dataset_key)
 
-    return exp_context
+    return exp_context, filelock_dict
