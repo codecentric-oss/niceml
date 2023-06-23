@@ -76,6 +76,14 @@ class HydraInitField(Field):
         example_value: Optional[dict] = None,
         **kwargs,
     ):
+        """
+        Used to configure Dagster Ops with a target class
+        :param target_class: class which is instantiated from the op
+        :param description: description of the class or field
+        :param default_value: default value of the field when nothing is provided
+        :param example_value: example value of the field shown in the documentation
+        :param kwargs: additional kwargs passed to the Field class
+        """
         if description is None:
             description = target_class.__doc__
         if default_value is None:
@@ -101,6 +109,14 @@ class HydraMapField(Field):
         example_value: Optional[dict] = None,
         **kwargs,
     ):
+        """
+        Used to configure Dagster Ops with a map
+        :param target_class: class which is instantiated from the op in the map
+        :param description: description of the class or field
+        :param default_value: default value of the field when nothing is provided
+        :param example_value: example value of the field shown in the documentation
+        :param kwargs: additional kwargs passed to the Field class
+        """
         if description is None:
             description = target_class.__doc__
         if default_value is None:
