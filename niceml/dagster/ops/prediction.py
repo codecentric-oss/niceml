@@ -1,7 +1,7 @@
 """Module for prediction op"""
 import json
 from os.path import join
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import tqdm
@@ -21,7 +21,9 @@ from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
 from niceml.mlcomponents.modelloader.modelloader import ModelLoader
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
 from niceml.utilities.fsspec.locationutils import join_fs_path, open_location
-from dagster import Field, Noneable, OpExecutionContext, op
+from dagster import Field, Noneable, OpExecutionContext, op, Out
+
+from niceml.utilities.readwritelock import FileLock
 
 
 # pylint: disable=use-dict-literal
@@ -36,11 +38,14 @@ from dagster import Field, Noneable, OpExecutionContext, op
             "Otherwise only `prediction_steps` are evaluated.",
         ),
         model_loader=HydraInitField(ModelLoader),
-    )
+    ),
+    out={"expcontext": Out(), "filelock_dict": Out()},
 )
 def prediction(
-    context: OpExecutionContext, exp_context: ExperimentContext
-) -> ExperimentContext:
+    context: OpExecutionContext,
+    exp_context: ExperimentContext,
+    filelock_dict: Dict[str, FileLock],
+) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
     """Dagster op to predict the stored model with the given datasets"""
     op_config = json.loads(json.dumps(context.op_config))
     write_op_config(op_config, exp_context, OpNames.OP_PREDICTION.value)
@@ -84,7 +89,7 @@ def prediction(
             filename=dataset_key,
         )
 
-    return exp_context
+    return exp_context, filelock_dict
 
 
 def predict_dataset(  # pylint: disable=too-many-arguments

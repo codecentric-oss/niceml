@@ -1,5 +1,6 @@
 """Module for train op"""
 import json
+from typing import Dict, Tuple
 
 from hydra.utils import ConvertMode, instantiate
 
@@ -19,7 +20,9 @@ from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
     ModelCustomLoadObjects,
 )
 from niceml.mlcomponents.models.modelfactory import ModelFactory
-from dagster import OpExecutionContext, op
+from dagster import OpExecutionContext, op, Out
+
+from niceml.utilities.readwritelock import FileLock
 
 train_config: dict = dict(
     train_params=HydraInitField(TrainParams),
@@ -34,10 +37,12 @@ train_config: dict = dict(
 )
 
 
-@op(config_schema=train_config)
+@op(config_schema=train_config, out={"expcontext": Out(), "filelock_dict": Out()})
 def train(
-    context: OpExecutionContext, exp_context: ExperimentContext
-) -> ExperimentContext:
+    context: OpExecutionContext,
+    exp_context: ExperimentContext,
+    filelock_dict: Dict[str, FileLock],
+) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
     """DagsterOp that trains the model"""
     op_config = json.loads(json.dumps(context.op_config))
     write_op_config(op_config, exp_context, OpNames.OP_TRAIN.value)
@@ -68,4 +73,4 @@ def train(
         custom_model_load_objects,
         callbacks,
     )
-    return exp_context
+    return exp_context, filelock_dict
