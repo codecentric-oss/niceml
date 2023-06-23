@@ -1,5 +1,7 @@
 # train semseg with numbers dataframe
 defaults:
+  # lock data location
+  - shared/filelocks@ops.acquire_locks.config.filelock_dict.data_lock: op_data_readlock.yaml
   # experiment
   - ops/experiment@ops.experiment.config: op_experiment_default.yaml
   # train

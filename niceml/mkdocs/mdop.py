@@ -1,7 +1,7 @@
 """Module for generating markdown strings for dagster ops"""
 from typing import Dict, List
 
-from dagster.core.definitions import NodeDefinition
+from dagster._core.definitions import NodeDefinition
 
 from niceml.mkdocs.mdtable import get_md_table
 from dagster import Field
@@ -26,4 +26,7 @@ def get_md_op(op_def: NodeDefinition) -> str:
 
 def get_op_fields(op_def: NodeDefinition) -> Dict[str, Field]:
     """returns fields from OpDefinition"""
-    return op_def.config_schema.config_type.fields
+    try:
+        return op_def.config_schema.config_type.fields
+    except AttributeError:
+        return dict()
