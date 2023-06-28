@@ -30,6 +30,7 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
         input_location: Union[dict, LocationConfig],
         output_location: Union[dict, LocationConfig],
         lockfile_location: Union[dict, LocationConfig],
+        lock_file_name: str = "lock.yaml",
         debug: bool = False,
         process_count: int = 8,
         batch_size: int = 16,
@@ -53,12 +54,13 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                         searched for files recursively
         """
         super().__init__(
-            input_location,
-            output_location,
-            lockfile_location,
-            debug,
-            process_count,
-            batch_size,
+            input_location=input_location,
+            output_location=output_location,
+            lockfile_location=lockfile_location,
+            debug=debug,
+            process_count=process_count,
+            batch_size=batch_size,
+            lock_file_name=lock_file_name,
         )
         self.recursive = recursive
         self.clear = clear
