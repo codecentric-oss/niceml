@@ -81,10 +81,8 @@ component:
             image_loader:
               _target_: niceml.data.dataloaders.imageloaders.SimpleImageLoader
               working_dir: ${oc.env:EXPERIMENT_URI,experiment_outputs}
-      - _target_: niceml.dashboard.components.linearviscomponent.LinearVisComponent
+      - _target_: niceml.dashboard.components.downloadexpviscomponent.DownloadVisu
         component_name: Download
-        vis_components:
-          - _target_: niceml.dashboard.components.downloadexpviscomponent.DownloadExpVisComponent
     CLS:
       - _target_: niceml.dashboard.components.linearviscomponent.LinearVisComponent
         component_name: Metrics

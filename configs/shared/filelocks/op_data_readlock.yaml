@@ -1,0 +1,2 @@
+_target_: niceml.utilities.readwritelock.ReadLock
+path_config: ${globals.data_location}

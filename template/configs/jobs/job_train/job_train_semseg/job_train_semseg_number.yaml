@@ -22,6 +22,4 @@ globals:
   exp_name: SemSeg
   exp_prefix: SEMSEG
   data_location:
-    uri: data/number_data_split
-  experiment_location:
-    uri: experiments
+    uri: ${oc.env:DATA_URI,./data}/number_data_split
