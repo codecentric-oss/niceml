@@ -35,14 +35,15 @@ def prepend_hydra_search_paths(
 
 
 def hydra_conf_mapping_factory(drop: Iterable[str] = ("globals",)):
-    """Load hydra configuration from ``config``.
+    """
+    Load hydra configuration from ``config``.
 
     Args:
-    config: Configuration to be processed with hydra.
-    drop: Keys to remove from the processed configuration after processing
-           with hydra. Useful to define configuration variables that shall be used
-           for interpolation during processing but not enter the processed
-           configuration. Default: ``("globals",)``.
+        config: Configuration to be processed with hydra.
+        drop: Keys to remove from the processed configuration after processing
+               with hydra. Useful to define configuration variables that shall be used
+               for interpolation during processing but not enter the processed
+               configuration. Default: ``("globals",)``.
     """
 
     @config_mapping
