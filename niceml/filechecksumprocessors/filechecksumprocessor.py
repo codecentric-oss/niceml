@@ -26,6 +26,7 @@ class FileChecksumProcessor(ABC):
         input_location: Union[dict, LocationConfig],
         output_location: Union[dict, LocationConfig],
         lockfile_location: Union[dict, LocationConfig],
+        lock_file_name: str = "lock.yaml",
         debug: bool = False,
         process_count: int = 8,
         batch_size: int = 16,
@@ -41,6 +42,7 @@ class FileChecksumProcessor(ABC):
             process_count: Amount of processes for parallel execution
             batch_size: Size of a batch
         """
+        self.lock_file_name = lock_file_name
         self.input_location = input_location
         self.output_location = output_location
         self.lockfile_location = lockfile_location
@@ -54,7 +56,7 @@ class FileChecksumProcessor(ABC):
         with open_location(self.lockfile_location) as (lockfile_fs, lockfile_path):
             try:
                 checksum_dict = read_yaml(
-                    join_fs_path(lockfile_fs, lockfile_path, "lock.yaml"),
+                    join_fs_path(lockfile_fs, lockfile_path, self.lock_file_name),
                     file_system=lockfile_fs,
                 )
             except FileNotFoundError:
@@ -149,7 +151,7 @@ class FileChecksumProcessor(ABC):
                 ):
                     write_yaml(
                         dict(self.lock_data),
-                        join_fs_path(lockfile_fs, lockfile_root, "lock.yaml"),
+                        join_fs_path(lockfile_fs, lockfile_root, self.lock_file_name),
                         file_system=lockfile_fs,
                     )
 
