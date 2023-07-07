@@ -1,7 +1,7 @@
 """Module for object detection experiment schema"""
 import pandera as pa
 
-from niceml.experiments.schemas.baseexpschema import BaseExperimentSchema
+from niceml.experiments.schemas.defaultexpschema import DefaultExperimentSchema
 from niceml.experiments.schemas.parquetframeexpmember import ParquetMember
 
 obj_det_df_schema = pa.DataFrameSchema(
@@ -17,7 +17,9 @@ obj_det_df_schema = pa.DataFrameSchema(
 )
 
 
-class ObjDetExpSchema(BaseExperimentSchema):  # pylint: disable=too-few-public-methods
+class ObjDetExpSchema(
+    DefaultExperimentSchema
+):  # pylint: disable=too-few-public-methods
     """This is the experiment for object detection"""
 
     test_parq = ParquetMember(

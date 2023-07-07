@@ -1,7 +1,7 @@
 """Module containing classes which describe the sample experiments"""
 import pandera as pa
 
-from niceml.experiments.schemas.baseexpschema import BaseExperimentSchema
+from niceml.experiments.schemas.defaultexpschema import DefaultExperimentSchema
 from niceml.experiments.schemas.parquetframeexpmember import ParquetMember
 
 sin_reg_df_schema = pa.DataFrameSchema(
@@ -14,7 +14,9 @@ sin_reg_df_schema = pa.DataFrameSchema(
 )
 
 
-class SinRegExpSchema(BaseExperimentSchema):  # pylint: disable=too-few-public-methods
+class SinRegExpSchema(
+    DefaultExperimentSchema
+):  # pylint: disable=too-few-public-methods
     """This is the experiment for regression"""
 
     test_parq = ParquetMember(
