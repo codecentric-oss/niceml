@@ -4,6 +4,7 @@ import json
 from types import FunctionType
 from typing import List, Optional
 
+import pandas as pd
 from attrs import asdict
 from dagster import op, Field, OpExecutionContext
 from hydra.utils import instantiate, ConvertMode
@@ -83,36 +84,42 @@ def df_normalization(
             file_system=input_fs,
             recursive=instantiated_op_config["recursive"],
         )
-
+        loaded_data_list: List[pd.DataFrame] = []
         for input_file in input_files:
             cur_df = read_parquet(
                 file_system=input_fs,
                 filepath=join_fs_path(input_fs, input_root, input_file),
             )
+            cur_df["orig_file_name"] = [input_file for _ in range(len(cur_df))]
+            loaded_data_list.append(cur_df)
 
-            info_list: List[NormalizationInfo] = []
-            if isinstance(feature_keys_function, FunctionType):
-                extended_feature_keys = feature_keys + feature_keys_function(cur_df)
-            else:
-                extended_feature_keys = feature_keys
-            for feature in tqdm(extended_feature_keys, desc="Normalize features"):
-                cur_df, feat_info = normalize_col(cur_df, feature)
-                info_list.append(feat_info)
+        data = pd.concat(loaded_data_list)
 
-            with open_location(output_parq_location) as (output_fs, output_root):
-                info_dict_list: List[dict] = [asdict(info) for info in info_list]
+        info_list: List[NormalizationInfo] = []
+        if isinstance(feature_keys_function, FunctionType):
+            extended_feature_keys = feature_keys + feature_keys_function(data)
+        else:
+            extended_feature_keys = feature_keys
+        for feature in tqdm(extended_feature_keys, desc="Normalize features"):
+            data, feat_info = normalize_col(data, feature)
+            info_list.append(feat_info)
 
-                write_yaml(
-                    data={"norm_infos": info_dict_list},
-                    file_system=output_fs,
-                    filepath=join_fs_path(
-                        output_fs, output_root, output_norm_feature_info_file_name
-                    ),
-                )
+        with open_location(output_parq_location) as (output_fs, output_root):
+            info_dict_list: List[dict] = [asdict(info) for info in info_list]
 
+            write_yaml(
+                data={"norm_infos": info_dict_list},
+                file_system=output_fs,
+                filepath=join_fs_path(
+                    output_fs, output_root, output_norm_feature_info_file_name
+                ),
+            )
+            for file in input_files:
                 write_parquet(
-                    dataframe=cur_df,
-                    filepath=join_fs_path(output_fs, output_root, input_file),
+                    dataframe=data[data["orig_file_name"] == file].drop(
+                        columns="orig_file_name"
+                    ),
+                    filepath=join_fs_path(output_fs, output_root, file),
                     file_system=output_fs,
                 )
 
