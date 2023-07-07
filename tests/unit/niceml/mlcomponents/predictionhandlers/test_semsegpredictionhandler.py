@@ -22,6 +22,7 @@ from niceml.mlcomponents.resultanalyzers.tensors.semsegdataiterator import (
 )
 from niceml.utilities.imagesize import ImageSize
 from tests.unit.niceml.utilities.semseg.testutils import get_random_semseg_mask
+import cv2
 
 
 @pytest.fixture()
@@ -39,6 +40,42 @@ def random_generator() -> Generator:
 @pytest.fixture()
 def class_list() -> List[str]:
     return ["0", "1", "2"]
+
+
+def test_create_ellipses_image():
+    img = np.zeros((100, 100, 3))
+
+    # Big ellipse parameters
+    center = (50, 50)
+    axes = (40, 10)  # major, minor axes
+    angle = 125
+    start_angle = 0
+    end_angle = 360
+    color = (0, 255, 0)
+    thickness = -1
+
+    # Draw a filled ellipse on the input image
+    cv2.ellipse(img, center, axes, angle, start_angle, end_angle, color, thickness)
+
+    # Small ellipse parameters
+    center = (35, 35)
+    axes = (8, 6)  # major, minor axes
+    angle = 90
+    start_angle = 0
+    end_angle = 360
+    color = (255, 0, 0)
+    thickness = -1
+
+    # Draw a filled ellipse on the input image
+    cv2.ellipse(img, center, axes, angle, start_angle, end_angle, color, thickness)
+
+    img /= 255
+    noise = np.random.default_rng(seed=124).normal(0.5, 0.1, img.shape)
+    noise = np.clip(noise, 0, 1)
+
+    img *= noise
+
+    l = 1
 
 
 @pytest.fixture()
@@ -83,7 +120,6 @@ def test_create_bbox_prediction_from_mask_instances(
     class_list,
     target_coords: List[List[int]],
 ):
-
     prediction = random_generator.uniform(
         low=0.5, high=1.0, size=(image_shape[0], image_shape[1], len(class_list))
     )

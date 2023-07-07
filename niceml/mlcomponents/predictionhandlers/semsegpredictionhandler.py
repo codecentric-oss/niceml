@@ -251,20 +251,48 @@ def create_bbox_prediction_from_mask_instances(
     for error_info in mask_instances:
         # pylint: disable = no-member
         for error in error_info.instance_contours:
+            # approximate contours of a polygon
             poly = cv2.approxPolyDP(error.contour, epsilon=1, closed=True)
             # epsilon is the approximation accuracy
             # (max difference between the original and the approximation)
 
             x_pos, y_pos, width, height = cv2.boundingRect(poly)
-            predictions_of_error = prediction[
+
+            max_predictions = get_bounding_box_predictions_from_error_contour(
+                contour=error.contour, prediction=prediction
+            )
+
+            max_predictions_bounding_box = max_predictions[
                 y_pos : y_pos + height, x_pos : x_pos + width, :
             ]
+
             bbox_prediction_data.append(
                 (
                     detection_idx_count,
+                    # bounding box coordinates
                     [float(coord) for coord in [x_pos, y_pos, width, height]]
-                    + list(np.max(predictions_of_error, axis=(0, 1))),
+                    # get maximum prediction for each defect class in the error area
+                    + max_predictions_bounding_box,
                 )
             )
             detection_idx_count += 1
     return bbox_prediction_data
+
+
+def get_bounding_box_predictions_from_error_contour(
+    contour: np.ndarray, prediction: np.ndarray
+):
+    """
+    Returns the predictions of an image for each class within a given contour.
+
+    Args:
+        contour: error contour of the image
+        prediction: array of one prediction per class (height,width,class_predictions)
+    Returns:
+        The maximum probability of each class in the
+    """
+    contour_mask = np.zeros(prediction.shape[:1])
+    cv2.drawContours(contour_mask, [contour], 0, 255, -1)
+    mask_prediction = prediction.copy()
+    mask_prediction[contour_mask == 0, :] = 0
+    return list(np.max(mask_prediction, axis=(0, 1)))
