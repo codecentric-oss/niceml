@@ -22,12 +22,25 @@ from niceml.utilities.ioutils import (
 
 @op(
     config_schema={
-        "input_parq_location": Field(dict, description=""),
-        "feature_keys": Field(list, description="", default_value=[]),
-        "feature_keys_function": Field(dict, description="", default_value={}),
-        "output_parq_location": Field(dict, description=""),
+        "input_parq_location": Field(
+            dict, description="Location where the input parq files are located"
+        ),
+        "feature_keys": Field(
+            list, description="Column names to be normalized", default_value=[]
+        ),
+        "feature_keys_function": Field(
+            dict,
+            description="Function that can be used to create feature columns",
+            default_value={},
+        ),
+        "output_parq_location": Field(
+            dict, description="Target location for the normalized parq files"
+        ),
         "output_norm_feature_info_file_name": Field(
-            str, description="", default_value="normalization_info.yaml"
+            str,
+            description="File name for the file containing the normalization "
+            "information of the features ",
+            default_value="normalization_info.yaml",
         ),
         "recursive": Field(bool, description="", default_value=False),
     }
