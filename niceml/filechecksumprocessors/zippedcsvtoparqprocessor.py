@@ -83,11 +83,11 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                 path=input_path,
                 recursive=self.recursive,
                 file_system=input_fs,
+                filter_ext=[".zip"],
             )
             input_files = [
                 join_fs_path(input_fs, input_path, input_file)
                 for input_file in input_files
-                if splitext(input_file)[1] == ".zip"
             ]
         with open_location(self.output_location) as (output_fs, output_path):
             output_fs.makedirs(output_path, exist_ok=True)
@@ -95,11 +95,11 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                 path=output_path,
                 recursive=self.recursive,
                 file_system=output_fs,
+                filter_ext=[".parq"],
             )
             output_files = [
                 join_fs_path(output_fs, output_path, output_file)
                 for output_file in output_files
-                if splitext(output_file)[1] == ".parq"
             ]
 
         return input_files, output_files
