@@ -30,6 +30,7 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
         input_location: Union[dict, LocationConfig],
         output_location: Union[dict, LocationConfig],
         lockfile_location: Union[dict, LocationConfig],
+        lock_file_name: str = "lock.yaml",
         debug: bool = False,
         process_count: int = 8,
         batch_size: int = 16,
@@ -53,12 +54,13 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                         searched for files recursively
         """
         super().__init__(
-            input_location,
-            output_location,
-            lockfile_location,
-            debug,
-            process_count,
-            batch_size,
+            input_location=input_location,
+            output_location=output_location,
+            lockfile_location=lockfile_location,
+            debug=debug,
+            process_count=process_count,
+            batch_size=batch_size,
+            lock_file_name=lock_file_name,
         )
         self.recursive = recursive
         self.clear = clear
@@ -81,11 +83,11 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                 path=input_path,
                 recursive=self.recursive,
                 file_system=input_fs,
+                filter_ext=[".zip"],
             )
             input_files = [
                 join_fs_path(input_fs, input_path, input_file)
                 for input_file in input_files
-                if splitext(input_file)[1] == ".zip"
             ]
         with open_location(self.output_location) as (output_fs, output_path):
             output_fs.makedirs(output_path, exist_ok=True)
@@ -93,11 +95,11 @@ class ZippedCsvToParqProcessor(FileChecksumProcessor):
                 path=output_path,
                 recursive=self.recursive,
                 file_system=output_fs,
+                filter_ext=[".parq"],
             )
             output_files = [
                 join_fs_path(output_fs, output_path, output_file)
                 for output_file in output_files
-                if splitext(output_file)[1] == ".parq"
             ]
 
         return input_files, output_files

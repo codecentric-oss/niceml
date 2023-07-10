@@ -19,7 +19,7 @@ Let's get started!
 Before we get started, please ensure that you have the following
 prerequisites:
 
-- Python version between 3.8.0 - 3.11.0 installed on your system
+- Python version between 3.8.0 - 3.10.0 installed on your system
 - Poetry package manager installed ([Install Poetry](
 https://python-poetry.org/docs/#installation))
 - Basic knowledge of Python programming
