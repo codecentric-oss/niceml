@@ -1,0 +1,61 @@
+name: Bug Report
+description: 🚨 Please make sure to fill out the template carefully. Otherwise, we may not be able to assist you. 🚨
+title: "[Bug]: "
+labels: ["🪲 bug", "📋 needs review"]
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 📝 Description
+      description: Describe the problem or functionality in question ✨
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 🎯 Expected Behavior
+      description: What behavior or outcome are you expecting? 🔍
+      placeholder: How should this work?
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: 🐞 Current Behavior
+      description: What behavior is currently occurring? 🐛
+      placeholder: How does it currently work?
+  - type: textarea
+    id: reproduce-steps
+    attributes:
+      label: 🔁 Steps to Reproduce
+      description: Steps to reproduce the problem ✔️
+      placeholder: What do we need to do to reproduce the bug?
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: ⚙️ Technical Details
+      description: Technical information (if relevant) 💻
+      value: |
+        - Operating System:
+        - Hardware specifications (if relevant): 
+        - Version Number or Commit ID (if relevant):
+      placeholder: Information about your environment
+  - type: textarea
+    id: solutions
+    attributes:
+      label: 💡 Suggestions or Possible Solutions
+      description: Suggestions or Possible Solutions (if any) 💡
+      placeholder: What possible solution could solve the problem?
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/codecentric-oss/niceml/blob/main/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
