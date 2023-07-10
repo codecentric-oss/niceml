@@ -1,0 +1,51 @@
+{
+  "filename": "test-data.json",
+  "img_size": {
+    "width": 1024,
+    "height": 1024
+  },
+  "labels": [
+    {
+      "class_name": "3",
+      "class_index": null,
+      "color": null,
+      "active": null,
+      "bounding_box": {
+        "x_pos": 605,
+        "y_pos": 258,
+        "width": 53,
+        "height": 52
+      },
+      "score": null,
+      "rotation": 133
+    },
+    {
+      "class_name": "0",
+      "class_index": null,
+      "color": null,
+      "active": null,
+      "bounding_box": {
+        "x_pos": 918,
+        "y_pos": 141,
+        "width": 41,
+        "height": 49
+      },
+      "score": null,
+      "rotation": 328
+    },
+    {
+      "class_name": "1",
+      "class_index": null,
+      "color": null,
+      "active": null,
+      "bounding_box": {
+        "x_pos": 122,
+        "y_pos": 696,
+        "width": 43,
+        "height": 50
+      },
+      "score": null,
+      "rotation": 198
+    }
+  ]
+}
