@@ -1,6 +1,6 @@
 """Module for dataframe loaders"""
 from os.path import isfile, join
-from typing import Optional
+from typing import Optional, Union
 
 import pandas as pd
 
@@ -9,6 +9,7 @@ from niceml.data.dataloaders.interfaces.dfloader import DfLoader
 from niceml.data.storages.localstorage import LocalStorage
 from niceml.data.storages.storageinterface import StorageInterface
 from niceml.experiments.loaddatafunctions import LoadParquetFile
+from niceml.utilities.fsspec.locationutils import LocationConfig
 from niceml.utilities.ioutils import read_parquet, write_parquet
 
 
@@ -35,6 +36,14 @@ class SimpleDfLoaderFactory(DfLoaderFactory):  # pylint: disable=too-few-public-
     def create_df_loader(self, storage: StorageInterface, working_dir: str) -> DfLoader:
         """Returns SimpleDfLoader"""
         return SimpleDfLoader(storage, working_dir)
+
+
+class RemoteDiskDfLoader(DfLoader):
+    def __init__(self, df_location: Union[dict, LocationConfig]):
+        self.df_location = df_location
+
+    def load_df(self, df_path: str) -> pd.DataFrame:
+        pass
 
 
 class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-methods

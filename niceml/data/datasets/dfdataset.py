@@ -2,7 +2,7 @@
 import json
 import random
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -11,12 +11,19 @@ from tensorflow.keras.utils import (  # pylint: disable=import-error,no-name-in-
 )
 
 from niceml.data.datadescriptions.regdatadescription import RegDataDescription
+from niceml.data.datafilters.dataframefilter import DataframeFilter
 from niceml.data.datainfos.datainfo import DataInfo
 from niceml.data.dataiterators.dataiterator import DataIterator
 from niceml.data.dataloaders.interfaces.dfloader import DfLoader
 from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.commonutils import to_categorical
+from niceml.utilities.fsspec.locationutils import (
+    LocationConfig,
+    join_fs_path,
+    open_location,
+)
+from niceml.utilities.ioutils import read_parquet
 
 
 @dataclass
@@ -43,19 +50,44 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         id_key: str,
         batch_size: int,
         set_name: str,
-        df_loader: DfLoader,
-        df_path: str,
+        data_location: Union[dict, LocationConfig],
+        df_path: str = "{set_name}.parq",
         shuffle: bool = False,
+        dataframe_filters: Optional[List[DataframeFilter]] = None,
     ):
         super().__init__()
+        self.dataframe_filters = dataframe_filters or []
+        self.df_path = df_path
+        self.data_location = data_location
         self.batch_size = batch_size
         self.set_name = set_name
         self.id_key = id_key
-        self.dataframe: pd.DataFrame = df_loader.load_df(df_path)
-        self.index_list = list(self.dataframe.index)
+        self.index_list = []
         self.shuffle = shuffle
+        self.data: Optional[pd.DataFrame] = None
         self.inputs: List[dict] = []
         self.targets: List[dict] = []
+
+    def initialize(
+        self, data_description: RegDataDescription, exp_context: ExperimentContext
+    ):
+        self.inputs = data_description.inputs
+        self.targets = data_description.targets
+
+        with open_location(self.data_location) as (data_fs, data_root):
+            data_path = join_fs_path(
+                data_fs, data_root, self.df_path.format(set_name=self.set_name)
+            )
+            self.data = read_parquet(filepath=data_path, file_system=data_fs)
+
+        for df_filter in self.dataframe_filters:
+            df_filter.initialize(data_description=data_description)
+            self.data = df_filter.filter(data=self.data)
+
+        self.data = self.data.reset_index(drop=True)
+        self.index_list = list(range(len(self.data)))
+
+        self.on_epoch_end()
 
     def get_batch_size(self) -> int:
         return self.batch_size
@@ -63,15 +95,8 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
     def get_set_name(self) -> str:
         return self.set_name
 
-    def initialize(
-        self, data_description: RegDataDescription, exp_context: ExperimentContext
-    ):
-        self.inputs = data_description.inputs
-        self.targets = data_description.targets
-        self.on_epoch_end()
-
     def get_data_from_idx_list(self, index_list: List[int]):
-        """retunrs data with a given indexlist"""
+        """returns data with a given `index_list`"""
         input_data = []
         for cur_input in self.inputs:
             cur_data = self.extract_data(index_list, cur_input)
@@ -91,7 +116,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         return self.get_data_from_idx_list(cur_indexes)
 
     def get_data_by_key(self, data_key):
-        return self.dataframe.loc[self.dataframe[self.id_key] == data_key]
+        return self.data.loc[self.data[self.id_key] == data_key]
 
     def get_all_data(self):
         """loads all data"""
@@ -100,7 +125,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
     def extract_data(self, cur_indexes, cur_input):
         """extracts data"""
         cur_key = cur_input["key"]
-        cur_data = self.dataframe.loc[cur_indexes, cur_key]
+        cur_data = self.data.iloc[cur_indexes][cur_key]
         if cur_input["type"] == "categorical":
             cur_data = to_categorical(cur_data, cur_input["value_count"])
         return cur_data
@@ -135,10 +160,10 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
             real_index = self.index_list[cur_idx]
             data_info_dict = {}
             for cur_data in self.inputs + self.targets:
-                data_info_dict[cur_data["key"]] = self.dataframe.loc[
-                    real_index, cur_data["key"]
+                data_info_dict[cur_data["key"]] = self.data.iloc[real_index][
+                    cur_data["key"]
                 ]
-            cur_id = self.dataframe.loc[real_index, self.id_key]
+            cur_id = self.data.loc[real_index, self.id_key]
             data_info_dict = json.loads(json.dumps(data_info_dict))
             data_info_list.append(RegDataInfo(cur_id, data_info_dict))
         return data_info_list
