@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (2023-07-10)
+### Feature
+* Add `NanDataframeFilter` to drop nan values of feature columns ([#51](https://github.com/codecentric-oss/niceml/issues/51)) ([`3561200`](https://github.com/codecentric-oss/niceml/commit/3561200187c4073e2aec4631dd54572bd0686a11))
+* Add dagster op for dataframe normalization ([#48](https://github.com/codecentric-oss/niceml/issues/48)) ([`fe0e8e0`](https://github.com/codecentric-oss/niceml/commit/fe0e8e07a3792ae830bddd5cdf904017f67d148b))
+* Add lockfile name as attribute of `FileChecksumProcessor ` ([#46](https://github.com/codecentric-oss/niceml/issues/46)) ([`013addf`](https://github.com/codecentric-oss/niceml/commit/013addfdcf3d23de3c025a1e4c95b7c11fd0a0ac))
+
+### Fix
+* Adjust supported python versions in `Getting Started` docs section ([`4bde794`](https://github.com/codecentric-oss/niceml/commit/4bde794d881d9c1c397d86a61bb040e1f96cbec8))
+* Save result files from `tensorgraphanalyzer` at the correct place and implemented validation for that ([#50](https://github.com/codecentric-oss/niceml/issues/50)) ([`ea3191b`](https://github.com/codecentric-oss/niceml/commit/ea3191b3c0fc31d7e435b30a74c16751c939a3b3))
+* Remove temp directory from hydra search path. Add hydra config mapping factory ([#47](https://github.com/codecentric-oss/niceml/issues/47)) ([`6660ec9`](https://github.com/codecentric-oss/niceml/commit/6660ec91484c40fb21fdb3335e1244f24d757923))
+
 ## v0.5.0 (2023-06-23)
 ### Feature
 * Add abstract `FileChecksumProcessor` and concrete class `ZippedCsvToParquetProcessor` ([#44](https://github.com/codecentric-oss/niceml/issues/44)) ([`a21d673`](https://github.com/codecentric-oss/niceml/commit/a21d67300705f3f1f4fc1515c567adef74ecfec5))
