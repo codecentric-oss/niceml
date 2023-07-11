@@ -1,5 +1,4 @@
 """Module for dfdataset"""
-import json
 import random
 from dataclasses import dataclass
 from typing import List, Union, Optional
@@ -14,7 +13,6 @@ from niceml.data.datadescriptions.regdatadescription import RegDataDescription
 from niceml.data.datafilters.dataframefilter import DataframeFilter
 from niceml.data.datainfos.datainfo import DataInfo
 from niceml.data.dataiterators.dataiterator import DataIterator
-from niceml.data.dataloaders.interfaces.dfloader import DfLoader
 from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.commonutils import to_categorical
@@ -34,18 +32,31 @@ class RegDataInfo(DataInfo):
     data: dict
 
     def get_info_dict(self) -> dict:
+        """
+        The get_info_dict function returns a dictionary containing the dataid
+        and all the data in self.data.
+
+        Returns:
+            A dictionary containing the dataid and all the other key-value pairs in self
+        """
         info_dict = dict(dataid=self.dataid)
         info_dict.update(self.data)
         return info_dict
 
     def get_identifier(self) -> str:
+        """
+        The get_identifier function returns the dataid of this object.
+
+        Returns:
+            The dataid
+        """
         return self.dataid
 
 
 class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attributes
     """Dataset for dataframes"""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # ruff: noqa: PLR0913
         self,
         id_key: str,
         batch_size: int,
@@ -55,6 +66,23 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         shuffle: bool = False,
         dataframe_filters: Optional[List[DataframeFilter]] = None,
     ):
+        """
+        The __init__ function is called when the class is instantiated.
+        It sets up the instance of the class, and defines all of its attributes.
+        The __init__ function takes in a number of arguments, which are used to set up
+        these attributes.
+
+        Args:
+            id_key: str: Specify the column name of the id column in your dataframe
+            batch_size: int: Define the size of each batch
+            set_name: str: Identify the dataset
+            data_location: Union[dict, LocationConfig]: Specify the location of the data
+            df_path: str: Specify the file name of the dataframe
+            shuffle: bool: Shuffle the data
+            dataframe_filters: Optional[List[DataframeFilter]]: Optional list of dataframe filters
+                                to filter the data
+
+        """
         super().__init__()
         self.dataframe_filters = dataframe_filters or []
         self.df_path = df_path
@@ -71,6 +99,20 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
     def initialize(
         self, data_description: RegDataDescription, exp_context: ExperimentContext
     ):
+        """
+        The initialize function is called when the data set is created.
+        It takes in a `RegDataDescription` object, which contains information about the
+        inputs and targets of your dataset. The initialize function should also take in an
+        `ExperimentContext` object, which contains information about where to find your
+        data on disk. The `ExperimentContext` is not used in this class.
+        This function should read in all the necessary files from disk and store them as
+        attributes on this class instance.
+
+        Args:
+            data_description: RegDataDescription: Pass the data description of the dataset
+                                to this class
+            exp_context: ExperimentContext: Pass the experiment context.
+        """
         self.inputs = data_description.inputs
         self.targets = data_description.targets
 
@@ -90,9 +132,21 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         self.on_epoch_end()
 
     def get_batch_size(self) -> int:
+        """
+        The get_batch_size function returns the batch size of the dataset.
+
+        Returns:
+            The batch size
+        """
         return self.batch_size
 
     def get_set_name(self) -> str:
+        """
+        The get_set_name function returns the name of the set.
+
+        Returns:
+            The `set_name` attribute
+        """
         return self.set_name
 
     def get_data_from_idx_list(self, index_list: List[int]):
@@ -116,6 +170,18 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         return self.get_data_from_idx_list(cur_indexes)
 
     def get_data_by_key(self, data_key):
+        """
+        The get_data_by_key function takes a data_key as an argument and returns the row of
+        data from the DataFrame that corresponds to that key. The function uses pandas' loc method
+        to return a slice of rows from the DataFrame where the value in self.id_key matches
+        data_key.
+
+        Args:
+            data_key: Identify the data that is being requested
+
+        Returns:
+            A dataframe of the rows where the id_key column matches the data_key parameter
+        """
         return self.data.loc[self.data[self.id_key] == data_key]
 
     def get_all_data(self):
@@ -131,6 +197,15 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         return cur_data
 
     def __getitem__(self, index):
+        """
+        The __getitem__ function is called when the `DfDataset` is indexed (while training a model).
+
+        Args:
+            index: Specify the start index of the batch
+
+        Returns:
+            A batch of input data and target data with the batch size `self.batch_size`
+        """
         start_idx = index * self.batch_size
         end_idx = min(len(self.index_list), (index + 1) * self.batch_size)
         input_data, target_data = self.get_data(start_idx, end_idx)
@@ -138,6 +213,12 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         return input_data, target_data
 
     def __len__(self):
+        """
+        The __len__ function is used to determine the number of batches in an epoch.
+
+        Returns:
+            The number of batches in the dataset
+        """
         batch_count, rest = divmod(len(self.index_list), self.batch_size)
         if rest > 0:
             batch_count += 1
@@ -149,6 +230,17 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
             random.shuffle(self.index_list)
 
     def iter_with_info(self):
+        """
+        The iter_with_info function is a generator that yields the next batch of data,
+        along with some additional information about the batch.
+        The additional information is useful for various diagnostic purposes.
+        The function returns an object of type DataIterator, which has two fields:
+            * 'batch' contains the next batch of data.
+            * 'info' contains additional information about that batch.
+
+        Returns:
+            A dataiterator object
+        """
         return DataIterator(self)
 
     def get_datainfo(self, batch_index):
@@ -156,14 +248,16 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         start_idx = batch_index * self.batch_size
         end_idx = min(len(self.index_list), (batch_index + 1) * self.batch_size)
         data_info_list: List[RegDataInfo] = []
-        for cur_idx in range(start_idx, end_idx):
-            real_index = self.index_list[cur_idx]
-            data_info_dict = {}
-            for cur_data in self.inputs + self.targets:
-                data_info_dict[cur_data["key"]] = self.data.iloc[real_index][
-                    cur_data["key"]
-                ]
-            cur_id = self.data.iloc[real_index][self.id_key]
-            data_info_dict = json.loads(json.dumps(data_info_dict))
-            data_info_list.append(RegDataInfo(cur_id, data_info_dict))
+        input_keys = [input_dict["key"] for input_dict in self.inputs]
+        target_keys = [target_dict["key"] for target_dict in self.targets]
+        data_subset = self.data[[self.id_key] + input_keys + target_keys]
+        real_index_list = [self.index_list[idx] for idx in range(start_idx, end_idx)]
+        data_info_dicts: List[dict] = data_subset.iloc[real_index_list].to_dict(
+            "records"
+        )
+
+        for data_info_dict in data_info_dicts:
+            key = data_info_dict[self.id_key]
+            data_info_dict.pop(self.id_key)
+            data_info_list.append(RegDataInfo(key, data_info_dict))
         return data_info_list
