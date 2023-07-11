@@ -163,7 +163,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
                 data_info_dict[cur_data["key"]] = self.data.iloc[real_index][
                     cur_data["key"]
                 ]
-            cur_id = self.data.loc[real_index, self.id_key]
+            cur_id = self.data.iloc[real_index][self.id_key]
             data_info_dict = json.loads(json.dumps(data_info_dict))
             data_info_list.append(RegDataInfo(cur_id, data_info_dict))
         return data_info_list

@@ -1,13 +1,22 @@
 """Module for RegDataDescription"""
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from types import FunctionType
+from typing import Dict, List, Tuple, Union
 
 import yaml
 
-from niceml.data.datadescriptions.inputdatadescriptions import InputVectorDataDescription
+from niceml.data.datadescriptions.inputdatadescriptions import (
+    InputVectorDataDescription,
+)
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,
 )
+from niceml.utilities.fsspec.locationutils import (
+    LocationConfig,
+    open_location,
+    join_fs_path,
+)
+from niceml.utilities.ioutils import list_dir, read_parquet
 
 
 def get_feature_size(features: List[dict]) -> int:
@@ -74,3 +83,28 @@ def load_data_infos(yaml_path: str) -> RegDataDescription:  # QUEST: still used?
     with open(yaml_path, "r") as file:
         data = yaml.load(file, Loader=yaml.SafeLoader)
     return RegDataDescription(**data)
+
+
+def reg_data_description_factory(
+    train_data_location: Union[dict, LocationConfig],
+    train_set_file_name: str,
+    filter_function: FunctionType,
+    **kwargs,
+) -> RegDataDescription:
+    with open_location(train_data_location) as (
+        regression_data_fs,
+        regression_data_root,
+    ):
+        train_data = read_parquet(
+            filepath=join_fs_path(
+                regression_data_fs, regression_data_root, train_set_file_name
+            ),
+            file_system=regression_data_fs,
+        )
+
+        inputs: List[Dict[str, str]]
+        targets: List[Dict[str, str]]
+
+        inputs, targets = filter_function(data=train_data, **kwargs)
+
+        return RegDataDescription(inputs=inputs, targets=targets)
