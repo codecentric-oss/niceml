@@ -29,6 +29,9 @@ def normalize_col(
 
     divisor = max_val - min_val
 
+    if divisor == 0:
+        raise ZeroDivisionError
+
     dataframe[column_key] = (dataframe[column_key] - min_val) / divisor
 
     norm_info = NormalizationInfo(
