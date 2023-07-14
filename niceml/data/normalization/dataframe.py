@@ -39,3 +39,24 @@ def normalize_col(
     )
 
     return dataframe, norm_info
+
+
+def denormalize_column(
+    norm_info: NormalizationInfo, column: str, data: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    The denormalize_column function takes a `NormalizationInfo` object, a column name, and
+    a dataframe as input. It then multiplies the values in the specified column by the divisor
+    in the `NormalizationInfo` object and adds to them the offset value from that same object.
+    The resulting dataframe is returned.
+
+    Args:
+        norm_info: NormalizationInfo: Pass in the `NormalizationInfo` object
+        column: str: Specify the column to denormalize
+        data: pd.DataFrame: Pass the dataframe to the function
+
+    Returns:
+        The dataframe with the column denormalized
+    """
+    data[column] = data[column] * norm_info.divisor + norm_info.offset
+    return data
