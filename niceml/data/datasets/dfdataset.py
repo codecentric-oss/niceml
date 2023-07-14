@@ -8,7 +8,10 @@ from tensorflow.keras.utils import (  # pylint: disable=import-error,no-name-in-
     Sequence,
 )
 
-from niceml.data.datadescriptions.regdatadescription import RegDataDescription
+from niceml.data.datadescriptions.regdatadescription import (
+    RegDataDescription,
+    FeatureTypes,
+)
 from niceml.data.datafilters.dataframefilter import DataframeFilter
 from niceml.data.datainfos.datainfo import DataInfo
 from niceml.data.dataiterators.dataiterator import DataIterator
@@ -209,7 +212,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         """extracts data"""
         cur_key = cur_input["key"]
         cur_data = self.data.iloc[cur_indexes][cur_key]
-        if cur_input["type"] == "categorical":
+        if cur_input["type"] == FeatureTypes.CATEGORICAL:
             cur_data = to_categorical(cur_data, cur_input["value_count"])
         return cur_data
 

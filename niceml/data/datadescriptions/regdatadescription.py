@@ -11,20 +11,42 @@ from niceml.data.datadescriptions.inputdatadescriptions import (
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,
 )
+from niceml.data.datashuffler.uniformdistributionshuffler import ModeNotImplementedError
 from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
     open_location,
     join_fs_path,
 )
-from niceml.utilities.ioutils import list_dir, read_parquet
+from niceml.utilities.ioutils import read_parquet
+
+
+class FeatureTypes:
+    """FeatureTypes are used for defining which kind of features are available."""
+
+    SCALAR = "scalar"
+    CATEGORICAL = "categorical"
+    BINARY = "binary"
+
+    @classmethod
+    def get_available_features(cls) -> List[str]:
+        """Returns list of available feature types"""
+        return [cls.SCALAR, cls.CATEGORICAL, cls.BINARY]
 
 
 def get_feature_size(features: List[dict]) -> int:
     """Returns size of features in 'features' dictionary"""
     count = 0
     for feature in features:
-        assert feature["type"] in ["scalar", "categorical"]
-        count += 1 if feature["type"] == "scalar" else feature["value_count"]
+        feature_type = feature["type"]
+        if feature_type not in FeatureTypes.get_available_features():
+            raise ModeNotImplementedError(
+                f"Feature type {feature['type']} not implemented"
+            )
+        count += (
+            1
+            if feature_type in [FeatureTypes.BINARY, FeatureTypes.SCALAR]
+            else feature["value_count"]
+        )
     return count
 
 
@@ -58,11 +80,14 @@ class RegDataDescription(InputVectorDataDescription, OutputVectorDataDescription
     def get_input_entry_names(self) -> List[str]:
         """Returns names of input entries"""
         input_keys: List[str] = []
-        for i in self.inputs:
-            if i["type"] == "scalar":
-                input_keys.append(i["key"])
-            elif i["type"] == "categorical":
-                input_keys += [f"{i['key']}{x:03d}" for x in range(i["value_count"])]
+        for cur_input in self.inputs:
+            if cur_input["type"] in [FeatureTypes.SCALAR, FeatureTypes.BINARY]:
+                input_keys.append(cur_input["key"])
+            elif cur_input["type"] == FeatureTypes.CATEGORICAL:
+                input_keys += [
+                    f"{cur_input['key']}{x:03d}"
+                    for x in range(cur_input["value_count"])
+                ]
 
         return input_keys
 
@@ -70,9 +95,9 @@ class RegDataDescription(InputVectorDataDescription, OutputVectorDataDescription
         """Get min and max values for categorical and binary input values"""
         min_max_dict: Dict[str, Tuple[int, int]] = {}
         for input_vector in self.inputs:
-            if input_vector["type"] == "binary":
+            if input_vector["type"] == FeatureTypes.BINARY:
                 min_max_dict[input_vector["key"]] = (0, 1)
-            elif input_vector["type"] == "categorical":
+            elif input_vector["type"] == FeatureTypes.CATEGORICAL:
                 min_max_dict[input_vector["key"]] = (0, input_vector["value_count"] - 1)
 
         return min_max_dict
@@ -91,6 +116,7 @@ def reg_data_description_factory(
     filter_function: FunctionType,
     **kwargs,
 ) -> RegDataDescription:
+    """Factory for creating RegDataDescription from train data"""
     with open_location(train_data_location) as (
         regression_data_fs,
         regression_data_root,
