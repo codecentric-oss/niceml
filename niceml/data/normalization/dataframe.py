@@ -7,6 +7,7 @@ from niceml.data.normalization.normalization import (
     NormalizationInfo,
     BinaryNormalizationInfo,
     CategoricalNormalizationInfo,
+    ScalarNormalizationInfo,
 )
 
 
@@ -38,7 +39,7 @@ def normalize_scalar_col(
 
     dataframe[column_key] = (dataframe[column_key] - min_val) / divisor
 
-    norm_info = NormalizationInfo(
+    norm_info = ScalarNormalizationInfo(
         feature_key=column_key, offset=float(min_val), divisor=float(divisor)
     )
 
