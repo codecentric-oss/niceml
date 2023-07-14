@@ -5,14 +5,16 @@ import json
 
 
 from nicegui import ui
+
+from niceml.experimental.nicegui.ngfilter import NGExpFilter
 from niceml.experiments.experimentdata import ExperimentData
-from niceml.dashboard.nicegui.ngfilter import NGExpFilter
 
 
 class NGDateFilter(ABC):
     @abstractmethod
     def render(self, exp_list: List[str], on_change) -> None:
         """render datetime input in nicegui"""
+
     @abstractmethod
     def filter(self, exp_list: List[str]) -> List[str]:
         """Filters list and returns left over experiments"""
@@ -36,14 +38,16 @@ class ContainDateFilter(NGExpFilter):
         end_date = datetime.today()
         result = ui.label()
         self.date_selection = ui.date(
-            #value={'from': start_date, 'to': end_date},
+            # value={'from': start_date, 'to': end_date},
             on_change=on_change
-        ).props('range')
+        ).props("range")
 
     def filter(self, exp_list: List[ExperimentData]) -> List[ExperimentData]:
         """filters the experiments which are inside the selected date range"""
         if self.date_selection.value:
-            start_date = datetime.strptime(self.date_selection.value["from"], "%Y-%m-%d")
+            start_date = datetime.strptime(
+                self.date_selection.value["from"], "%Y-%m-%d"
+            )
             end_date = datetime.strptime(self.date_selection.value["to"], "%Y-%m-%d")
             date_filtered_list: List[ExperimentData] = []
             not_included_list: List[ExperimentData] = []

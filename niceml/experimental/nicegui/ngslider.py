@@ -2,15 +2,17 @@ from nicegui import ui
 from typing import Any, Callable, List, Optional
 
 from abc import ABC, abstractmethod
+
+from niceml.experimental.nicegui.ngfilter import NGExpFilter
 from niceml.experiments.experimentdata import ExperimentData
 from niceml.experiments.metafunctions import EpochsExtractor, MetaFunction
-from niceml.dashboard.nicegui.ngfilter import NGExpFilter
 
 MODE_STR: List[str] = ["min", "max", "range"]
 
 
 class UnsupportedModeError(Exception):
     """Error when the mode is not supported"""
+
     pass
 
 
@@ -25,12 +27,13 @@ class NGSliderFilter(ABC):
 
 
 class ContainSliderFilter(NGExpFilter):
-    def __init__(self,
-                 meta_function: MetaFunction,
-                 default_min: Optional[Any] = None,
-                 default_max: Optional[Any] = None,
-                 mode: str = "min",
-                 ):
+    def __init__(
+        self,
+        meta_function: MetaFunction,
+        default_min: Optional[Any] = None,
+        default_max: Optional[Any] = None,
+        mode: str = "min",
+    ):
         super().__init__()
         self.meta_function = meta_function
         self.default_min = default_min
@@ -69,12 +72,8 @@ class ContainSliderFilter(NGExpFilter):
             with self.container:
                 ui.label().bind_text_from(self.selected_value, "value")
 
-
         self.selected_value = ui.slider(
-            min=min_value,
-            max=max_value,
-            value=value,
-            on_change=change
+            min=min_value, max=max_value, value=value, on_change=change
         )
 
     def filter(self, exp_list: List[ExperimentData]) -> List[ExperimentData]:
@@ -91,6 +90,3 @@ class ContainSliderFilter(NGExpFilter):
                 if sel_min <= val <= sel_max:
                     out_exp_list.append(exp_data)
         return out_exp_list
-
-
-

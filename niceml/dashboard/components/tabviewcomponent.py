@@ -4,8 +4,8 @@ from collections import defaultdict
 from typing import Dict, List, Optional
 
 from niceml.dashboard.components.expviscomponent import ExpVisComponent
-from niceml.dashboard.nicegui.ngtabs import NGTab, NgTabView
 from niceml.data.storages.storageinterface import StorageInterface
+from niceml.experimental.nicegui.ngtabs import NgTabView, NGTab
 from niceml.experiments.experimentdata import ExperimentData
 from niceml.experiments.experimentmanager import ExperimentManager
 
@@ -52,7 +52,6 @@ class TabViewComponent(ExpVisComponent):
         subset_name: Optional[str] = None,
         update: bool = False,
     ):
-
         """Render the corresponding prefixes"""
         exp_dict = self.get_exp_dict(exp_ids, exp_manager)
         comp_names: List[str] = []
