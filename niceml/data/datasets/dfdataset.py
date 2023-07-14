@@ -1,7 +1,6 @@
 """Module for dfdataset"""
-import random
 from dataclasses import dataclass
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Any
 
 import numpy as np
 import pandas as pd
@@ -14,6 +13,8 @@ from niceml.data.datafilters.dataframefilter import DataframeFilter
 from niceml.data.datainfos.datainfo import DataInfo
 from niceml.data.dataiterators.dataiterator import DataIterator
 from niceml.data.datasets.dataset import Dataset
+from niceml.data.datashuffler.datashuffler import DataShuffler
+from niceml.data.datashuffler.defaultshuffler import DefaultDataShuffler
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.commonutils import to_categorical
 from niceml.utilities.fsspec.locationutils import (
@@ -52,6 +53,20 @@ class RegDataInfo(DataInfo):
         """
         return self.dataid
 
+    def __getattr__(self, item) -> Any:
+        """
+        The __getattr__ function is called when an attribute lookup has not found the attribute
+        in the usual places (i.e. it is not an instance attribute nor is it
+        found in the class tree for self).
+
+        Args:
+            item: Access the value of a key in the dictionary
+
+        Returns:
+            The value of the key in the data dictionary
+        """
+        return self.data[item]
+
 
 class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attributes
     """Dataset for dataframes"""
@@ -64,6 +79,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         data_location: Union[dict, LocationConfig],
         df_path: str = "{set_name}.parq",
         shuffle: bool = False,
+        data_shuffler: Optional[DataShuffler] = None,
         dataframe_filters: Optional[List[DataframeFilter]] = None,
     ):
         """
@@ -84,6 +100,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
         """
         super().__init__()
+        self.data_shuffler = data_shuffler or DefaultDataShuffler()
         self.dataframe_filters = dataframe_filters or []
         self.df_path = df_path
         self.data_location = data_location
@@ -227,7 +244,9 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
     def on_epoch_end(self):
         """shuffles on epoch end"""
         if self.shuffle:
-            random.shuffle(self.index_list)
+            self.index_list = self.data_shuffler.shuffle(
+                data_infos=self.get_all_data_info()
+            )
 
     def iter_with_info(self):
         """
@@ -260,4 +279,27 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
             key = data_info_dict[self.id_key]
             data_info_dict.pop(self.id_key)
             data_info_list.append(RegDataInfo(key, data_info_dict))
+        return data_info_list
+
+    def get_all_data_info(self) -> List[RegDataInfo]:
+        """
+        The get_all_data_info function returns a list of RegDataInfo objects.
+        Each RegDataInfo object contains the following information:
+            - key: The unique identifier for each data point
+            - input_dict: A dictionary mapping input keys to their values
+            - target_dict: A dictionary mapping target keys to their values
+
+        Returns:
+            A list of `RegDataInfo` objects
+
+        """
+        input_keys = [input_dict["key"] for input_dict in self.inputs]
+        target_keys = [target_dict["key"] for target_dict in self.targets]
+        data_subset = self.data[[self.id_key] + input_keys + target_keys]
+        data_info_dicts: List[dict] = data_subset.to_dict("records")
+        data_info_list: List[RegDataInfo] = []
+        for data_info_dict in data_info_dicts:
+            key = data_info_dict.pop(self.id_key)
+            data_info_list.append(RegDataInfo(key, data_info_dict))
+
         return data_info_list
