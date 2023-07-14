@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from niceml.data.normalization.dataframe import normalize_col
+from niceml.data.normalization.dataframe import normalize_scalar_col
 from niceml.data.normalization.normalization import NormalizationInfo
 
 
@@ -38,7 +38,7 @@ def test_normalize_col(
 ):
     input_dataframe = sample_dataframe.copy()
 
-    output_dataframe, norm_info = normalize_col(input_dataframe, column_key)
+    output_dataframe, norm_info = normalize_scalar_col(input_dataframe, column_key)
 
     assert output_dataframe.equals(expected_output)
     assert norm_info.feature_key == expected_norm_info.feature_key

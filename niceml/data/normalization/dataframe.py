@@ -3,14 +3,18 @@ from typing import Tuple
 
 import pandas as pd
 
-from niceml.data.normalization.normalization import NormalizationInfo
+from niceml.data.normalization.normalization import (
+    NormalizationInfo,
+    BinaryNormalizationInfo,
+    CategoricalNormalizationInfo,
+)
 
 
-def normalize_col(
+def normalize_scalar_col(
     dataframe: pd.DataFrame, column_key
 ) -> Tuple[pd.DataFrame, NormalizationInfo]:
     """
-    The normalize_col function takes a dataframe and a column key as input.
+    The normalize_scalar_col function takes a dataframe and a column key as input.
     It returns the normalized dataframe and the normalization information for that column.
     The normalization is done by subtracting the minimum value from each element in that column,
     and then dividing by (max - min). The offset is equal to min_val, and
@@ -38,6 +42,37 @@ def normalize_col(
         feature_key=column_key, offset=float(min_val), divisor=float(divisor)
     )
 
+    return dataframe, norm_info
+
+
+def normalize_binary_col(
+    dataframe: pd.DataFrame, column_key: str
+) -> Tuple[pd.DataFrame, NormalizationInfo]:
+    """
+    The normalize_binary_col function takes a dataframe and a column key as input.
+    It returns the normalized dataframe and the normalization information for that column.
+    """
+    values = list(sorted(dataframe[column_key].unique()))
+    binary_value_count = 2
+    if len(values) > binary_value_count:
+        raise ValueError("Binary column must have more than two unique values.")
+
+    dataframe[column_key] = dataframe[column_key].apply(lambda x: values.index(x))
+
+    norm_info = BinaryNormalizationInfo(feature_key=column_key, values=values)
+    return dataframe, norm_info
+
+
+def normalize_categorical_col(
+    dataframe: pd.DataFrame, column_key: str
+) -> Tuple[pd.DataFrame, NormalizationInfo]:
+    """
+    The normalize_categorical_col function takes a dataframe and a column key as input.
+    It returns the normalized dataframe and the normalization information for that column.
+    """
+    values = list(sorted(dataframe[column_key].unique()))
+    dataframe[column_key] = dataframe[column_key].apply(lambda x: values.index(x))
+    norm_info = CategoricalNormalizationInfo(feature_key=column_key, values=values)
     return dataframe, norm_info
 
 
