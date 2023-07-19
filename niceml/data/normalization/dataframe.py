@@ -35,7 +35,10 @@ def normalize_scalar_col(
     divisor = max_val - min_val
 
     if divisor == 0:
-        raise ZeroDivisionError
+        if min_val == max_val:
+            divisor = 1
+        else:
+            raise ZeroDivisionError
 
     dataframe[column_key] = (dataframe[column_key] - min_val) / divisor
 
