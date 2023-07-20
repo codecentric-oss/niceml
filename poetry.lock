@@ -1451,6 +1451,21 @@ docs = ["Sphinx", "docutils (<0.18)"]
 test = ["objgraph", "psutil"]
 
 [[package]]
+name = "griffe"
+version = "0.32.3"
+description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "griffe-0.32.3-py3-none-any.whl", hash = "sha256:d9471934225818bf8f309822f70451cc6abb4b24e59e0bb27402a45f9412510f"},
+    {file = "griffe-0.32.3.tar.gz", hash = "sha256:14983896ad581f59d5ad7b6c9261ff12bdaa905acccc1129341d13e545da8521"},
+]
+
+[package.dependencies]
+colorama = ">=0.4"
+
+[[package]]
 name = "grpcio"
 version = "1.47.5"
 description = "HTTP/2-based RPC framework"
@@ -2224,6 +2239,21 @@ files = [
 mkdocs = ">=1.0.3"
 
 [[package]]
+name = "mkdocs-literate-nav"
+version = "0.6.0"
+description = "MkDocs plugin to specify the navigation in Markdown instead of YAML"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mkdocs_literate_nav-0.6.0-py3-none-any.whl", hash = "sha256:8c1b84714e5974da5e44e011ec0069275ae7647270c13a679662cf6ffce675a4"},
+    {file = "mkdocs_literate_nav-0.6.0.tar.gz", hash = "sha256:81ccbea18163ae8e10bd0bd39237fe70c32a1f2dff6c170779f5d52dd98a0470"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.0.3"
+
+[[package]]
 name = "mkdocs-material"
 version = "9.1.13"
 description = "Documentation that simply works"
@@ -2257,6 +2287,21 @@ files = [
     {file = "mkdocs_material_extensions-1.1.1-py3-none-any.whl", hash = "sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945"},
     {file = "mkdocs_material_extensions-1.1.1.tar.gz", hash = "sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93"},
 ]
+
+[[package]]
+name = "mkdocs-section-index"
+version = "0.3.5"
+description = "MkDocs plugin to allow clickable sections that lead to an index page"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mkdocs_section_index-0.3.5-py3-none-any.whl", hash = "sha256:1f6359287b0a823d6297cf1cb6c0a49ed75851d0d1cea8b425b207a45ce10141"},
+    {file = "mkdocs_section_index-0.3.5.tar.gz", hash = "sha256:fa8b1ce0649326b1873c6460c1df2bb0c4825fd21e3dd416f13ec212d31edf12"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.0.3"
 
 [[package]]
 name = "mkdocs-table-reader-plugin"
@@ -2301,6 +2346,22 @@ typing-extensions = {version = ">=4.1", markers = "python_version < \"3.10\""}
 crystal = ["mkdocstrings-crystal (>=0.3.4)"]
 python = ["mkdocstrings-python (>=0.5.2)"]
 python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
+
+[[package]]
+name = "mkdocstrings-python"
+version = "1.2.0"
+description = "A Python handler for mkdocstrings."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "mkdocstrings_python-1.2.0-py3-none-any.whl", hash = "sha256:2924c9c4286fd236bdae64402b5cc5010dee13779b3edf1a65d97bc02303657b"},
+    {file = "mkdocstrings_python-1.2.0.tar.gz", hash = "sha256:e16bedc236a3a6aa04c916ae6b9d37d2299c80c6e7169fc481a30ed9f8f362a4"},
+]
+
+[package.dependencies]
+griffe = ">=0.30"
+mkdocstrings = ">=0.20"
 
 [[package]]
 name = "more-itertools"
@@ -5238,4 +5299,4 @@ visu = ["altair", "streamlit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9.7 || >3.9.7,<3.11"
-content-hash = "6a047b39a4b10caf7727b1f092d984a7472cffb5cfbce407b2384b6f5a519ea0"
+content-hash = "7acc6099faa7d274895b08d1141dd32660f7177f06f7735ed63761cd9a90223f"

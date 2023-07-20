@@ -1,5 +1,5 @@
 site_name: niceML
-site_url: https://niceml.cc/
+site_url: https://niceml.io/
 repo_url: https://github.com/codecentric-oss/niceml
 repo_name: codecentric-oss/niceml
 edit_uri: edit/main/docs/
@@ -11,12 +11,15 @@ theme:
     repo: fontawesome/brands/github
     edit: material/pencil
     view: material/eye
+    logo: material/ice-cream
   features:
 #    - navigation.tabs
 #    - navigation.top
     - navigation.footer
+    - navigation.instant
     - navigation.indexes
     - navigation.sections
+    - navigation.path
 #    - toc.integrate
     - toc.follow
     - search.suggest
@@ -71,31 +74,37 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-#  - pymdownx.emoji:
-#      emoji_index: !!python/name:materialx.emoji.twemoji
-#      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 plugins:
-  - mkdocstrings  # Use docstrings for documentation
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            allow_inspection: true
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_root_full_path: false
+            show_root_members_full_path: false
+            show_category_heading: true
+            merge_init_into_class: true
+            ignore_init_summary: true
+            docstring_section_style: list
+            separate_signature: true
+  - section-index
   - search
   - table-reader
   - gen-files:
       scripts:
-        - docs/jobsdoc.py
+        - docs/jobs/jobsdoc.py
+        - docs/jobs/apidocs.py
+  - literate-nav:
+      implicit_index: true
+      nav_file: SUMMARY.md
 
-nav:  # Sort the pages
-  - index.md
-  - Tutorials:
-    - Getting Started: tutorials.md
-    - Generating Test Data: generate-data.md
-  - How-to Guides:
-    - How-to-guides: how-to-guides.md
-    - Frequently Asked Questions: faq.md
-  - Concepts:
-    - Use Hydra and Dagster: hydra-dagster.md
-    - Use the niceML Dashboard: dashboard.md
-  - References:
-    - Dagster Jobs: jobsdoc.md
 
 copyright: |
   &copy; 2023 <a href="https://www.codecentric.de/"  target="_blank" rel="noopener">codecentric AG</a>
