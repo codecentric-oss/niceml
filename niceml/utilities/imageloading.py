@@ -33,7 +33,7 @@ def load_img_uint8(
     """
     file_system: AbstractFileSystem = file_system or LocalFileSystem()
     try:
-        if type(image_path) == LocationConfig:
+        if isinstance(image_path, LocationConfig):
             image_path = image_path.uri
         with file_system.open(image_path) as fs_file:
             image = Image.open(fs_file).copy()
