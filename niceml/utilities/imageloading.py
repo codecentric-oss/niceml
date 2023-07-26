@@ -1,7 +1,7 @@
 """Module for image loading"""
 from os.path import basename, join
 from tempfile import TemporaryDirectory
-from typing import Optional
+from typing import Optional, Union
 
 import cv2
 import numpy as np
@@ -10,10 +10,11 @@ from fsspec.implementations.local import LocalFileSystem
 from PIL import Image
 
 from niceml.utilities.imagesize import ImageSize
+from niceml.utilities.fsspec.locationutils import LocationConfig
 
 
 def load_img_uint8(
-    image_path: str,
+    image_path: Union[str, LocationConfig],
     file_system: Optional[AbstractFileSystem] = None,
     target_image_size: Optional[ImageSize] = None,
     interpolation: int = cv2.INTER_LINEAR,
@@ -32,6 +33,8 @@ def load_img_uint8(
     """
     file_system: AbstractFileSystem = file_system or LocalFileSystem()
     try:
+        if isinstance(image_path, LocationConfig):
+            image_path = image_path.uri
         with file_system.open(image_path) as fs_file:
             image = Image.open(fs_file).copy()
         np_array = np.array(image)
