@@ -18,6 +18,7 @@ from niceml.data.dataiterators.dataiterator import DataIterator
 from niceml.data.datasets.dataset import Dataset
 from niceml.data.datashuffler.datashuffler import DataShuffler
 from niceml.data.datashuffler.defaultshuffler import DefaultDataShuffler
+from niceml.data.featurecombiners.featurecombiner import FeatureCombiner
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.commonutils import to_categorical
 from niceml.utilities.fsspec.locationutils import (
@@ -84,6 +85,8 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         shuffle: bool = False,
         data_shuffler: Optional[DataShuffler] = None,
         dataframe_filters: Optional[List[DataframeFilter]] = None,
+        feature_combiners: Optional[List[FeatureCombiner]] = None,
+        extra_key_list: Optional[List[str]] = None,
     ):
         """
         The __init__ function is called when the class is instantiated.
@@ -115,6 +118,8 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         self.data: Optional[pd.DataFrame] = None
         self.inputs: List[dict] = []
         self.targets: List[dict] = []
+        self.extra_key_list: List[str] = extra_key_list or []
+        self.feature_combiners: List[FeatureCombiner] = feature_combiners or []
 
     def initialize(
         self, data_description: RegDataDescription, exp_context: ExperimentContext
@@ -145,6 +150,9 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         for df_filter in self.dataframe_filters:
             df_filter.initialize(data_description=data_description)
             self.data = df_filter.filter(data=self.data)
+
+        for feature_combiner in self.feature_combiners:
+            self.data = feature_combiner.combine_features(self.data)
 
         self.data = self.data.reset_index(drop=True)
         self.index_list = list(range(len(self.data)))
@@ -272,7 +280,9 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         data_info_list: List[RegDataInfo] = []
         input_keys = [input_dict["key"] for input_dict in self.inputs]
         target_keys = [target_dict["key"] for target_dict in self.targets]
-        data_subset = self.data[[self.id_key] + input_keys + target_keys]
+        data_subset = self.data[
+            [self.id_key] + input_keys + target_keys + self.extra_key_list
+        ]
         real_index_list = [self.index_list[idx] for idx in range(start_idx, end_idx)]
         data_info_dicts: List[dict] = data_subset.iloc[real_index_list].to_dict(
             "records"
@@ -298,11 +308,15 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         """
         input_keys = [input_dict["key"] for input_dict in self.inputs]
         target_keys = [target_dict["key"] for target_dict in self.targets]
-        data_subset = self.data[[self.id_key] + input_keys + target_keys]
+        data_subset = self.data[
+            [self.id_key] + input_keys + target_keys + self.extra_key_list
+        ]
         data_info_dicts: List[dict] = data_subset.to_dict("records")
         data_info_list: List[RegDataInfo] = []
+
         for data_info_dict in data_info_dicts:
-            key = data_info_dict.pop(self.id_key)
+            key = data_info_dict[self.id_key]
+            data_info_dict.pop(self.id_key)
             data_info_list.append(RegDataInfo(key, data_info_dict))
 
         return data_info_list
