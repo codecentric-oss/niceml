@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 
 from niceml.data.normalization.dataframe import normalize_scalar_col
-from niceml.data.normalization.normalization import NormalizationInfo
+from niceml.data.normalization.normalization import ScalarNormalizationInfo
 
 
 @pytest.fixture
@@ -22,14 +22,14 @@ def sample_dataframe():
                     "column2": [10, 20, 30, 40, 50],
                 }
             ),
-            NormalizationInfo(feature_key="column1", offset=1.0, divisor=4.0),
+            ScalarNormalizationInfo(feature_key="column1", offset=1.0, divisor=4.0),
         ),
         (
             "column2",
             pd.DataFrame(
                 {"column1": [1, 2, 3, 4, 5], "column2": [0.0, 0.25, 0.5, 0.75, 1.0]}
             ),
-            NormalizationInfo(feature_key="column2", offset=10.0, divisor=40.0),
+            ScalarNormalizationInfo(feature_key="column2", offset=10.0, divisor=40.0),
         ),
     ],
 )
