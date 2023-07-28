@@ -147,12 +147,12 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
             )
             self.data = read_parquet(filepath=data_path, file_system=data_fs)
 
+        for feature_combiner in self.feature_combiners:
+            self.data = feature_combiner.combine_features(self.data)
+
         for df_filter in self.dataframe_filters:
             df_filter.initialize(data_description=data_description)
             self.data = df_filter.filter(data=self.data)
-
-        for feature_combiner in self.feature_combiners:
-            self.data = feature_combiner.combine_features(self.data)
 
         self.data = self.data.reset_index(drop=True)
         self.index_list = list(range(len(self.data)))
