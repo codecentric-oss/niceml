@@ -73,6 +73,7 @@ tensorflow = {version = "2.8.0", optional = true}
 tensorflow-metal = {version = "0.4.0", optional = true}
 tensorflow-io-gcs-filesystem = {version = "0.31.0", optional = true}
 pydantic = "<2.0"
+cryptography = "^41.0.0"
 
 
 [tool.poetry.extras]
