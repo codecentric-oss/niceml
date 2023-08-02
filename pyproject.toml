@@ -93,7 +93,7 @@ mkdocs = "^1.4.3"
 mkdocs-table-reader-plugin = "^2.0"
 
 [tool.ruff]
-select = ["E","F","D100", "D101","D102", "D103","D105","D106","D107","PT","PL", "FIX001", "FIX002"]
+select = ["E","F","D100", "D101","D102", "D103","D105","D106","D107","PT","PL"]
 fixable = ["E","F","D","PT","PL"]
 exclude = ["./tests/**"]
 line-length = 100

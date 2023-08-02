@@ -11,9 +11,9 @@ from niceml.data.normalization.normalization import (
 )
 
 
-def normalize_scalar_col(
+def normalize_scalar_column(
     dataframe: pd.DataFrame, column_key
-) -> Tuple[pd.DataFrame, NormalizationInfo]:
+) -> Tuple[pd.DataFrame, ScalarNormalizationInfo]:
     """
     The normalize_scalar_col function takes a dataframe and a column key as input.
     It returns the normalized dataframe and the normalization information for that column.
@@ -49,9 +49,9 @@ def normalize_scalar_col(
     return dataframe, norm_info
 
 
-def normalize_binary_col(
+def normalize_binary_column(
     dataframe: pd.DataFrame, column_key: str
-) -> Tuple[pd.DataFrame, NormalizationInfo]:
+) -> Tuple[pd.DataFrame, BinaryNormalizationInfo]:
     """
     The normalize_binary_col function takes a dataframe and a column key as input.
     It returns the normalized dataframe and the normalization information for that column.
@@ -67,9 +67,9 @@ def normalize_binary_col(
     return dataframe, norm_info
 
 
-def normalize_categorical_col(
+def normalize_categorical_column(
     dataframe: pd.DataFrame, column_key: str
-) -> Tuple[pd.DataFrame, NormalizationInfo]:
+) -> Tuple[pd.DataFrame, CategoricalNormalizationInfo]:
     """
     The normalize_categorical_col function takes a dataframe and a column key as input.
     It returns the normalized dataframe and the normalization information for that column.
@@ -81,21 +81,26 @@ def normalize_categorical_col(
 
 
 def denormalize_column(
-    norm_info: NormalizationInfo, column: str, data: pd.DataFrame
+    norm_info: NormalizationInfo, data: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    The denormalize_column function takes a `NormalizationInfo` object, a column name, and
-    a dataframe as input. It then multiplies the values in the specified column by the divisor
-    in the `NormalizationInfo` object and adds to them the offset value from that same object.
-    The resulting dataframe is returned.
+    The denormalize_column function takes a `norm_info` of data and denormalizes it.
 
     Args:
-        norm_info: NormalizationInfo: Pass in the `NormalizationInfo` object
-        column: str: Specify the column to denormalize
-        data: pd.DataFrame: Pass the dataframe to the function
+        norm_info: NormalizationInfo: Specify the type of normalization used
+        data: pd.DataFrame: Pass in the dataframe that is being normalized
 
     Returns:
-        The dataframe with the column denormalized
+        A pandas dataframe with the column denormalized
     """
-    data[column] = data[column] * norm_info.divisor + norm_info.offset
+    if isinstance(norm_info, ScalarNormalizationInfo):
+        data[norm_info.feature_key] = (
+            data[norm_info.feature_key] * norm_info.divisor + norm_info.offset
+        )
+    elif isinstance(norm_info, (BinaryNormalizationInfo, CategoricalNormalizationInfo)):
+        data[norm_info.feature_key] = data[norm_info.feature_key].map(
+            lambda cur_val: norm_info.values[cur_val]
+        )
+    else:
+        raise NotImplementedError
     return data

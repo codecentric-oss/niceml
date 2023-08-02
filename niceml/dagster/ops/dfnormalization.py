@@ -10,7 +10,7 @@ from dagster import op, Field, OpExecutionContext
 from hydra.utils import instantiate, ConvertMode
 from tqdm import tqdm
 
-from niceml.data.normalization.dataframe import normalize_scalar_col
+from niceml.data.normalization.dataframe import normalize_scalar_column
 from niceml.data.normalization.normalization import NormalizationInfo
 from niceml.utilities.fsspec.locationutils import open_location, join_fs_path
 from niceml.utilities.ioutils import (
@@ -101,7 +101,7 @@ def df_normalization(
         else:
             extended_feature_keys = feature_keys
         for feature in tqdm(extended_feature_keys, desc="Normalize features"):
-            data, feat_info = normalize_scalar_col(data, feature)
+            data, feat_info = normalize_scalar_column(data, feature)
             info_list.append(feat_info)
 
         with open_location(output_parq_location) as (output_fs, output_root):
