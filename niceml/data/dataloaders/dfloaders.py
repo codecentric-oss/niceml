@@ -1,6 +1,6 @@
 """Module for dataframe loaders"""
 from os.path import isfile, join
-from typing import Optional, Union
+from typing import Optional
 
 import pandas as pd
 
@@ -9,7 +9,6 @@ from niceml.data.dataloaders.interfaces.dfloader import DfLoader
 from niceml.data.storages.localstorage import LocalStorage
 from niceml.data.storages.storageinterface import StorageInterface
 from niceml.experiments.loaddatafunctions import LoadParquetFile
-from niceml.utilities.fsspec.locationutils import LocationConfig
 from niceml.utilities.ioutils import read_parquet, write_parquet
 
 
@@ -21,6 +20,8 @@ class SimpleDfLoader(DfLoader):  # pylint: disable=too-few-public-methods
         storage: Optional[StorageInterface] = None,
         working_dir: Optional[str] = None,
     ):
+        """SimpleLoader for parquet files"""
+
         self.storage = storage or LocalStorage()
         self.working_dir = working_dir
 
@@ -38,16 +39,8 @@ class SimpleDfLoaderFactory(DfLoaderFactory):  # pylint: disable=too-few-public-
         return SimpleDfLoader(storage, working_dir)
 
 
-class RemoteDiskDfLoader(DfLoader):
-    def __init__(self, df_location: Union[dict, LocationConfig]):
-        self.df_location = df_location
-
-    def load_df(self, df_path: str) -> pd.DataFrame:
-        pass
-
-
 class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-methods
-    """SimpleLoader for parquet files from cache or remote storage"""  # QUEST: check docstring
+    """SimpleLoader for parquet files from cache or remote storage"""
 
     def __init__(
         self,
@@ -55,6 +48,7 @@ class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-meth
         cache_dir: str,
         working_dir: Optional[str] = None,
     ):
+        """SimpleLoader for parquet files from cache or remote storage"""
         self.storage = storage
         self.cache_path = cache_dir
         self.working_dir = working_dir
@@ -81,6 +75,8 @@ class RemoteDiskCachedDfLoaderFactory(  # QUEST: still used?
     """Factory of RemoteDiskCachedDfLoader"""
 
     def __init__(self, cache_dir: str):
+        """Factory of RemoteDiskCachedDfLoader"""
+
         self.cache_path = cache_dir
 
     def create_df_loader(self, storage: StorageInterface, working_dir: str) -> DfLoader:
