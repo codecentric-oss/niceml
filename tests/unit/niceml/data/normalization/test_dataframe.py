@@ -97,7 +97,7 @@ def test_normalize_scalar_col(
         (
             "column1",
             pd.DataFrame({"column1": [0, 1, 2, 3, 4], "column2": [10, 20, 30, 40, 50]}),
-            CategoricalNormalizationInfo(feature_key="column2", values=[1, 2, 3, 4, 5]),
+            CategoricalNormalizationInfo(feature_key="column1", values=[1, 2, 3, 4, 5]),
         ),
     ],
 )
