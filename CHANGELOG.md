@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.1 (2023-08-02)
+
+### Fix
+
+* Solve niceML installation issue due to pydantic and dagster version missmatsch(#57) ([`9303e19`](https://github.com/codecentric-oss/niceml/commit/9303e19f8f5080a93030f89a2b560dc081efc191))
+* Update `tornado` to ^6.3.2 ([`6315889`](https://github.com/codecentric-oss/niceml/commit/6315889213a422f6b27d75195d97e2d50017be69))
+* Update `requests` to ^2.13.0 ([`6559b64`](https://github.com/codecentric-oss/niceml/commit/6559b6466ea56bd204ad468c8fb65d0db8257e55))
+* Update `cryptrography` to ^41.0.0 ([`b188f99`](https://github.com/codecentric-oss/niceml/commit/b188f9913ad94c3045957d4dc0928d26d3fdd225))
+* Update `dagster` to ~1.3.13 ([`c842df0`](https://github.com/codecentric-oss/niceml/commit/c842df0dd2a01084438108a14ab509439772ff8f))
+* Set `pydantic` version to `<2.0` ([`6b63ef1`](https://github.com/codecentric-oss/niceml/commit/6b63ef1b2b57653822419d26a71c89569a65a2cc))
+
 ## v0.6.0 (2023-07-10)
 ### Feature
 * Add `NanDataframeFilter` to drop nan values of feature columns ([#51](https://github.com/codecentric-oss/niceml/issues/51)) ([`3561200`](https://github.com/codecentric-oss/niceml/commit/3561200187c4073e2aec4631dd54572bd0686a11))
