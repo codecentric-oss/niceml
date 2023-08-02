@@ -856,53 +856,49 @@ files = [
 
 [[package]]
 name = "dagit"
-version = "1.3.9"
+version = "1.3.14"
 description = "Web UI for dagster."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagit-1.3.9-py3-none-any.whl", hash = "sha256:411b2bbda673e10164b5381f3eeeb396e9f58a88e95567b82f8b63e513c09b35"},
-    {file = "dagit-1.3.9.tar.gz", hash = "sha256:000a33933f343bb59e300e6de1800f410752cd460900690c30c0636b441010ad"},
+    {file = "dagit-1.3.14-py3-none-any.whl", hash = "sha256:9bf663f6d10a33d33d2688a74ad20a818803e6fc2c8d9093a9768acce934064a"},
+    {file = "dagit-1.3.14.tar.gz", hash = "sha256:5d99927c3fa91e7aceef878b4289501a522da831228129bea45c91ff5df1f6f6"},
 ]
 
 [package.dependencies]
-click = ">=7.0,<9.0"
-dagster = "1.3.9"
-dagster-graphql = "1.3.9"
-starlette = "*"
-uvicorn = {version = "*", extras = ["standard"]}
+dagster-webserver = "1.3.14"
 
 [package.extras]
-notebook = ["nbconvert"]
-test = ["starlette[full]"]
+notebook = ["dagster-webserver[notebook] (==1.3.14)"]
+test = ["dagster-webserver[test] (==1.3.14)"]
 
 [[package]]
 name = "dagster"
-version = "1.3.9"
+version = "1.3.14"
 description = "The data orchestration platform built for productivity."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagster-1.3.9-py3-none-any.whl", hash = "sha256:44ace0cbfbe035a6a4e70c822f9ff50095218d96436fd3eac6aaf1f96de4ef95"},
-    {file = "dagster-1.3.9.tar.gz", hash = "sha256:6cf439f937ac7f4433e0feb32a7c1e24e2ddb8cce542a3ba0b8580c6c619e2d7"},
+    {file = "dagster-1.3.14-py3-none-any.whl", hash = "sha256:961c1dbdfa95a2206a3bf6c6733b50b63107a014f401e4cdf9157e409e30e1da"},
+    {file = "dagster-1.3.14.tar.gz", hash = "sha256:ea4c18c6771b9d8c146b8d0450a3373637c4405a8feb491f9348031260a20694"},
 ]
 
 [package.dependencies]
-alembic = ">=1.2.1,<1.6.3 || >1.6.3,<1.7.0 || >1.7.0,<1.11.0"
+alembic = ">=1.2.1,<1.6.3 || >1.6.3,<1.7.0 || >1.7.0,<1.11.0 || >1.11.0"
 click = ">=5.0"
 coloredlogs = ">=6.1,<=14.0"
 croniter = ">=0.3.34"
 docstring-parser = "*"
-grpcio = {version = ">=1.44.0,<1.48.0", markers = "python_version < \"3.11\""}
-grpcio-health-checking = {version = ">=1.44.0,<1.48.0", markers = "python_version < \"3.11\""}
+grpcio = ">=1.44.0"
+grpcio-health-checking = ">=1.44.0"
 Jinja2 = "*"
 packaging = ">=20.9"
 pendulum = "*"
 protobuf = ">=3.20.0"
 psutil = {version = ">=1.0", markers = "platform_system == \"Windows\""}
-pydantic = "!=1.10.7"
+pydantic = "<1.10.7 || >1.10.7,<2.0.0"
 python-dateutil = "*"
 python-dotenv = "*"
 pytz = "*"
@@ -923,29 +919,52 @@ watchdog = ">=0.8.3"
 black = ["black[jupyter] (==22.12.0)"]
 docker = ["docker"]
 mypy = ["mypy (==0.991)"]
-pyright = ["pandas-stubs", "pyright (==1.1.298)", "types-PyYAML", "types-backports", "types-certifi", "types-chardet", "types-croniter", "types-cryptography", "types-mock", "types-paramiko", "types-pkg-resources", "types-pyOpenSSL", "types-python-dateutil", "types-pytz", "types-requests", "types-simplejson", "types-six", "types-sqlalchemy (==1.4.53.34)", "types-tabulate", "types-toml", "types-tzlocal"]
-ruff = ["ruff (==0.0.255)"]
-test = ["buildkite-test-collector", "docker", "grpcio-tools (>=1.44.0)", "grpcio-tools (>=1.44.0,<1.48.0)", "mock (==3.0.5)", "objgraph", "pytest (==7.0.1)", "pytest-cov (==2.10.1)", "pytest-dependency (==0.5.1)", "pytest-mock (==3.3.1)", "pytest-rerunfailures (==10.0)", "pytest-runner (==5.2)", "pytest-xdist (==2.1.0)", "responses", "snapshottest (==0.6.0)", "tox (==3.25.0)", "yamllint"]
+pyright = ["pandas-stubs", "pyright (==1.1.316)", "types-PyYAML", "types-backports", "types-certifi", "types-chardet", "types-croniter", "types-cryptography", "types-mock", "types-paramiko", "types-pkg-resources", "types-pyOpenSSL", "types-python-dateutil", "types-pytz", "types-requests", "types-simplejson", "types-six", "types-sqlalchemy (==1.4.53.34)", "types-tabulate", "types-toml", "types-tzlocal"]
+ruff = ["ruff (==0.0.277)"]
+test = ["buildkite-test-collector", "docker", "grpcio-tools (>=1.44.0)", "mock (==3.0.5)", "objgraph", "pytest (==7.0.1)", "pytest-cov (==2.10.1)", "pytest-dependency (==0.5.1)", "pytest-mock (==3.3.1)", "pytest-rerunfailures (==10.0)", "pytest-runner (==5.2)", "pytest-xdist (==2.1.0)", "responses", "syrupy (<4)", "tox (==3.25.0)", "yamllint"]
 
 [[package]]
 name = "dagster-graphql"
-version = "1.3.9"
+version = "1.3.14"
 description = "The GraphQL frontend to python dagster."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagster-graphql-1.3.9.tar.gz", hash = "sha256:7dbc5188f7f3283f03b57f81e51b354d672241ac1b2983164f6cd571b7356172"},
-    {file = "dagster_graphql-1.3.9-py3-none-any.whl", hash = "sha256:aa6944cb51473d6a93455a8f443c83d1cdc2be4dce1b52f3a31b2b9a9b54868f"},
+    {file = "dagster-graphql-1.3.14.tar.gz", hash = "sha256:758e7644d50f9bda9458cc12afbcaf04d85782414d9a13e04383441123aa50f6"},
+    {file = "dagster_graphql-1.3.14-py3-none-any.whl", hash = "sha256:5205c8024eb38686df5fe0693f2445f7e56b42f1a12f6e44ff56239d05aa6af2"},
 ]
 
 [package.dependencies]
-dagster = "1.3.9"
+dagster = "1.3.14"
 gql = {version = ">=3.0.0", extras = ["requests"]}
 graphene = ">=3"
 requests = "*"
 starlette = "*"
 urllib3 = "<2.0.0"
+
+[[package]]
+name = "dagster-webserver"
+version = "1.3.14"
+description = "Web UI for dagster."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "dagster_webserver-1.3.14-py3-none-any.whl", hash = "sha256:0e7f48df40df7e83ede70174ef928197fbcb57a4ec27c7f12548bd1e574452ab"},
+    {file = "dagster_webserver-1.3.14.tar.gz", hash = "sha256:f5cf4c224711aaced2198b78303acb4801d0c84c05333cb67c912723463aa781"},
+]
+
+[package.dependencies]
+click = ">=7.0,<9.0"
+dagster = "1.3.14"
+dagster-graphql = "1.3.14"
+starlette = "*"
+uvicorn = {version = "*", extras = ["standard"]}
+
+[package.extras]
+notebook = ["nbconvert"]
+test = ["starlette[full]"]
 
 [[package]]
 name = "decorator"
@@ -5238,4 +5257,4 @@ visu = ["altair", "streamlit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9.7 || >3.9.7,<3.11"
-content-hash = "c0ac06c678fc8e9b3c024bb60d992e552eaa53abecd4467302e7b67663cf0483"
+content-hash = "369ca503f328764bb5dec5a8a4746d8af318460b3f26904ec8226239fd1dd53b"
