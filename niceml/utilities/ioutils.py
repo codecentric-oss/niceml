@@ -1,6 +1,6 @@
 """Module for helper functions for io operations"""
 import json
-from os.path import dirname, join, relpath
+from os.path import dirname, join, relpath, splitext
 from typing import List, Optional, Any, Tuple
 
 import fastparquet
@@ -18,6 +18,7 @@ def list_dir(
     return_full_path: bool = False,
     recursive: bool = False,
     file_system: Optional[AbstractFileSystem] = None,
+    filter_ext: Optional[List[str]] = None,
 ) -> List[str]:
     """
     Returns a list of files in a directory
@@ -35,6 +36,8 @@ def list_dir(
     files: List[str] = [
         relpath(cur_file, path) for cur_file in list(cur_fs.listdir(path, detail=False))
     ]
+    if filter_ext is not None:
+        files = [cur_file for cur_file in files if splitext(cur_file)[1] in filter_ext]
     if recursive:
         folders = [
             cur_folder for cur_folder in files if cur_fs.isdir(join(path, cur_folder))

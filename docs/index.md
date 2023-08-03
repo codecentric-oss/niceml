@@ -11,7 +11,7 @@ It provides pipelines for a variety of ML tasks, like
 
 All you have to do is configure your pipeline, and you're ready to go!
 
-You can also add your own components to the build-in dashboard, 
+You can also add your own components to the built-in dashboard, 
 where you can compair the results and performance of your ML models.
 
 

@@ -1,11 +1,11 @@
-"""Module containing the base experiment scheme"""
+"""Module containing the base experiment schema"""
 from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.experiments.schemas.expmember import FolderMember, LogCsvMember
 from niceml.experiments.schemas.yamlexpmember import ExpInfoMember
 
 
 class BaseExperimentSchema:  # pylint: disable=too-few-public-methods
-    """base experiment scheme for subclassing"""
+    """base experiment schema for subclassing"""
 
     exp_info = ExpInfoMember()
     log_data = LogCsvMember()

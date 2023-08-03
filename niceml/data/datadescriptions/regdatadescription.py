@@ -4,7 +4,9 @@ from typing import Dict, List, Tuple
 
 import yaml
 
-from niceml.data.datadescriptions.inputdatadescriptions import InputVectorDataDescription
+from niceml.data.datadescriptions.inputdatadescriptions import (
+    InputVectorDataDescription,
+)
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,
 )
@@ -14,7 +16,8 @@ def get_feature_size(features: List[dict]) -> int:
     """Returns size of features in 'features' dictionary"""
     count = 0
     for feature in features:
-        assert feature["type"] in ["scalar", "categorical"]
+        if feature["type"] not in ["scalar", "categorical"]:
+            raise ValueError(f"Unknown feature type {feature['type']}")
         count += 1 if feature["type"] == "scalar" else feature["value_count"]
     return count
 
@@ -42,7 +45,8 @@ class RegDataDescription(InputVectorDataDescription, OutputVectorDataDescription
         """Returns names of targets"""
         target_keys = []
         for target in self.targets:
-            assert target["type"] == "scalar"
+            if target["type"] != "scalar":
+                raise ValueError("Target feature type is not scalar")
             target_keys.append(target["key"])
         return target_keys
 
