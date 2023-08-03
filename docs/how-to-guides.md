@@ -9,7 +9,7 @@ provided in this project.
 
 To debug your experiment, you need to add a run configuration to your
 favorite IDE. Here is an example on [how to add a run configuration
-in PyCharm](#how-can-i-add-a-run-configuration-to-pycharm).
+in PyCharm](https://www.jetbrains.com/help/pycharm/creating-run-debug-configuration-for-tests.html).
 
 Some parts of the training need an additional configuration, to make
 them debuggable. E.g. Debugging metrics, the loss or net callbacks. To
