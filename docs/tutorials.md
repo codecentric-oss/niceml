@@ -10,7 +10,7 @@ In this tutorial, we will
 - demonstrate how to **generate a test data set**,
 - **train a semantic segmentation** with niceMLs default configuration
 and 
-- use introduce you to the awesome **niceML-dashboard**.
+- introduce you to the awesome **niceML-dashboard**.
 
 Let's get started!
 
