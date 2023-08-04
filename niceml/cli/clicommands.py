@@ -14,7 +14,7 @@ load_dotenv(".env")
 @task
 def dagit(context):
     """Starts dagit with the niceml repository"""
-    context.run("python -m dagit -m niceml.dagster.jobs.repository")
+    context.run("python -m dagster dev -m niceml.dagster.jobs.repository")
 
 
 @task(help={"config_path": "config_path to your dashboard configuration"})
