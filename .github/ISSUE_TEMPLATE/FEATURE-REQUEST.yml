@@ -21,7 +21,7 @@ body:
     id: feature-request
     attributes:
       label: 💡 Feature Request
-      description: What feature do you want to request or improve? 🔍
+      description: What feature do you want to request or would like to have improved? 🔍
       placeholder: Please describe the desired feature in detail.
     validations:
       required: true
@@ -35,7 +35,7 @@ body:
     id: additional-info
     attributes:
       label: 🔍 Additional Information
-      description: Include any relevant information that could help the developers better understand the problem and find a solution.
+      description: Include any relevant information that could help the developers better understand your request and find a solution.
       placeholder:  📷 Screenshots, if possible. 📋 Error logs or error messages. 🕹️ Version of the affected product being used.
   - type: checkboxes
     id: terms
