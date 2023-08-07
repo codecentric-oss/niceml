@@ -22,6 +22,7 @@ class FileLock(ABC):
         retry_time: float = 10,
         timeout: float = 172800,
     ):
+        """Initialize FileLock"""
         self.retry_time = retry_time
         self.timeout = timeout
         self.is_acquired: bool = False
@@ -60,6 +61,7 @@ class WriteLock(FileLock):
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
     ):
+        """Initialize WriteLock"""
         if write_lock_name == read_lock_name:
             raise ValueError("write_lock_name and read_lock_name must be different")
         super().__init__(retry_time, timeout)
@@ -74,8 +76,10 @@ class WriteLock(FileLock):
             return
         with open_location(self.path_config) as (cur_fs, root_path):
             start_time = time.monotonic()
-            while True:
+            retry_time = 0
+            while True:  # Write lock
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
+                cur_fs.mkdirs(root_path, exist_ok=True)
                 if is_lock_file_acquirable(write_lock_path, cur_fs):
                     acquire_lock_file(write_lock_path, cur_fs)
                     self.is_acquired = True
@@ -84,8 +88,10 @@ class WriteLock(FileLock):
                     raise TimeoutError(
                         f"Timeout while acquiring write lock {write_lock_path}"
                     )
+                print(f"waiting for write lock release {retry_time} seconds")
                 time.sleep(self.retry_time)
-            while True:
+                retry_time += self.retry_time
+            while True:  # Read Lock
                 read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
                 if is_lock_file_acquirable(read_lock_path, cur_fs):
                     break
@@ -123,6 +129,7 @@ class ReadLock(FileLock):
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
     ):
+        """Initialize ReadLock"""
         if write_lock_name == read_lock_name:
             raise ValueError("write_lock_name and read_lock_name must be different")
         super().__init__(retry_time, timeout)
@@ -136,15 +143,19 @@ class ReadLock(FileLock):
             return
         with open_location(self.path_config) as (cur_fs, root_path):
             start_time = time.monotonic()
+            retry_time = 0
             while True:
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
+                cur_fs.mkdirs(root_path, exist_ok=True)
                 if is_lock_file_acquirable(write_lock_path, cur_fs):
                     break
                 if time.monotonic() - start_time > self.timeout:
                     raise TimeoutError(
                         f"Timeout while acquiring write lock {write_lock_path}"
                     )
+                print(f"waiting for read lock release {retry_time} seconds")
                 time.sleep(self.retry_time)
+                retry_time += self.retry_time
             read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
             increase_lock_file_usage(read_lock_path, cur_fs)
             self.is_acquired = True
@@ -168,7 +179,7 @@ class ReadLock(FileLock):
 def is_lock_file_acquirable(
     lock_file_path: str, file_system: Optional[AbstractFileSystem] = None
 ) -> bool:
-    """Check if the lock file is available."""
+    """Check if the lock file is available (== not existing at lock_file_path)."""
     file_system = file_system or LocalFileSystem()
     if file_system.exists(lock_file_path):
         return False
