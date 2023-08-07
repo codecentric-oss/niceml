@@ -88,7 +88,7 @@ class WriteLock(FileLock):
                     raise TimeoutError(
                         f"Timeout while acquiring write lock {write_lock_path}"
                     )
-                print(f"waiting for write lock release {retry_time} seconds")
+                logging.info(f"waiting for write lock release {retry_time} seconds")
                 time.sleep(self.retry_time)
                 retry_time += self.retry_time
             while True:  # Read Lock
@@ -153,7 +153,7 @@ class ReadLock(FileLock):
                     raise TimeoutError(
                         f"Timeout while acquiring write lock {write_lock_path}"
                     )
-                print(f"waiting for read lock release {retry_time} seconds")
+                logging.info(f"waiting for read lock release {retry_time} seconds")
                 time.sleep(self.retry_time)
                 retry_time += self.retry_time
             read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
