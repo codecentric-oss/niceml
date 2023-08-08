@@ -143,7 +143,8 @@ operation configurations we are going to write in the next step.
    2. Here, we only have to change the definition of the training, validation and test datasets with
    the yaml we wrote in the step before (`dataset_kaggle_flowers.yaml`). 
    The prediction configuration should look like this:
-   ```yaml
+   
+```yaml
       defaults:
    - /shared/datasets@datasets.validation: dataset_kaggle_flowers.yaml
    - /shared/datasets@datasets.test: dataset_kaggle_flowers.yaml
@@ -152,7 +153,8 @@ operation configurations we are going to write in the next step.
    - datasets: datasets_generic_default.yaml
    - op_prediction_base.yaml@_here_
    - _self_
-      ```
+```
+
 7. Start the pipeline using 
 ```python
 niceml train configs/jobs/job_train/job_train_cls/job_train_cls_binary_flowers.yaml
