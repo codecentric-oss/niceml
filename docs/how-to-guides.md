@@ -32,6 +32,17 @@ Everything about test data generation and its adjustable parameters can
 be found in the [Generating a Test Dataset with niceML](
 generate-data.md#step-3-customizing-data-generation-optional)
 
+## How to write a custom pipeline
+NiceML comes with pre-configured pipelines for object detection, 
+semantic semgmentation, regression, classification and others. 
+This guide will walk you through how to set up your first custom pipeline.
+The goal of the pipeline is to orchestrate a classifier that can distinguish
+between [flowers of the keras flower dataset](https://www.kaggle.com/datasets/alxmamaev/flowers-recognition).
+
+
+
+## How to add a custom model
+
 ## How to implement a new dashboard component
 
 More documentation will be provided soon.
