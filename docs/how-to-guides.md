@@ -33,7 +33,7 @@ be found in the [Generating a Test Dataset with niceML](
 generate-data.md#step-3-customizing-data-generation-optional)
 
 ## How to configure a custom pipeline
-NiceML wants to help by providing configurable, re-usable machine learning 
+NiceML provides configurable, re-usable machine learning 
 pipelines. NiceML comes with pre-configured pipelines for object detection, 
 semantic semgmentation, regression, classification and others. But what if 
 your problem is not covered (yet) by the pipeline portfolio niceML offers?
@@ -91,8 +91,8 @@ operation configurations we are going to write in the next step.
    ```yaml
    defaults:
      - op_train_base.yaml@_here_
-     - /shared/datasets@data_train: dataset_keras_flowers.yaml
-     - /shared/datasets@data_validation: dataset_keras_flowers.yaml
+     - /shared/datasets@data_train: dataset_kaggle_flowers.yaml
+     - /shared/datasets@data_validation: dataset_kaggle_flowers.yaml
      - _self_
    train_params:
      epochs: 5
@@ -144,9 +144,9 @@ operation configurations we are going to write in the next step.
    the yaml we wrote in the step before (`dataset_kaggle_flowers.yaml`). The prediction configuration should look like this:
    ```yaml
       defaults:
-   - /shared/datasets@datasets.validation: dataset_keras_flowers.yaml
-   - /shared/datasets@datasets.test: dataset_keras_flowers.yaml
-   - /shared/datasets@datasets.train_eval: dataset_keras_flowers.yaml
+   - /shared/datasets@datasets.validation: dataset_kaggle_flowers.yaml
+   - /shared/datasets@datasets.test: dataset_kaggle_flowers.yaml
+   - /shared/datasets@datasets.train_eval: dataset_kaggle_flowers.yaml
    - prediction_handler: prediction_handler_vector.yaml
    - datasets: datasets_generic_default.yaml
    - op_prediction_base.yaml@_here_
@@ -157,8 +157,62 @@ operation configurations we are going to write in the next step.
 niceml train configs/jobs/job_train/job_train_cls/job_train_cls_binary_flowers.yaml
 ```
 
-
 ## How to add a custom model
+In order to define a custom model in niceML we can make use of the niceML `ModelFactory` class
+and its ``create_model` function which could be implemented like this:
+```python
+from typing import Any
+
+import tensorflow as tf
+from keras import layers, Sequential, regularizers
+from niceml.data.datadescriptions.datadescription import DataDescription
+from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
+from niceml.data.datadescriptions.outputdatadescriptions import OutputVectorDataDescription
+from niceml.mlcomponents.models.modelfactory import ModelFactory
+from niceml.utilities.commonutils import check_instance
+
+
+class FlowerCNN(ModelFactory):
+    def __init__(self, regulation_value: float, activation_function: str, final_activation: str):
+        self.final_activation = final_activation
+        self.activation_function = activation_function
+        self.regulation_value = regulation_value
+
+    def create_model(self, data_description: DataDescription) -> Any:
+        input_dd: InputImageDataDescription = check_instance(
+            data_description, InputImageDataDescription
+        )
+        output_dd: OutputVectorDataDescription = check_instance(
+            data_description, OutputVectorDataDescription
+        )
+
+        in_layer = tf.keras.layers.Input(input_dd.get_input_tensor_shape())
+
+        model = Sequential([
+            in_layer,
+
+            layers.Conv2D(16, 3, padding='same', activation=self.activation_function),
+            layers.MaxPooling2D(),
+
+            layers.Conv2D(32, 3, padding='same', activation=self.activation_function),
+            layers.MaxPooling2D(),
+
+            layers.Conv2D(64, 3, padding='same', activation=self.activation_function),
+            layers.MaxPooling2D(),
+
+            layers.Dropout(0.2),
+
+            layers.Flatten(),
+
+            layers.Dense(128, activation='relu', kernel_regularizer=regularizers.l2(self.regulation_value)),
+            layers.Dense(output_dd.get_output_size(), name="outputs", activation=self.final_activation)
+        ])
+        model.summary()
+        return model
+
+```
+In the next step, we will integrate this model in the training operation configuration.
+Simply change the target of the model setting to `nicemlproject.dir.of.custom.FlowerCNN`.
 
 ## How to implement a new dashboard component
 
