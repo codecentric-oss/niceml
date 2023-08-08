@@ -32,7 +32,7 @@ Everything about test data generation and its adjustable parameters can
 be found in the [Generating a Test Dataset with niceML](
 generate-data.md#step-3-customizing-data-generation-optional)
 
-## How to configure a custom pipeline
+## How to write my own pipeline
 NiceML provides configurable, re-usable machine learning 
 pipelines. NiceML comes with pre-configured pipelines for object detection, 
 semantic semgmentation, regression, classification and others. But what if 
@@ -48,7 +48,7 @@ configuration. For this, navigate to `configs/jobs/job_train/job_train_cls`
 and create a new file `job_train_cls_binary_flowers.yaml`.
 3. Paste the content from `job_train_cls_binary.yaml` which is a good
 starting point for our own pipeline.
-4. Adjust job parameters in the configuration. Many parameters are 
+4. Adjust job parameters in `job_train_cls_binary_flowers.yaml`. Many parameters are 
 pre-configured and do not require adjustment. However, we want to configure
 our own **training**, **prediction**, **experiment_id** and
 **input data location**. In the job configuration, we can already point
@@ -141,7 +141,8 @@ operation configurations we are going to write in the next step.
    1. We create `configs/ops/prediction/op_prediction_cls_binary_flowers.yaml` and use
    `op_prediction_cls.yaml` as a template.
    2. Here, we only have to change the definition of the training, validation and test datasets with
-   the yaml we wrote in the step before (`dataset_kaggle_flowers.yaml`). The prediction configuration should look like this:
+   the yaml we wrote in the step before (`dataset_kaggle_flowers.yaml`). 
+   The prediction configuration should look like this:
    ```yaml
       defaults:
    - /shared/datasets@datasets.validation: dataset_kaggle_flowers.yaml
@@ -159,7 +160,7 @@ niceml train configs/jobs/job_train/job_train_cls/job_train_cls_binary_flowers.y
 
 ## How to add a custom model
 In order to define a custom model in niceML we can make use of the niceML `ModelFactory` class
-and its ``create_model` function which could be implemented like this:
+and its `create_model` function which could be implemented like this:
 ```python
 from typing import Any
 
@@ -213,6 +214,14 @@ class FlowerCNN(ModelFactory):
 ```
 In the next step, we will integrate this model in the training operation configuration.
 Simply change the target of the model setting to `nicemlproject.dir.of.custom.FlowerCNN`.
+
+## How to start the pipeline via the dagster-webserver
+You start dagster via
+```bash 
+dagster dev -m nicemltutorial.dagster.jobs.repository
+```
+
+and paste the job configuration of your choice to the launchpad.
 
 ## How to implement a new dashboard component
 
