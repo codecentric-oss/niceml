@@ -40,7 +40,7 @@ class LocationConfig:  # pylint: disable=too-few-public-methods
 def join_location_w_path(
     location: Union[LocationConfig, dict], path: Union[List[str], str]
 ) -> LocationConfig:
-    """Returns joined path to a LocationConfig"""
+    """Returns joined LocationConfig with one or more path objects"""
     parsed_config = (
         location
         if isinstance(location, LocationConfig)
