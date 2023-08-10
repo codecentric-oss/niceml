@@ -28,6 +28,7 @@ class ExperimentFilenames:  # pylint: disable=too-few-public-methods
     NET_DATA_FOLDER: str = "net_data"
     EXP_FILES_FILE: str = "exp_files.parq"
     EXP_FILES_COL: str = "exp_files"
+    SUBSET_NAME: str = "{set_name}.parq"
 
 
 class OpNames(str, Enum):
@@ -61,7 +62,7 @@ class AdditionalExperimentFilenames(str, Enum):
 
 def get_load_parq_files() -> List[str]:
     """returns the files which should be loaded"""
-    cur_exp_fn: AdditionalExperimentFilenames
+    cur_exp_fn: AdditionalExperimentFilenames  # ruff: noqa: F842
     load_parq_files = [
         cur_exp_fn.get_complete_name(y)
         for cur_exp_fn in AdditionalExperimentFilenames
@@ -74,12 +75,24 @@ class ExpEvalCopyNames:  # pylint: disable=too-few-public-methods
     """Class for determining whether a file should be copied during eval job"""
 
     def __init__(self, exclude_files: Optional[List[str]] = None):
+        """Class for determining whether a file should be copied during eval job"""
+
         self.exclude_files = exclude_files or [
             ExperimentFilenames.ANALYSIS_FOLDER,
             ExperimentFilenames.PREDICTION_FOLDER,
         ]
 
     def __contains__(self, key: str) -> bool:
+        """
+        The __contains__ function is used to check if a key is in the dictionary.
+        This function will be called when using the 'in' keyword.
+
+        Args:
+            key: str: Check if the file name starts with an excluded file
+
+        Returns:
+            False, if the file name starts with an excluded file
+        """
         for ex_file in self.exclude_files:
             if key.startswith(ex_file):
                 return False

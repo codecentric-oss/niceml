@@ -10,7 +10,7 @@ from tensorflow.keras.utils import (  # pylint: disable=import-error,no-name-in-
 
 from niceml.data.datadescriptions.regdatadescription import (
     RegDataDescription,
-    FeatureTypes,
+    FeatureType,
 )
 from niceml.data.datafilters.dataframefilter import DataframeFilter
 from niceml.data.datainfos.datainfo import DataInfo
@@ -20,6 +20,7 @@ from niceml.data.datashuffler.datashuffler import DataShuffler
 from niceml.data.datashuffler.defaultshuffler import DefaultDataShuffler
 from niceml.data.featurecombiners.featurecombiner import FeatureCombiner
 from niceml.experiments.experimentcontext import ExperimentContext
+from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.utilities.commonutils import to_categorical
 from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
@@ -81,7 +82,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         batch_size: int,
         set_name: str,
         data_location: Union[dict, LocationConfig],
-        df_path: str = "{set_name}.parq",
+        df_path: str = ExperimentFilenames.SUBSET_NAME,
         shuffle: bool = False,
         data_shuffler: Optional[DataShuffler] = None,
         dataframe_filters: Optional[List[DataframeFilter]] = None,
@@ -220,7 +221,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         """extracts data"""
         cur_key = cur_input["key"]
         cur_data = self.data.iloc[cur_indexes][cur_key]
-        if cur_input["type"] == FeatureTypes.CATEGORICAL:
+        if cur_input["type"] == FeatureType.CATEGORICAL:
             cur_data = to_categorical(cur_data, cur_input["value_count"])
         return cur_data
 

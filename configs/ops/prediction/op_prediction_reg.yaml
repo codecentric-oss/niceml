@@ -1,0 +1,15 @@
+defaults:
+  - /shared/datasets@datasets.validation: dataset_reg_test.yaml
+  - /shared/datasets@datasets.test: dataset_reg_test.yaml
+  - /shared/datasets@datasets.train_eval: dataset_reg_test.yaml
+  - prediction_handler: prediction_handler_vector.yaml
+  - op_prediction_base.yaml@_here_
+  - _self_
+
+datasets:
+  test:
+    set_name: test
+  train_eval:
+    set_name: train
+  validation:
+    set_name: validation

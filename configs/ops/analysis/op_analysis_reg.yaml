@@ -1,0 +1,14 @@
+# op for regression analysis
+result_analyzer:
+  _target_: niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer
+  metrics:
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.regmetric.RegMetric
+    source_col: label
+    target_col: pred_0000
+    function: mse
+    function_name: mse
+  - _target_: niceml.mlcomponents.resultanalyzers.dataframes.regmetric.RegMetric
+    source_col: label
+    target_col: pred_0000
+    function: mae
+    function_name: mae

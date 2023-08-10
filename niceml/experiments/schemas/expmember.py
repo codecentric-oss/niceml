@@ -43,6 +43,8 @@ class LogCsvMember(ExpMember):
     """Specific member of the experiment containing the train logs"""
 
     def __init__(self):
+        """Specific member of the experiment containing the train logs"""
+
         super().__init__(
             path=ExperimentFilenames.TRAIN_LOGS,
             required=True,
@@ -54,7 +56,7 @@ class LogCsvMember(ExpMember):
 class FolderMember(ExpMember):
     """This member is a folder containing arbitrary files with specific extensions"""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # ruff: noqa: PLR0913
         self,
         path: str,
         required: bool,
@@ -62,6 +64,8 @@ class FolderMember(ExpMember):
         min_required_files: int = 0,
         extensions: Optional[List[str]] = None,
     ):
+        """This member is a folder containing arbitrary files with specific extensions"""
+
         super().__init__(
             path=path, required=required, description=description, member_type="folder"
         )
@@ -69,6 +73,22 @@ class FolderMember(ExpMember):
         self.extensions = extensions
 
     def get_docstring(self) -> str:
+        """
+        The get_docstring function is used to generate the docstring for a given
+        :class:`~.FileChecker`. The function takes no arguments and returns a string
+        containing the ReST formatted docstring. This function should be overridden by
+        subclasses of :class:`~.FileChecker` that require additional information in their
+        docstrings.
+
+        Args:
+            self: Refer to the object itself
+
+        Returns:
+            A docstring for the class
+
+        Doc Author:
+            Trelent
+        """
         doc_str = super().get_docstring()
         doc_str += f":min_required_files: {self.min_required_files}\n"
         if self.extensions is not None:

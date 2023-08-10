@@ -20,7 +20,7 @@ from niceml.utilities.fsspec.locationutils import (
 from niceml.utilities.ioutils import read_parquet
 
 
-class FeatureTypes:
+class FeatureType:
     """FeatureTypes are used for defining which kind of features are available."""
 
     SCALAR = "scalar"
@@ -38,13 +38,13 @@ def get_feature_size(features: List[dict]) -> int:
     count = 0
     for feature in features:
         feature_type = feature["type"]
-        if feature_type not in FeatureTypes.get_available_features():
+        if feature_type not in FeatureType.get_available_features():
             raise ModeNotImplementedError(
                 f"Feature type {feature['type']} not implemented"
             )
         count += (
             1
-            if feature_type in [FeatureTypes.BINARY, FeatureTypes.SCALAR]
+            if feature_type in [FeatureType.BINARY, FeatureType.SCALAR]
             else feature["value_count"]
         )
     return count
@@ -73,7 +73,8 @@ class RegDataDescription(InputVectorDataDescription, OutputVectorDataDescription
         """Returns names of targets"""
         target_keys = []
         for target in self.targets:
-            assert target["type"] == "scalar"
+            if target["type"] != "scalar":
+                raise ValueError("Target feature type is not scalar")
             target_keys.append(target["key"])
         return target_keys
 
@@ -81,9 +82,9 @@ class RegDataDescription(InputVectorDataDescription, OutputVectorDataDescription
         """Returns names of input entries"""
         input_keys: List[str] = []
         for cur_input in self.inputs:
-            if cur_input["type"] in [FeatureTypes.SCALAR, FeatureTypes.BINARY]:
+            if cur_input["type"] in [FeatureType.SCALAR, FeatureType.BINARY]:
                 input_keys.append(cur_input["key"])
-            elif cur_input["type"] == FeatureTypes.CATEGORICAL:
+            elif cur_input["type"] == FeatureType.CATEGORICAL:
                 input_keys += [
                     f"{cur_input['key']}{x:03d}"
                     for x in range(cur_input["value_count"])
@@ -95,9 +96,9 @@ class RegDataDescription(InputVectorDataDescription, OutputVectorDataDescription
         """Get min and max values for categorical and binary input values"""
         min_max_dict: Dict[str, Tuple[int, int]] = {}
         for input_vector in self.inputs:
-            if input_vector["type"] == FeatureTypes.BINARY:
+            if input_vector["type"] == FeatureType.BINARY:
                 min_max_dict[input_vector["key"]] = (0, 1)
-            elif input_vector["type"] == FeatureTypes.CATEGORICAL:
+            elif input_vector["type"] == FeatureType.CATEGORICAL:
                 min_max_dict[input_vector["key"]] = (0, input_vector["value_count"] - 1)
 
         return min_max_dict
@@ -108,6 +109,39 @@ def load_data_infos(yaml_path: str) -> RegDataDescription:  # QUEST: still used?
     with open(yaml_path, "r") as file:
         data = yaml.load(file, Loader=yaml.SafeLoader)
     return RegDataDescription(**data)
+
+
+def inputs_prefix_factory(
+    data_location: Union[dict, LocationConfig],
+    prefix: str,
+    feature_type: str,
+    data_file_name: str = "train.parq",
+) -> List[dict]:
+    """
+    The inputs_prefix_factory function is a factory function that returns a list of
+    input features as dictionaries.
+
+    Args:
+        data_location: Specify the location of the data
+        prefix: Filter the columns in the dataframe
+        feature_type: Specify the type of feature
+        data_file_name: str: Specify the name of the file to be read from data_location
+    Returns:
+        A list of input features as dictionaries
+    """
+    with open_location(data_location) as (
+        data_fs,
+        data_root,
+    ):
+        loaded_data = read_parquet(
+            filepath=join_fs_path(data_fs, data_root, data_file_name),
+            file_system=data_fs,
+        )
+        return [
+            {"key": column, "type": feature_type}
+            for column in loaded_data.columns
+            if column.startswith(prefix)
+        ]
 
 
 def reg_data_description_factory(

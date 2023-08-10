@@ -4,6 +4,7 @@ from niceml.dagster.ops.analysis import analysis
 from niceml.dagster.ops.copyexp import copy_exp
 from niceml.dagster.ops.cropnumbers import crop_numbers
 from niceml.dagster.ops.datageneration import data_generation
+from niceml.dagster.ops.dfnormalization import df_normalization
 from niceml.dagster.ops.evalcopyexp import eval_copy_exp
 from niceml.dagster.ops.experiment import experiment
 from niceml.dagster.ops.exptests import exptests
@@ -24,7 +25,8 @@ def job_data_generation():
     output_loc = data_generation()  # pylint: disable=no-value-for-parameter
     output_loc = split_data(output_loc)  # pylint: disable=no-value-for-parameter
     output_loc = crop_numbers(output_loc)  # pylint: disable=no-value-for-parameter
-    image_to_tabular_data(output_loc)
+    output_loc = image_to_tabular_data(output_loc)
+    df_normalization(output_loc)
 
 
 @job(config=hydra_conf_mapping_factory())

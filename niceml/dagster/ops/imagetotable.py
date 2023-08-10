@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Union, Tuple
 
 import pandas as pd
+from attr import asdict
 from dagster import op, Field, OpExecutionContext
 from hydra.types import ConvertMode
 from hydra.utils import instantiate
@@ -56,7 +57,7 @@ from niceml.utilities.splitutils import clear_folder
         ),
     }
 )
-def image_to_tabular_data(context: OpExecutionContext, input_location: dict):
+def image_to_tabular_data(context: OpExecutionContext, input_location: dict) -> dict:
     """
     The image_to_tabular_data function takes in a location of images
     and converts them to tabular data.
@@ -76,7 +77,7 @@ def image_to_tabular_data(context: OpExecutionContext, input_location: dict):
         "output_location"
     ]
     if len(instantiated_op_config["sub_dir"]) > 0:
-        output_location = join_location_w_path(
+        output_location: LocationConfig = join_location_w_path(
             output_location, instantiated_op_config["sub_dir"]
         )
     if instantiated_op_config["clear_folder"]:
@@ -113,13 +114,17 @@ def image_to_tabular_data(context: OpExecutionContext, input_location: dict):
             )
 
         for subset_name, cur_df_row in df_row_dict.items():
-            subset_name = f"_{subset_name}" if subset_name != "_all_" else ""
+            final_subset_name = f"_{subset_name}" if subset_name != "_all_" else ""
             dataframe: pd.DataFrame = pd.DataFrame(cur_df_row)
 
             with open_location(output_location) as (output_fs, output_root):
                 write_parquet(
                     dataframe=dataframe,
-                    filepath=join(output_root, f"numbers_tabular_data{subset_name}.parq"),
+                    filepath=join(
+                        output_root, f"numbers_tabular_data{final_subset_name}.parq"
+                    ),
                     file_system=output_fs,
                 )
+        if isinstance(output_location, LocationConfig):
+            output_location = asdict(output_location)
     return output_location

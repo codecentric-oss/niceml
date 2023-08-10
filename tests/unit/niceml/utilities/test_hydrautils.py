@@ -1,7 +1,11 @@
 import pytest
 
 from os.path import dirname, join
-from niceml.utilities.hydrautils import build_import_graph, parse_defaults_content, nx_to_mermaid
+from niceml.utilities.hydrautils import (
+    build_import_graph,
+    parse_defaults_content,
+    nx_to_mermaid,
+)
 
 
 @pytest.fixture(
@@ -10,11 +14,11 @@ from niceml.utilities.hydrautils import build_import_graph, parse_defaults_conte
         "configs/jobs/job_train/job_train_cls/job_train_cls_multitarget.yaml",
         "configs/jobs/job_train/job_train_cls/job_train_cls_softmax.yaml",
         "configs/jobs/job_train/job_train_objdet/job_train_objdet_number.yaml",
-        "configs/jobs/job_train/job_train_reg/job_train_reg_sinus.yaml",
+        "configs/jobs/job_train/job_train_reg/job_train_reg_number.yaml",
         "configs/jobs/job_train/job_train_semseg/job_train_semseg_number.yaml",
         # Eval Configs
         "configs/jobs/job_eval/job_eval_objdet/job_eval_objdet_number.yaml",
-        "configs/jobs/job_eval/job_eval_reg/job_eval_reg_sinus.yaml",
+        "configs/jobs/job_eval/job_eval_reg/job_eval_reg_number.yaml",
     ]
 )
 def yaml_path(request):
@@ -44,10 +48,16 @@ def test_build_import_graph_and_mermaid_conversion(yaml_path: str, search_paths:
 @pytest.mark.parametrize(
     "input, target",
     [
-        ({"ops/experiment@ops.experiment.config": "op_experiment_default.yaml"}, "ops/experiment/op_experiment_default.yaml"),
-        ("ops/experiment/op_experiment_default.yaml@ops.experiment.config", "ops/experiment/op_experiment_default.yaml"),
+        (
+            {"ops/experiment@ops.experiment.config": "op_experiment_default.yaml"},
+            "ops/experiment/op_experiment_default.yaml",
+        ),
+        (
+            "ops/experiment/op_experiment_default.yaml@ops.experiment.config",
+            "ops/experiment/op_experiment_default.yaml",
+        ),
         ("_self_", "_self_"),
-    ]
+    ],
 )
 def test_parse_defaults_content(input, target):
     assert parse_defaults_content(input) == target

@@ -1,0 +1,31 @@
+# train regression with generated numbers dataset
+defaults:
+  # lock data location
+  - shared/filelocks@ops.acquire_locks.config.filelock_dict.data_lock: op_data_readlock.yaml
+  # experiment
+  - /ops/experiment@ops.experiment.config: op_experiment_default.yaml
+  # train
+  - /ops/train@ops.train.config: op_train_reg.yaml
+  # prediction
+  - /ops/prediction@ops.prediction.config: op_prediction_reg.yaml
+
+  # analysis
+  - /ops/analysis@ops.analysis.config: op_analysis_reg.yaml
+
+  # experiment tests
+  - /ops/exptests@ops.exptests.config.tests: exptests_default.yaml
+
+  # experiment locations
+  - shared/locations@globals: exp_locations.yaml
+
+  - _self_
+
+hydra:
+  searchpath:
+    - file://configs
+
+globals:
+  exp_name: SampleReg
+  exp_prefix: REGNUM
+  data_location:
+    uri: ${oc.env:DATA_URI,./data}/numbers_tabular_data_normalized
