@@ -2,7 +2,7 @@
 from contextlib import contextmanager
 from copy import deepcopy
 from os.path import join
-from typing import Any, Dict, Iterator, Tuple, Union
+from typing import Any, Dict, Iterator, Tuple, Union, List
 
 import cattr
 from attr import asdict
@@ -38,9 +38,9 @@ class LocationConfig:  # pylint: disable=too-few-public-methods
 
 
 def join_location_w_path(
-    location: Union[LocationConfig, dict], path: str
+    location: Union[LocationConfig, dict], path: Union[List[str], str]
 ) -> LocationConfig:
-    """Returns joined path to a LocationConfig"""
+    """Returns joined LocationConfig with one or more path objects"""
     parsed_config = (
         location
         if isinstance(location, LocationConfig)
@@ -48,7 +48,11 @@ def join_location_w_path(
     )
     copied_config = deepcopy(parsed_config)
     # TODO: check how to get the correct separator from the filesystem
-    copied_config.uri = join(copied_config.uri, path)
+    if isinstance(path, list):
+        for path_obj in path:
+            copied_config.uri = join(copied_config.uri, path_obj)
+    else:
+        copied_config.uri = join(copied_config.uri, path)
     return copied_config
 
 
