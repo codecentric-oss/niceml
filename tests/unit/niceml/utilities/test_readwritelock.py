@@ -20,6 +20,8 @@ def fs_path_config():
 
 
 def test_read_lock(fs_path_config):
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "read.lock"))
     rw_lock = ReadLock(fs_path_config)
     rw_lock.acquire()
     with open_location(fs_path_config) as (cur_fs, root_path):
@@ -33,8 +35,12 @@ def test_read_lock(fs_path_config):
 
 
 def test_write_lock(fs_path_config):
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     write_lock = WriteLock(fs_path_config)
     write_lock.acquire()
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     time.sleep(1)
     write_lock.release()
 
@@ -45,8 +51,12 @@ def test_write_lock(fs_path_config):
 
 
 def test_read_write_lock(fs_path_config):
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     write_lock = WriteLock(fs_path_config, write=True)
     write_lock.acquire()
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     time.sleep(1)
     write_lock.release()
 
