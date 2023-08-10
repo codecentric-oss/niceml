@@ -16,8 +16,11 @@ def test_join_fs_path():
     filepath = "path/to/file"
     old_config = LocationConfig(uri=s3_path, fs_args={"an_arg": "value"})
     new_config = join_location_w_path(old_config, filepath)
+    new_config_multiple = join_location_w_path(old_config, ["foldername", filepath])
     assert new_config.uri == join(s3_path, filepath)
     assert new_config.fs_args == old_config.fs_args
+    assert new_config_multiple.uri == join(s3_path, "foldername", filepath)
+    assert new_config_multiple.fs_args == old_config.fs_args
     assert old_config.uri == s3_path
 
 
