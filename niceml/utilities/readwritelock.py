@@ -22,6 +22,7 @@ class FileLock(ABC):
         retry_time: float = 10,
         timeout: float = 172800,
     ):
+        """Initialize FileLock"""
         self.retry_time = retry_time
         self.timeout = timeout
         self.is_acquired: bool = False
@@ -56,10 +57,12 @@ class WriteLock(FileLock):
         path_config: Union[LocationConfig, Dict[str, Any]],
         write: bool = False,
         retry_time: float = 10,
+        retry_await_time: int = 0,
         timeout: float = 172800,
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
     ):
+        """Initialize WriteLock"""
         if write_lock_name == read_lock_name:
             raise ValueError("write_lock_name and read_lock_name must be different")
         super().__init__(retry_time, timeout)
@@ -67,6 +70,7 @@ class WriteLock(FileLock):
         self.write = write
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
+        self.retry_await_time = retry_await_time
 
     def acquire(self):
         """Acquire the lock"""
@@ -74,8 +78,9 @@ class WriteLock(FileLock):
             return
         with open_location(self.path_config) as (cur_fs, root_path):
             start_time = time.monotonic()
-            while True:
+            while True:  # Write lock
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
+                cur_fs.mkdirs(root_path, exist_ok=True)
                 if is_lock_file_acquirable(write_lock_path, cur_fs):
                     acquire_lock_file(write_lock_path, cur_fs)
                     self.is_acquired = True
@@ -84,8 +89,12 @@ class WriteLock(FileLock):
                     raise TimeoutError(
                         f"Timeout while acquiring write lock {write_lock_path}"
                     )
+                logging.info(
+                    f"waiting for write lock release {self.retry_await_time} seconds"
+                )
                 time.sleep(self.retry_time)
-            while True:
+                self.retry_await_time += self.retry_time
+            while True:  # Read Lock
                 read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
                 if is_lock_file_acquirable(read_lock_path, cur_fs):
                     break
@@ -119,16 +128,19 @@ class ReadLock(FileLock):
         self,
         path_config: Union[LocationConfig, Dict[str, Any]],
         retry_time: float = 10,
+        retry_await_time=0,
         timeout: float = 172800,
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
     ):
+        """Initialize ReadLock"""
         if write_lock_name == read_lock_name:
             raise ValueError("write_lock_name and read_lock_name must be different")
         super().__init__(retry_time, timeout)
         self.path_config = path_config
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
+        self.retry_await_time = retry_await_time
 
     def acquire(self):
         """Acquire the lock"""
@@ -138,13 +150,18 @@ class ReadLock(FileLock):
             start_time = time.monotonic()
             while True:
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
+                cur_fs.mkdirs(root_path, exist_ok=True)
                 if is_lock_file_acquirable(write_lock_path, cur_fs):
                     break
                 if time.monotonic() - start_time > self.timeout:
                     raise TimeoutError(
                         f"Timeout while acquiring write lock {write_lock_path}"
                     )
+                logging.info(
+                    f"waiting for read lock release {self.retry_await_time} " f"seconds"
+                )
                 time.sleep(self.retry_time)
+                self.retry_await_time += self.retry_time
             read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
             increase_lock_file_usage(read_lock_path, cur_fs)
             self.is_acquired = True
@@ -168,7 +185,8 @@ class ReadLock(FileLock):
 def is_lock_file_acquirable(
     lock_file_path: str, file_system: Optional[AbstractFileSystem] = None
 ) -> bool:
-    """Check if the lock file is available."""
+    """Check if the lock file is available.
+    The lock file is available if it does not exist at lock_file_path."""
     file_system = file_system or LocalFileSystem()
     if file_system.exists(lock_file_path):
         return False
