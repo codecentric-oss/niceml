@@ -185,7 +185,8 @@ class ReadLock(FileLock):
 def is_lock_file_acquirable(
     lock_file_path: str, file_system: Optional[AbstractFileSystem] = None
 ) -> bool:
-    """Check if the lock file is available (== not existing at lock_file_path)."""
+    """Check if the lock file is available.
+    The lock file is available if it does not exist at lock_file_path."""
     file_system = file_system or LocalFileSystem()
     if file_system.exists(lock_file_path):
         return False
