@@ -147,6 +147,7 @@ def inputs_prefix_factory(
         except FileNotFoundError:
             logger = logging.getLogger(__name__)
             logger.warning("Data file not found. Inputs will be empty.")
+        return []
 
 
 def reg_data_description_factory(
