@@ -1,4 +1,5 @@
 """Module for RegDataDescription"""
+import logging
 from dataclasses import dataclass
 from types import FunctionType
 from typing import Dict, List, Tuple, Union
@@ -133,15 +134,19 @@ def inputs_prefix_factory(
         data_fs,
         data_root,
     ):
-        loaded_data = read_parquet(
-            filepath=join_fs_path(data_fs, data_root, data_file_name),
-            file_system=data_fs,
-        )
-        return [
-            {"key": column, "type": feature_type}
-            for column in loaded_data.columns
-            if column.startswith(prefix)
-        ]
+        try:
+            loaded_data = read_parquet(
+                filepath=join_fs_path(data_fs, data_root, data_file_name),
+                file_system=data_fs,
+            )
+            return [
+                {"key": column, "type": feature_type}
+                for column in loaded_data.columns
+                if column.startswith(prefix)
+            ]
+        except FileNotFoundError:
+            logger = logging.getLogger(__name__)
+            logger.warning("Data file not found. Inputs will be empty.")
 
 
 def reg_data_description_factory(
