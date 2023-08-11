@@ -1,6 +1,7 @@
 * Tutorials
-    * [Getting Started](tutorials.md)
+    * [Getting Started](getting-started.md)
     * [Generating Test Data](generate-data.md)
+    * [Writing custom pipelines](write-custom-pipeline.md)
 + How-to Guides:
     * [How-to-guides](how-to-guides.md)
     * [Frequently Asked Questions](faq.md)
