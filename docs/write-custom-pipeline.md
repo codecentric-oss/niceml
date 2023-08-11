@@ -1,6 +1,6 @@
-# Writing your own pipelines
+# Writing a new training pipeline
 
-This tutorial will walk you through how to set up your first custom pipeline.
+This tutorial will walk you through how to set up your first custom training pipeline.
 The goal of this example pipeline is to orchestrate a classifier that can distinguish
 between daisies and roses.
 
@@ -151,7 +151,11 @@ The prediction configuration should look like this:
    - _self_
 ```
 
-## Step 5: Start the pipeline
+## (Optional) Step 5: Add a custom model
+If you want to add a custom model have a look at the
+[How to add a custom model](how-to-guides.md#How to add a custom model).
+
+## Step 6: Start the pipeline
 Run niceML and hand over the top-level jon configuration file via
 
 ```python

@@ -87,8 +87,9 @@ class FlowerCNN(ModelFactory):
         return model
 
 ```
-In the next step, we will integrate this model in the training operation configuration.
-Simply change the target of the model setting to `nicemlproject.dir.of.custom.FlowerCNN`.
+To use the model in your training pipeline change the target of the model
+setting to `nicemlproject.dir.of.custom.FlowerCNN` in the training operation configuration
+`configs/ops/prediction/op_train.yaml`.
 
 ## How to start the pipeline via the dagster UI?
 You start dagster via
