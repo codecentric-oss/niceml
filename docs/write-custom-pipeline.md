@@ -28,14 +28,14 @@ starting point for our own pipeline.
 Adjust job parameters in `job_train_cls_binary_flowers.yaml`. Many parameters 
 are pre-configured and do not require adjustment. However, we want to configure
 our own 
-- **training** and **prediction** ops (`/ops/train@ops.train.config`, `/ops/train@ops.prediction.config`), 
+- **train** and **prediction** ops (`/ops/train@ops.train.config`, `/ops/train@ops.prediction.config`), 
 - **experiment_id** (`globals` -> `exp_name` and `exp_prefix`)
 - and **input data location** (`globals` -> `data_location`). 
  
-In the job configuration, we can already point
+In the job configuration, you can already point
 to the location where the Kaggle images are stored. 
-Also, we change the path to the 
-dagster training and prediction operation configurations we are going to write in
+Also, you can change the path to the 
+dagster train and prediction operation configurations you are going to write in
 the next two steps.
 
 ```yaml
@@ -66,21 +66,21 @@ globals:
     uri: ${oc.env:DATA_URI,./data}/kaggle_flowers
 ```
 
-## Step 3: Configure the training operation
-We navigate to `configs/ops/train` and create `op_train_cls_binary_flowers.yaml`.
+## Step 3: Configure the train operation
+Navigate to `configs/ops/train` and create `op_train_cls_binary_flowers.yaml`.
 
-We can use the content of `op_train_cls_binary_flowers.yaml` as a starting point 
+You can use the content of `op_train_cls_binary_flowers.yaml` as a starting point 
 and change the definition where the training data is stored, what the image size
-is and which classes we use as labels. 
+is and which classes you use as labels. 
 
-This means, we have to edit
+This means, you have to edit
 - `/shared/datasets@data_train`
 - `/shared/datasets@data_validation`
 - `classes`
 - `target_size width` and `target_size height`
 
-For the time being, we will use the
-OwnMobileNetModel model of Tensorflow and do not implement our own model definition.
+For the time being, use the
+OwnMobileNetModel model of Tensorflow and do not implement your own model definition.
 
 ```yaml
 defaults:
@@ -127,16 +127,16 @@ learner:
     metrics: [ "accuracy" ]   
 ```
 
-You might have noticed, that we did not give a plain directory definition to tell
-niceml where the training images are stored. Instead, we define the datasets within
+You might have noticed, that you did not give a plain directory definition to tell
+niceml where the training images are stored. Instead, you define the datasets within
 a configuration yaml in `configs/shared/datasets/dataset_kaggle_flowers.yaml`. For now,
-we will use as the same configuration as in `dataset_cls_test.yaml`
+use the same configuration as in `dataset_cls_test.yaml`
 
 ## Step 4: Configure the prediction operation
-We create `configs/ops/prediction/op_prediction_cls_binary_flowers.yaml` and use
+Create `configs/ops/prediction/op_prediction_cls_binary_flowers.yaml` and use
 `op_prediction_cls.yaml` as a template.
 
-Here, we only have to change the definition of the training, validation and test datasets with
+Here, only change the definition of the training, validation and test datasets with
 the yaml we wrote in the step before (`dataset_kaggle_flowers.yaml`). 
 The prediction configuration should look like this:
    
