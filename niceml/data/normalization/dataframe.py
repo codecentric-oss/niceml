@@ -26,7 +26,8 @@ def normalize_scalar_column(
         column_key: Specify which column to normalize
 
     Returns:
-        A tuple of a dataframe and a normalizationinfo object
+        A tuple of the dataframe with the normalized column (`column_key`)
+        and a `ScalarNormalizationInfo` object
 
     """
     min_val = dataframe[column_key].min()
@@ -35,10 +36,7 @@ def normalize_scalar_column(
     divisor = max_val - min_val
 
     if divisor == 0:
-        if min_val == max_val:
-            divisor = 1
-        else:
-            raise ZeroDivisionError
+        divisor = 1
 
     dataframe[column_key] = (dataframe[column_key] - min_val) / divisor
 
@@ -53,8 +51,19 @@ def normalize_binary_column(
     dataframe: pd.DataFrame, column_key: str
 ) -> Tuple[pd.DataFrame, BinaryNormalizationInfo]:
     """
-    The normalize_binary_col function takes a dataframe and a column key as input.
-    It returns the normalized dataframe and the normalization information for that column.
+    The normalize_binary_column function takes a dataframe and the key of a column in
+    that dataframe.It then checks to make sure that there are only two unique values
+    in the column, and if so, it replaces those values with 0s and 1s. It returns both
+    the normalized dataframe and an object containing information about how
+    the normalization was performed.
+
+    Args:
+        dataframe:  Pass in the dataframe that we want to normalize
+        column_key: Specify the column that we want to normalize
+
+    Returns:
+        A tuple of the dataframe with the normalized column (`column_key`)
+        and a `BinaryNormalizationInfo` object
     """
     values = list(sorted(dataframe[column_key].unique()))
     binary_value_count = 2
@@ -71,9 +80,21 @@ def normalize_categorical_column(
     dataframe: pd.DataFrame, column_key: str
 ) -> Tuple[pd.DataFrame, CategoricalNormalizationInfo]:
     """
-    The normalize_categorical_col function takes a dataframe and a column key as input.
-    It returns the normalized dataframe and the normalization information for that column.
+    Normalizes a categorical column in the given DataFrame.
+
+    This function takes a `dataframe` and a `column_key´ representing a categorical
+    column. It replaces the categorical values with their corresponding indices
+    in a sorted order. The normalization information is also returned.
+
+    Args:
+        dataframe: The DataFrame containing the categorical column.
+        column_key: The column key of the categorical column to be normalized.
+
+    Returns:
+        A tuple containing DataFrame with the normalized column (`column_key`) and a
+        CategoricalNormalizationInfo object.
     """
+
     values = list(sorted(dataframe[column_key].unique()))
     dataframe[column_key] = dataframe[column_key].apply(lambda x: values.index(x))
     norm_info = CategoricalNormalizationInfo(feature_key=column_key, values=values)

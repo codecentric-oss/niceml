@@ -12,7 +12,8 @@ class FeatureCombiner(ABC):
     def combine_features(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         The combine_features function takes in a dataframe and returns a new dataframe
-        with the features combined.
+        with the features combined. The features to be combined must be initialized
+        in the `__init__` of the concrete class implementation.
 
         Args:
             data: pd.DataFrame: Pass in the dataframe that we want to transform

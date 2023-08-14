@@ -423,7 +423,7 @@ def convert_image_to_df_row(
 
     for y in range(target_size[0]):
         for x in range(target_size[1]):
-            df_row[f"px_{y}_{x}"] = image[y, x]
+            df_row[f"px_{y}_{x}"] = image[y, x]  # px = pixel
     return df_row
 
 

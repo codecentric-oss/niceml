@@ -62,13 +62,14 @@ class RegDataInfo(DataInfo):
         """
         The __getattr__ function is called when an attribute lookup has not found the attribute
         in the usual places (i.e. it is not an instance attribute nor is it
-        found in the class tree for self).
+        found in the class tree of self). In this case it is the value of the key (`item`)
+        in the `self.data` dictionary
 
         Args:
-            item: Access the value of a key in the dictionary
+            item: Access the value of a key in `self.data`
 
         Returns:
-            The value of the key in the data dictionary
+            The value of the key (`item`) in the `self.data` dictionary
         """
         return self.data[item]
 
@@ -82,7 +83,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         batch_size: int,
         set_name: str,
         data_location: Union[dict, LocationConfig],
-        df_path: str = ExperimentFilenames.SUBSET_NAME,
+        df_filename: str = ExperimentFilenames.SUBSET_NAME,
         shuffle: bool = False,
         data_shuffler: Optional[DataShuffler] = None,
         dataframe_filters: Optional[List[DataframeFilter]] = None,
@@ -90,26 +91,22 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         extra_key_list: Optional[List[str]] = None,
     ):
         """
-        The __init__ function is called when the class is instantiated.
-        It sets up the instance of the class, and defines all of its attributes.
-        The __init__ function takes in a number of arguments, which are used to set up
-        these attributes.
+        Initializes an instance of DfDataset with the given arguments
 
         Args:
-            id_key: str: Specify the column name of the id column in your dataframe
-            batch_size: int: Define the size of each batch
-            set_name: str: Identify the dataset
-            data_location: Union[dict, LocationConfig]: Specify the location of the data
-            df_path: str: Specify the file name of the dataframe
-            shuffle: bool: Shuffle the data
-            dataframe_filters: Optional[List[DataframeFilter]]: Optional list of dataframe filters
+            id_key: Column name of the id column in your dataframe
+            batch_size: Size of a batch
+            set_name: Name of the dataset
+            data_location: Location of the data used in the data set
+            df_filename: Specify the file name of the dataframe
+            shuffle: Flag to shuffle the data or not
+            dataframe_filters: Optional list of dataframe filters
                                 to filter the data
-
         """
         super().__init__()
         self.data_shuffler = data_shuffler or DefaultDataShuffler()
         self.dataframe_filters = dataframe_filters or []
-        self.df_path = df_path
+        self.df_path = df_filename
         self.data_location = data_location
         self.batch_size = batch_size
         self.set_name = set_name
@@ -126,13 +123,14 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         self, data_description: RegDataDescription, exp_context: ExperimentContext
     ):
         """
-        The initialize function is called when the data set is created.
+        The initialize function should read in all the necessary files from disk and store them as
+        attributes on this class instance.
+        This function is called when the data set is created.
         It takes in a `RegDataDescription` object, which contains information about the
         inputs and targets of your dataset. The initialize function should also take in an
         `ExperimentContext` object, which contains information about where to find your
         data on disk. The `ExperimentContext` is not used in this class.
-        This function should read in all the necessary files from disk and store them as
-        attributes on this class instance.
+
 
         Args:
             data_description: RegDataDescription: Pass the data description of the dataset
@@ -174,7 +172,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         The get_set_name function returns the name of the set.
 
         Returns:
-            The `set_name` attribute
+           The name of the data set
         """
         return self.set_name
 
@@ -200,16 +198,13 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
     def get_data_by_key(self, data_key):
         """
-        The get_data_by_key function takes a data_key as an argument and returns the row of
-        data from the DataFrame that corresponds to that key. The function uses pandas' loc method
-        to return a slice of rows from the DataFrame where the value in self.id_key matches
-        data_key.
+        Returns all rows of the data, whose 'id_key' matches the 'data_key'.
 
         Args:
             data_key: Identify the data that is being requested
 
         Returns:
-            A dataframe of the rows where the id_key column matches the data_key parameter
+            A dataframe of the rows where the `self.id_key` column matches the `data_key` parameter
         """
         return self.data.loc[self.data[self.id_key] == data_key]
 
@@ -217,8 +212,21 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         """loads all data"""
         return self.get_data_from_idx_list(self.index_list)
 
-    def extract_data(self, cur_indexes, cur_input):
-        """extracts data"""
+    def extract_data(self, cur_indexes: List[int], cur_input: dict):
+        """
+        The extract_data function takes in a list of indexes and an input dictionary.
+        The function then extracts the data from `self.data` using the key provided by
+        the input dictionary, and returns it as a numpy array. If the type is categorical,
+        it will convert it to one-hot encoding.
+
+        Args:
+            self: Bind the method to an object
+            cur_indexes: Select the rows of data that are needed for the current batch
+            cur_input: Get the key and type of the input
+
+        Returns:
+            The data of the current key
+        """
         cur_key = cur_input["key"]
         cur_data = self.data.iloc[cur_indexes][cur_key]
         if cur_input["type"] == FeatureType.CATEGORICAL:
@@ -227,10 +235,12 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
     def __getitem__(self, index):
         """
-        The __getitem__ function is called when the `DfDataset` is indexed (while training a model).
+        The __getitem__ function is called when the `DfDataset` is accessed, using the
+        notation `self[index]` (while training a model). In this case, the data is passed
+        to the model according to the `self.batch_size` and `index`.
 
         Args:
-            index: Specify the start index of the batch
+            index: Specify the start `index` of the batch
 
         Returns:
             A batch of input data and target data with the batch size `self.batch_size`
@@ -246,7 +256,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         The __len__ function is used to determine the number of batches in an epoch.
 
         Returns:
-            The number of batches in the dataset
+            The number of batches in an epoch
         """
         batch_count, rest = divmod(len(self.index_list), self.batch_size)
         if rest > 0:
@@ -254,7 +264,9 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         return batch_count
 
     def on_epoch_end(self):
-        """shuffles on epoch end"""
+        """
+        Execute logic to be performed at the end of an epoch (e.g. shuffling the data)
+        """
         if self.shuffle:
             self.index_list = self.data_shuffler.shuffle(
                 data_infos=self.get_all_data_info()
@@ -274,8 +286,16 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         """
         return DataIterator(self)
 
-    def get_datainfo(self, batch_index):
-        """creates datainfo for given index"""
+    def get_datainfo(self, batch_index) -> List[RegDataInfo]:
+        """
+        The get_datainfo function is used to get the data information for a given batch.
+
+        Args:
+            batch_index: Determine which batch of data (datainfo) to return
+
+        Returns:
+            A list of `RegDataInfo` objects of the batch with index `batch_index`
+        """
         start_idx = batch_index * self.batch_size
         end_idx = min(len(self.index_list), (batch_index + 1) * self.batch_size)
         data_info_list: List[RegDataInfo] = []
@@ -297,11 +317,8 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
     def get_all_data_info(self) -> List[RegDataInfo]:
         """
-        The get_all_data_info function returns a list of RegDataInfo objects.
-        Each RegDataInfo object contains the following information:
-            - key: The unique identifier for each data point
-            - input_dict: A dictionary mapping input keys to their values
-            - target_dict: A dictionary mapping target keys to their values
+        The get_all_data_info function returns a list of `RegDataInfo` objects for
+        all data in `self.data`.
 
         Returns:
             A list of `RegDataInfo` objects

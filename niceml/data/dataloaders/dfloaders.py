@@ -48,7 +48,7 @@ class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-meth
         cache_dir: str,
         working_dir: Optional[str] = None,
     ):
-        """SimpleLoader for parquet files from cache or remote storage"""
+        """Initialize a SimpleLoader for parquet files from cache or remote storage"""
         self.storage = storage
         self.cache_path = cache_dir
         self.working_dir = working_dir
@@ -75,7 +75,7 @@ class RemoteDiskCachedDfLoaderFactory(  # QUEST: still used?
     """Factory of RemoteDiskCachedDfLoader"""
 
     def __init__(self, cache_dir: str):
-        """Factory of RemoteDiskCachedDfLoader"""
+        """Initialize a Factory for RemoteDiskCachedDfLoader"""
 
         self.cache_path = cache_dir
 

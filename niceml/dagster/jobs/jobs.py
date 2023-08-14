@@ -22,11 +22,15 @@ from dagster import job
 def job_data_generation():
     """Job for data generation"""
 
-    output_loc = data_generation()  # pylint: disable=no-value-for-parameter
-    output_loc = split_data(output_loc)  # pylint: disable=no-value-for-parameter
-    output_loc = crop_numbers(output_loc)  # pylint: disable=no-value-for-parameter
-    output_loc = image_to_tabular_data(output_loc)
-    df_normalization(output_loc)
+    current_data_location = data_generation()  # pylint: disable=no-value-for-parameter
+    current_data_location = split_data(
+        current_data_location
+    )  # pylint: disable=no-value-for-parameter
+    current_data_location = crop_numbers(
+        current_data_location
+    )  # pylint: disable=no-value-for-parameter
+    current_data_location = image_to_tabular_data(current_data_location)
+    df_normalization(current_data_location)
 
 
 @job(config=hydra_conf_mapping_factory())

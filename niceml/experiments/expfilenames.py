@@ -88,10 +88,10 @@ class ExpEvalCopyNames:  # pylint: disable=too-few-public-methods
         This function will be called when using the 'in' keyword.
 
         Args:
-            key: str: Check if the file name starts with an excluded file
+            key: str: Check if the key (`file`) starts with an excluded file
 
         Returns:
-            False, if the file name starts with an excluded file
+            False, if the key (`file`) starts with an excluded file
         """
         for ex_file in self.exclude_files:
             if key.startswith(ex_file):

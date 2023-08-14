@@ -8,7 +8,7 @@ data_description:
   _target_: niceml.data.datadescriptions.regdatadescription.RegDataDescription
   inputs:
     _target_: niceml.data.datadescriptions.regdatadescription.inputs_prefix_factory
-    prefix: px
+    prefix: px #px=pixel
     data_location: ${globals.data_location}
     data_file_name: numbers_tabular_data_train.parq
     feature_type: scalar

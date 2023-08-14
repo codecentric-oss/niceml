@@ -20,13 +20,12 @@ class CSVLogger(Callback):
 
     # Arguments
         exp_context: An instance of ExperimentContext which is used to write csv files
-        separator: string used to separate elements in the CSV file.
     """
 
     def __init__(
         self, experiment_context: ExperimentContext, filename: str = "train_logs.csv"
     ):
-        """Callback that streams epoch results to a CSV file.
+        """Initialize CSVLogger with a given Context and csv filename.
 
         Supports all values that can be represented as a string,
         including 1D iterables such as np.ndarray.
@@ -51,11 +50,11 @@ class CSVLogger(Callback):
     def on_epoch_end(self, epoch, logs=None):
         """
         The on_epoch_end function is called at the end of every epoch.
-        It flushes the logs to a CSV file.
+        It writes the logs to a CSV file.
 
         Args:
-            epoch: Keep track of the number of epochs that have been run
-            logs: Store the loss and other metrics at each epoch end
+            epoch: Current epoch
+            logs: The logs of the current epoch to be written to the csv file.
         """
         logs = logs or {}
 
@@ -73,16 +72,18 @@ class CSVLogger(Callback):
     def on_train_end(self, logs=None):
         """
         The on_train_end function is called at the end of training.
+        In this case it writes the logs of the current training to a csv file.
 
         Args:
-            logs: Pass the logs to the on_train_end function
+            logs: The logs of the current training. Ignored here because the logs
+                    are stored in the object (`self.keys`, `self.data`).
         """
         self.flush()
 
     def flush(self):
         """
         The flush function is called when the training is finished
-        or at the end of an epoch.It writes the data to a csv file in the
+        or at the end of an epoch. It writes the data to a csv file in the
         data directory of your experiment.
         """
         if self.experiment_context is not None:

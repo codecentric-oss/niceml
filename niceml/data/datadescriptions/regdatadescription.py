@@ -126,7 +126,7 @@ def inputs_prefix_factory(
         data_location: Specify the location of the data
         prefix: Filter the columns in the dataframe
         feature_type: Specify the type of feature
-        data_file_name: str: Specify the name of the file to be read from data_location
+        data_file_name: Specify the name of the file to be read from data_location
     Returns:
         A list of input features as dictionaries
     """
@@ -156,7 +156,26 @@ def reg_data_description_factory(
     filter_function: FunctionType,
     **kwargs,
 ) -> RegDataDescription:
-    """Factory for creating RegDataDescription from train data"""
+    """
+    The reg_data_description_factory function is a factory function that returns a
+    RegDataDescription object.The RegDataDescription object contains the inputs and targets
+    of the regression data set.
+    The reg_data_description_factory function takes in arguments for:
+        - train_data_location: The location of the training data set
+        - train_set_file name: The name of the training data set file
+        - filter function: A filtering function to apply to each row in order to
+                            extract input and target features from it
+
+    Args:
+        train_data_location: The location of the training data set
+        train_set_file_name: The name of the training data set file
+        filter_function: A filtering function to apply to each row in order to
+                        extract input and target features from it
+        **kwargs: Pass in additional arguments to the filter_functions
+
+    Returns:
+        A RagDataDescription with inputs and targets created by the filter_function
+    """
     with open_location(train_data_location) as (
         regression_data_fs,
         regression_data_root,

@@ -67,7 +67,8 @@ def image_to_tabular_data(context: OpExecutionContext, input_location: dict) -> 
         input_location: dict: Specify the location of the input data
 
     Returns:
-        The output_location
+        The output_location where the parquet files with the table values are stored.
+        The files are still divided into test, train and validation.
     """
     op_config = json.loads(json.dumps(context.op_config))
 
