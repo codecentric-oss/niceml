@@ -18,10 +18,10 @@ data_description:
 data_train:
   set_name: train
   shuffle: true
-  df_path: numbers_tabular_data_train.parq
+  df_filename: numbers_tabular_data_train.parq
 data_validation:
   set_name: validation
-  df_path: numbers_tabular_data_validation.parq
+  df_filename: numbers_tabular_data_validation.parq
 model:
   _target_: niceml.dlframeworks.tensorflow.models.mlp.OwnMLP
   activation: tanh

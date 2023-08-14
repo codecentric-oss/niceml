@@ -3,4 +3,4 @@ id_key: identifier
 batch_size: 64
 data_location: ${globals.data_location}
 set_name: test
-df_path: numbers_tabular_data_test.parq
+df_filename: numbers_tabular_data_test.parq
