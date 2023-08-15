@@ -2,6 +2,30 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.0 (2023-08-15)
+
+### Feature
+
+* Improvements to `DfDataset` and other files to better perform regression experiments ([#56](https://github.com/codecentric-oss/niceml/issues/56)) ([`f88abd8`](https://github.com/codecentric-oss/niceml/commit/f88abd8083a8202a4354f30e268b55a33037d9f4))
+* Join location with path objects ([#63](https://github.com/codecentric-oss/niceml/issues/63)) ([`d73286d`](https://github.com/codecentric-oss/niceml/commit/d73286d5980dda3048025a1f2508650b794de796))
+* **Dependencies:** Update of `dagster` to 1.4.x , `tensorflow`, and the corresponding packages to 2.12.x ([#60](https://github.com/codecentric-oss/niceml/issues/60)) ([`99b997e`](https://github.com/codecentric-oss/niceml/commit/99b997e460033ab97db86375b00deff8f5b77b29))
+
+### Fix
+
+* PR feedback ([`bd6d475`](https://github.com/codecentric-oss/niceml/commit/bd6d475514ca1fa0a8538283da9b2ec52590aa3a))
+* PR feedback ([`c76a6e6`](https://github.com/codecentric-oss/niceml/commit/c76a6e6292d6d21e616043fd91d392cdfa72e9bb))
+* How to guide one yaml was false indented ([`61c023c`](https://github.com/codecentric-oss/niceml/commit/61c023c123e5fe153613f2b5b6505d73e940c470))
+* Change type of  `image_path` in `load_img_uint8` ([#55](https://github.com/codecentric-oss/niceml/issues/55)) ([`7df85ee`](https://github.com/codecentric-oss/niceml/commit/7df85ee5ba3980a8b90e267e5a0b6f56c3254ef5))
+
+### Documentation
+
+* Add PR feedback ([`84b6c6c`](https://github.com/codecentric-oss/niceml/commit/84b6c6ce2a11bc29a6431b8ebd8f16aa353bb332))
+* Add how to start the pipeline via dagster-webserver ([`79a4db0`](https://github.com/codecentric-oss/niceml/commit/79a4db0014ce684fcec4d23ea923f02de52688ef))
+* Add how to add a custom model ([`4027ef8`](https://github.com/codecentric-oss/niceml/commit/4027ef8727bbca24370aa703b26873618d4e627f))
+* Add how to write a custom pipeline ([`66fe21c`](https://github.com/codecentric-oss/niceml/commit/66fe21c58fc60d5a355544ebb561a0e9612e9e59))
+* Add into to how to write a custom pipeline ([`f0ec339`](https://github.com/codecentric-oss/niceml/commit/f0ec3395729a7362b0fc90754b4f000cbe37b50f))
+* Add automatic generation of API documentation based on docstrings ([#54](https://github.com/codecentric-oss/niceml/issues/54)) ([`8a16e6f`](https://github.com/codecentric-oss/niceml/commit/8a16e6ffe9c80a446766721e078f869c256ed1fd))
+
 ## v0.6.1 (2023-08-02)
 
 ### Fix
