@@ -20,7 +20,7 @@ train_objdet:
 	poetry run dagster job execute -m niceml.dagster.jobs.repository -j job_train -c configs/jobs/job_train/job_train_objdet/job_train_objdet_number.yaml
 
 train_regression:
-	poetry run dagster job execute -m niceml.dagster.jobs.repository -j job_train -c configs/jobs/job_train/job_train_reg/job_train_reg_sinus.yaml
+	poetry run dagster job execute -m niceml.dagster.jobs.repository -j job_train -c configs/jobs/job_train/job_train_reg/job_train_reg_numbers.yaml
 
 train_classification_multitarget:
 	poetry run dagster job execute -m niceml.dagster.jobs.repository -j job_train -c configs/jobs/job_train/job_train_cls/job_train_cls_multitarget.yaml

@@ -1,0 +1,43 @@
+defaults:
+  - op_train_base.yaml@_here_
+  - /shared/datasets@data_train: dataset_reg_test.yaml
+  - /shared/datasets@data_validation: dataset_reg_test.yaml
+  - _self_
+
+data_description:
+  _target_: niceml.data.datadescriptions.regdatadescription.RegDataDescription
+  inputs:
+    _target_: niceml.data.datadescriptions.regdatadescription.inputs_prefix_factory
+    prefix: px #px=pixel
+    data_location: ${globals.data_location}
+    data_file_name: numbers_tabular_data_train.parq
+    feature_type: scalar
+  targets:
+    - key: label
+      type: scalar
+data_train:
+  subset_name: train
+  shuffle: true
+  df_filename: numbers_tabular_data_train.parq
+data_validation:
+  subset_name: validation
+  df_filename: numbers_tabular_data_validation.parq
+model:
+  _target_: niceml.dlframeworks.tensorflow.models.mlp.OwnMLP
+  activation: tanh
+  final_activation: tanh
+  hidden_layers:
+    - 25
+    - 35
+    - 12
+model_load_custom_objects:
+  _target_: niceml.mlcomponents.modelcompiler.modelcustomloadobjects.ModelCustomLoadObjects
+learner:
+  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  model_compiler:
+    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    loss: mse
+    # Optimizer used in the experiment
+    optimizer:
+      _target_: tensorflow.keras.optimizers.Adam
+    metrics: ["mean_squared_error", "accuracy"]

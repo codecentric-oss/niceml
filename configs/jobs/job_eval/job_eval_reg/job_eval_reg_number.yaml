@@ -1,0 +1,30 @@
+# evaluate numbers object detection experiment
+defaults:
+  # localize experiment
+  - ops/experiment@ops.localize_experiment.config: op_experiment_default.yaml
+  # copy existing experiment for evaluation
+  - ops/experiment@ops.eval_copy_exp.config: op_experiment_default.yaml
+  # prediction
+  - ops/prediction@ops.prediction.config: op_prediction_reg.yaml
+  # analysis
+  - ops/analysis@ops.analysis.config: op_analysis_reg.yaml
+  # experiment tests
+  - ops/exptests@ops.exptests.config.tests: exptests_default.yaml
+  # experiment locations
+  - shared/locations@globals: exp_locations.yaml
+  - _self_
+
+hydra:
+  searchpath:
+    - file://configs
+
+globals:
+  exp_name: SampleReg
+  exp_prefix: REGNUM
+  data_location:
+    uri: ${oc.env:DATA_URI,./data}/numbers_tabular_data_normalized
+
+ops:
+  localize_experiment:
+    config:
+      existing_experiment: ${oc.env:EVAL_EXPERIMENT_ID,latest}

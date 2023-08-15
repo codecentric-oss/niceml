@@ -70,6 +70,6 @@ class TensorGraphAnalyzer(ResultAnalyzer):
 
         output_file = join(
             ExperimentFilenames.ANALYSIS_FOLDER,
-            ExperimentFilenames.ANALYSIS_FILE.format(dataset_name=dataset_name),
+            ExperimentFilenames.ANALYSIS_FILE.format(subset_name=dataset_name),
         )
         exp_context.write_yaml(out_dict, output_file)

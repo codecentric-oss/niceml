@@ -16,7 +16,7 @@ class DefaultExperimentSchema(
     test_analysis_file = YamlMember(
         path=join(
             ExperimentFilenames.ANALYSIS_FOLDER,
-            ExperimentFilenames.ANALYSIS_FILE.format(dataset_name=SubsetNames.TEST),
+            ExperimentFilenames.ANALYSIS_FILE.format(subset_name=SubsetNames.TEST),
         ),
         required=True,
         description="This file contains the analysis metrics of the test set.",
@@ -25,7 +25,7 @@ class DefaultExperimentSchema(
         path=join(
             ExperimentFilenames.ANALYSIS_FOLDER,
             ExperimentFilenames.ANALYSIS_FILE.format(
-                dataset_name=SubsetNames.VALIDATION
+                subset_name=SubsetNames.VALIDATION
             ),
         ),
         required=True,
@@ -35,7 +35,7 @@ class DefaultExperimentSchema(
         path=join(
             ExperimentFilenames.ANALYSIS_FOLDER,
             ExperimentFilenames.ANALYSIS_FILE.format(
-                dataset_name=SubsetNames.TRAIN_EVAL
+                subset_name=SubsetNames.TRAIN_EVAL
             ),
         ),
         required=True,

@@ -8,6 +8,8 @@ defaults:
   - ops/crop_numbers@ops.crop_numbers.config: op_crop_numbers.yaml
   # op to save images as tabular data
   - ops/image_to_tabular_data@ops.image_to_tabular_data.config: op_image_to_tabular_data.yaml
+  # op to normalize tabular data
+  - ops/normalization@ops.df_normalization.config: op_norm_numbers_tabular_data.yaml
   # credentials are only used for data location, otherwise ignored
   - /shared/credentials@globals.data_location.credentials: credentials_minio.yaml
   - _self_
