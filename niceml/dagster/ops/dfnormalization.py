@@ -9,7 +9,7 @@ from dagster import op, Field, OpExecutionContext
 from hydra.utils import instantiate, ConvertMode
 from tqdm import tqdm
 
-from niceml.data.normalization.dataframe import (
+from niceml.data.normalization.minmax import (
     normalize_scalar_column,
     normalize_categorical_column,
     normalize_binary_column,

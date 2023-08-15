@@ -8,8 +8,8 @@ defaults:
 
 datasets:
   test:
-    set_name: test
+    subset_name: test
   train_eval:
-    set_name: train
+    subset_name: train
   validation:
-    set_name: validation
+    subset_name: validation

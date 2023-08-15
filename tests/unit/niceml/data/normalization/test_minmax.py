@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from niceml.data.normalization.dataframe import (
+from niceml.data.normalization.minmax import (
     normalize_scalar_column,
     normalize_categorical_column,
     normalize_binary_column,

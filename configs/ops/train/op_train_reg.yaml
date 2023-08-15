@@ -16,11 +16,11 @@ data_description:
     - key: label
       type: scalar
 data_train:
-  set_name: train
+  subset_name: train
   shuffle: true
   df_filename: numbers_tabular_data_train.parq
 data_validation:
-  set_name: validation
+  subset_name: validation
   df_filename: numbers_tabular_data_validation.parq
 model:
   _target_: niceml.dlframeworks.tensorflow.models.mlp.OwnMLP

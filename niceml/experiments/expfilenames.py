@@ -19,7 +19,7 @@ class ExperimentFilenames:  # pylint: disable=too-few-public-methods
     STATS_PRED: str = "stats_prediction.yaml"
     GIT_VERSIONS: str = "git_versions.yaml"
     CUSTOM_LOAD_OBJECTS: str = "model_load_custom_objects.yaml"
-    ANALYSIS_FILE: str = "result_{dataset_name}.yaml"
+    ANALYSIS_FILE: str = "result_{subset_name}.yaml"
     ANALYSIS_FOLDER: str = "analysis"
     EPOCHS_FORMATTING: str = "ep{epoch:03d}"
     DATASETS_STATS_FOLDER: str = "datasetsstats"
@@ -28,7 +28,7 @@ class ExperimentFilenames:  # pylint: disable=too-few-public-methods
     NET_DATA_FOLDER: str = "net_data"
     EXP_FILES_FILE: str = "exp_files.parq"
     EXP_FILES_COL: str = "exp_files"
-    SUBSET_NAME: str = "{set_name}.parq"
+    SUBSET_NAME: str = "{subset_name}.parq"
 
 
 class OpNames(str, Enum):

@@ -81,7 +81,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         self,
         id_key: str,
         batch_size: int,
-        set_name: str,
+        subset_name: str,
         data_location: Union[dict, LocationConfig],
         df_filename: str = ExperimentFilenames.SUBSET_NAME,
         shuffle: bool = False,
@@ -96,7 +96,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         Args:
             id_key: Column name of the id column in your dataframe
             batch_size: Size of a batch
-            set_name: Name of the dataset
+            subset_name: Name of the dataset
             data_location: Location of the data used in the data set
             df_filename: Specify the file name of the dataframe
             shuffle: Flag to shuffle the data or not
@@ -109,7 +109,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         self.df_path = df_filename
         self.data_location = data_location
         self.batch_size = batch_size
-        self.set_name = set_name
+        self.subset_name = subset_name
         self.id_key = id_key
         self.index_list = []
         self.shuffle = shuffle
@@ -142,7 +142,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
         with open_location(self.data_location) as (data_fs, data_root):
             data_path = join_fs_path(
-                data_fs, data_root, self.df_path.format(set_name=self.set_name)
+                data_fs, data_root, self.df_path.format(subset_name=self.subset_name)
             )
             self.data = read_parquet(filepath=data_path, file_system=data_fs)
 
@@ -174,7 +174,7 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         Returns:
            The name of the data set
         """
-        return self.set_name
+        return self.subset_name
 
     def get_data_from_idx_list(self, index_list: List[int]):
         """returns data with a given `index_list`"""
@@ -235,15 +235,15 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
     def __getitem__(self, index):
         """
-        The __getitem__ function is called when the `DfDataset` is accessed, using the
-        notation `self[index]` (while training a model). In this case, the data is passed
-        to the model according to the `self.batch_size` and `index`.
+        The __getitem__ function returns the indexed data batch in the size of `self.batch_size`.
+        It is called when the DfDataset is accessed, using the notation self[`index`]
+        (while training a model).
 
-        Args:
-            index: Specify the start `index` of the batch
+         Args:
+             index: Specify `index` of the batch
 
-        Returns:
-            A batch of input data and target data with the batch size `self.batch_size`
+         Returns:
+             A batch of input data and target data with the batch size `self.batch_size`
         """
         start_idx = index * self.batch_size
         end_idx = min(len(self.index_list), (index + 1) * self.batch_size)
