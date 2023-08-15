@@ -20,6 +20,8 @@ class SimpleDfLoader(DfLoader):  # pylint: disable=too-few-public-methods
         storage: Optional[StorageInterface] = None,
         working_dir: Optional[str] = None,
     ):
+        """SimpleLoader for parquet files"""
+
         self.storage = storage or LocalStorage()
         self.working_dir = working_dir
 
@@ -38,7 +40,7 @@ class SimpleDfLoaderFactory(DfLoaderFactory):  # pylint: disable=too-few-public-
 
 
 class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-methods
-    """SimpleLoader for parquet files from cache or remote storage"""  # QUEST: check docstring
+    """SimpleLoader for parquet files from cache or remote storage"""
 
     def __init__(
         self,
@@ -46,6 +48,7 @@ class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-meth
         cache_dir: str,
         working_dir: Optional[str] = None,
     ):
+        """Initialize a SimpleLoader for parquet files from cache or remote storage"""
         self.storage = storage
         self.cache_path = cache_dir
         self.working_dir = working_dir
@@ -72,6 +75,8 @@ class RemoteDiskCachedDfLoaderFactory(  # QUEST: still used?
     """Factory of RemoteDiskCachedDfLoader"""
 
     def __init__(self, cache_dir: str):
+        """Initialize a Factory for RemoteDiskCachedDfLoader"""
+
         self.cache_path = cache_dir
 
     def create_df_loader(self, storage: StorageInterface, working_dir: str) -> DfLoader:

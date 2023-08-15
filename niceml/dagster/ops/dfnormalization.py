@@ -1,8 +1,7 @@
 """Module for dataframe normalization op"""
 
 import json
-from types import FunctionType
-from typing import List, Optional
+from typing import List, Any
 
 import pandas as pd
 from attrs import asdict
@@ -10,9 +9,16 @@ from dagster import op, Field, OpExecutionContext
 from hydra.utils import instantiate, ConvertMode
 from tqdm import tqdm
 
-from niceml.data.normalization.dataframe import normalize_col
+from niceml.data.normalization.minmax import (
+    normalize_scalar_column,
+    normalize_categorical_column,
+    normalize_binary_column,
+)
 from niceml.data.normalization.normalization import NormalizationInfo
-from niceml.utilities.fsspec.locationutils import open_location, join_fs_path
+from niceml.utilities.fsspec.locationutils import (
+    open_location,
+    join_fs_path,
+)
 from niceml.utilities.ioutils import (
     list_dir,
     read_parquet,
@@ -23,16 +29,20 @@ from niceml.utilities.ioutils import (
 
 @op(
     config_schema={
-        "input_parq_location": Field(
-            dict, description="Location where the input parq files are located"
+        "scalar_feature_keys": Field(
+            Any,
+            description="Column names to be normalized with scalar values (list or function)",
+            default_value=[],
         ),
-        "feature_keys": Field(
-            list, description="Column names to be normalized", default_value=[]
+        "binary_feature_keys": Field(
+            Any,
+            description="Column names to be normalized with binary values (list or function)",
+            default_value=[],
         ),
-        "feature_keys_function": Field(
-            dict,
-            description="Function that can be used to create feature columns",
-            default_value={},
+        "categorical_feature_keys": Field(
+            Any,
+            description="Column names to be normalized with categorical values (list or function)",
+            default_value=[],
         ),
         "output_parq_location": Field(
             dict, description="Target location for the normalized parq files"
@@ -46,39 +56,40 @@ from niceml.utilities.ioutils import (
         "recursive": Field(bool, description="", default_value=False),
     }
 )
-def df_normalization(
-    context: OpExecutionContext, input_location: Optional[dict] = None
-) -> dict:
+def df_normalization(context: OpExecutionContext, input_location: dict) -> dict:
     """
-    The df_normalization function takes in parquet files and normalizes the features
-    specified in `feature_keys`. The function returns a normalized parquet file with
-    all columns normalized specified in `feature_keys`, as well as an output yaml file
+    The df_normalization function takes in a dataframe and normalizes the features
+    specified in `scalar_feature_keys`, `categorical_feature_keys` and `binary_feature_keys`.
+    The parameters for the feature keys can be a function that returns the feature keys as
+    a list or a list of feature keys. The function returns a normalized parquet file with
+    all columns normalized specified in feature_keys, as well as an output yaml file
     containing information about how each feature was normalized. The input_parq_location
     is where the input parquet files are located, while output_parq_location is where you
-    want to save your new dataframes and norm info yaml. feature keys are what you want
-    to normalize.
+    want to save your new dataframes and norm info yaml.
 
     Args:
-        context: OpExecutionContext: Access the op_config and other parameters
-        input_location: Input location of the features parquet files
+        context: OpExecutionContext: Get the op_config
+        input_location: dict: Specify the location of the input data
 
     Returns:
-        The `output_parq_location` as a dict
-
+        The output_parq_location, which is the location of the normalized parquet files
+        and norm info
     """
     op_config = json.loads(json.dumps(context.op_config))
     instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
-    input_parq_location: dict = (
-        input_location or instantiated_op_config["input_parq_location"]
-    )
     output_parq_location: dict = instantiated_op_config["output_parq_location"]
-    feature_keys: List[str] = instantiated_op_config["feature_keys"]
-    feature_keys_function = instantiated_op_config["feature_keys_function"]
+    scalar_feature_keys: List[str] = instantiated_op_config["scalar_feature_keys"]
+
+    binary_feature_keys: List[str] = instantiated_op_config["binary_feature_keys"]
+
+    categorical_feature_keys: List[str] = instantiated_op_config[
+        "categorical_feature_keys"
+    ]
     output_norm_feature_info_file_name: str = instantiated_op_config[
         "output_norm_feature_info_file_name"
     ]
 
-    with open_location(input_parq_location) as (input_fs, input_root):
+    with open_location(input_location) as (input_fs, input_root):
         input_files = list_dir(
             join_fs_path(input_fs, input_root),
             file_system=input_fs,
@@ -96,13 +107,23 @@ def df_normalization(
         data = pd.concat(loaded_data_list)
 
         info_list: List[NormalizationInfo] = []
-        if isinstance(feature_keys_function, FunctionType):
-            extended_feature_keys = feature_keys + feature_keys_function(data)
-        else:
-            extended_feature_keys = feature_keys
-        for feature in tqdm(extended_feature_keys, desc="Normalize features"):
-            data, feat_info = normalize_col(data, feature)
-            info_list.append(feat_info)
+        for scalar_feature in tqdm(
+            scalar_feature_keys, desc="Normalize scalar features"
+        ):
+            data, scalar_norm_info = normalize_scalar_column(data, scalar_feature)
+            info_list.append(scalar_norm_info)
+        for categorical_feature in tqdm(
+            categorical_feature_keys, desc="Normalize categorical features"
+        ):
+            data, categorical_norm_info = normalize_categorical_column(
+                data, categorical_feature
+            )
+            info_list.append(categorical_norm_info)
+        for binary_feature in tqdm(
+            binary_feature_keys, desc="Normalize binary features"
+        ):
+            data, binary_norm_info = normalize_binary_column(data, binary_feature)
+            info_list.append(binary_norm_info)
 
         with open_location(output_parq_location) as (output_fs, output_root):
             info_dict_list: List[dict] = [asdict(info) for info in info_list]

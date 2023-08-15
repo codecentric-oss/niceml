@@ -24,10 +24,11 @@ from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
     join_location_w_path,
     open_location,
+    join_fs_path,
 )
 from niceml.utilities.imagesize import ImageSize
 from niceml.utilities.imageutils import get_font
-from niceml.utilities.ioutils import read_json, write_image, write_json
+from niceml.utilities.ioutils import read_json, write_image, write_json, read_parquet
 
 
 # pylint: disable=too-many-instance-attributes
@@ -220,7 +221,7 @@ def generate_number_image(  # noqa: PLR0913
     img_array = np.asarray(img)
     augmented_img = augmentations(image=img_array)["image"]
     img = Image.fromarray(augmented_img)
-    
+
     mask_img = Image.new("L", img.size, color=255)
     for _ in range(amount_of_numbers_on_image):
         (
@@ -406,7 +407,8 @@ def convert_image_to_df_row(
     Returns:
         A dictionary representing a dataframe row
     """
-    df_row = {"identifier": identifier, "label": label}
+
+    df_row = {"identifier": identifier, "label": int(label)}
     if isinstance(image, np.ndarray):
         image = Image.fromarray(image)
     image = image.convert(mode="L")
@@ -421,8 +423,34 @@ def convert_image_to_df_row(
 
     for y in range(target_size[0]):
         for x in range(target_size[1]):
-            df_row[f"px_{y}_{x}"] = image[y, x]
+            df_row[f"px_{y}_{x}"] = image[y, x]  # px = pixel
     return df_row
+
+
+def get_scalar_columns_of_tabular_data(
+    tabular_data_location: Union[dict, LocationConfig],
+    tabular_data_file_name: str = "train.parq",
+) -> List[str]:
+    """
+    The get_scalar_columns_of_tabular_data function returns a list
+    of the scalar columns in the tabular data.
+
+    Args:
+        tabular_data_location: Specify the location of the data
+        tabular_data_file_name: Specify the name of the parquet file containing tabular data
+
+    Returns:
+        A list of the scalar columns in the tabular data
+    """
+    with open_location(tabular_data_location) as (tabular_data_fs, tabular_data_root):
+        tabular_data = read_parquet(
+            filepath=join_fs_path(
+                tabular_data_fs, tabular_data_root, tabular_data_file_name
+            )
+        )
+        return [
+            column for column in tabular_data.columns if column.startswith("px")
+        ] + ["label"]
 
 
 def crop_text_layer_to_text(text_layer: ImageType) -> ImageType:

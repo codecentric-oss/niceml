@@ -1,0 +1,7 @@
+scalar_feature_keys:
+  _target_: niceml.utilities.imagegeneration.get_scalar_columns_of_tabular_data
+  tabular_data_location:
+    uri: ${oc.env:DATA_URI,./data}/numbers_tabular_data
+  tabular_data_file_name: numbers_tabular_data_train.parq
+output_parq_location:
+  uri: ${oc.env:DATA_URI,./data}/numbers_tabular_data_normalized

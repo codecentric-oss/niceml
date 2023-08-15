@@ -33,7 +33,7 @@ def trainregression(tmp_dir: str):
         / "jobs"
         / "job_train"
         / "job_train_reg"
-        / "job_train_reg_sinus.yaml"
+        / "job_train_reg_number.yaml"
     )
     print(f"job to test: {job_train.name}")
     config = yaml.load(config_path.read_text(encoding="utf-8"), Loader=yaml.SafeLoader)
@@ -64,7 +64,7 @@ def eval_regression(trainregression: str):
         / "jobs"
         / "job_eval"
         / "job_eval_reg"
-        / "job_eval_reg_sinus.yaml"
+        / "job_eval_reg_number.yaml"
     )
     print(f"job to test: {job_eval.name}")
     config = yaml.load(config_path.read_text(encoding="utf-8"), Loader=yaml.SafeLoader)
