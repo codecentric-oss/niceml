@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.1 (2023-08-22)
+
+### Fix
+
+* Remove tensorflow-io-gcs-filesystem from dependencies ([#69](https://github.com/codecentric-oss/niceml/issues/69)) ([`cfbadc8`](https://github.com/codecentric-oss/niceml/commit/cfbadc850e295a69f604a5431c98627fd66ae938))
+
 ## v0.7.0 (2023-08-15)
 
 ### Feature
