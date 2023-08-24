@@ -1,7 +1,7 @@
 """Module for helper functions for io operations"""
 import json
 from os.path import dirname, join, relpath, splitext
-from typing import List, Optional, Any, Tuple
+from typing import List, Optional, Any, Tuple, Callable
 
 import fastparquet
 import pandas as pd
@@ -39,15 +39,11 @@ def list_dir(
     if filter_ext is not None:
         files = [cur_file for cur_file in files if splitext(cur_file)[1] in filter_ext]
     if recursive:
-        folders = [
-            cur_folder for cur_folder in files if cur_fs.isdir(join(path, cur_folder))
-        ]
+        folders = [cur_folder for cur_folder in files if cur_fs.isdir(join(path, cur_folder))]
         for cur_folder in folders:
             files += [
                 join(cur_folder, cur_file)
-                for cur_file in list_dir(
-                    join(path, cur_folder), False, True, file_system=cur_fs
-                )
+                for cur_file in list_dir(join(path, cur_folder), False, True, file_system=cur_fs)
             ]
 
     if return_full_path:
@@ -87,9 +83,7 @@ def write_parquet(
     )
 
 
-def read_parquet(
-    filepath: str, file_system: Optional[AbstractFileSystem] = None
-) -> pd.DataFrame:
+def read_parquet(filepath: str, file_system: Optional[AbstractFileSystem] = None) -> pd.DataFrame:
     """
     Reads parquet with optional AbstractFileSystem given
 
@@ -214,6 +208,48 @@ def write_csv(
         data.to_csv(file, index=False, **kwargs)
 
 
+def write_txt(
+    content: str,
+    filepath: str,
+    file_system: Optional[AbstractFileSystem] = None,
+    **kwargs,
+):
+    """
+    The write_txt function writes a string to a file.
+
+    Args:
+        content: Content to be written
+        filepath: The path to the output text file
+        file_system: File system that should be used
+        **kwargs: Pass in additional parameters to the write function
+    """
+    cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
+    cur_fs.mkdirs(
+        dirname(filepath),
+        exist_ok=True,
+    )
+    with cur_fs.open(filepath, "w", encoding="utf-8") as file:
+        file.write(content, **kwargs)
+
+
+def read_txt(
+    filepath: str,
+    file_system: Optional[AbstractFileSystem] = None,
+    **kwargs,
+) -> str:
+    """
+    The read_txt function reads a text file from the given filepath.
+
+    Args:
+        filepath: The filepath of the text file to be read
+        file_system: The file system that should be used
+        **kwargs: Pass keyword arguments to the read function
+    """
+    cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
+    with cur_fs.open(filepath, "r", encoding="utf-8") as file:
+        return file.read(**kwargs)
+
+
 def read_csv(
     filepath: str, file_system: Optional[AbstractFileSystem] = None, **kwargs
 ) -> pd.DataFrame:
@@ -295,7 +331,7 @@ def find_and_read_file(
         file_system: Allow the function to be used with different file systems; default = local
 
     Returns:
-        Content of file
+        Content of the text file
     """
     cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
     search_paths = search_paths or []
@@ -306,3 +342,34 @@ def find_and_read_file(
         if cur_fs.exists(cur_path):
             return cur_path, read_func(cur_path, file_system=cur_fs, **kwargs)
     raise FileNotFoundError(f"File not found: {filepath}")
+
+
+def copy_file(
+    source: str,
+    destination: str,
+    file_system: Optional[AbstractFileSystem] = None,
+):
+    """
+    The copy_file function copies a file from a source to a destination.
+
+    Args:
+        source: The source file path
+        destination: The destination path
+        file_system: The file system that should be used
+    """
+    cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
+    cur_fs.mkdirs(
+        dirname(destination),
+        exist_ok=True,
+    )
+    cur_fs.copy(source, destination)
+
+
+def load_yaml_factory() -> Callable:
+    """
+    The load_yaml_factory function returns a function that reads YAML files.
+
+    Returns:
+        The `read_yaml` as a callable
+    """
+    return read_yaml

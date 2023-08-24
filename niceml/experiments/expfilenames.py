@@ -19,6 +19,7 @@ class ExperimentFilenames:  # pylint: disable=too-few-public-methods
     STATS_PRED: str = "stats_prediction.yaml"
     GIT_VERSIONS: str = "git_versions.yaml"
     CUSTOM_LOAD_OBJECTS: str = "model_load_custom_objects.yaml"
+    MODEL_LOADER: str = "model_loader.yaml"
     ANALYSIS_FILE: str = "result_{subset_name}.yaml"
     ANALYSIS_FOLDER: str = "analysis"
     EPOCHS_FORMATTING: str = "ep{epoch:03d}"

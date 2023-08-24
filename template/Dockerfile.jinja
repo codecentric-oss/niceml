@@ -1,0 +1,14 @@
+FROM python:{{ python_version }}-buster
+
+ARG WORK_DIR = "/experiment"
+ARG ENTRY
+ARG EXP_FILEPATH
+
+WORKING_DIRECTORY = $WORK_DIR
+
+COPY $EXP_FILEPATH/models $WORK_DIR/models
+COPY $EXP_FILEPATH/bundle $WORK_DIR/bundle
+COPY $EXP_FILEPATH/experiment_info.yaml $WORK_DIR/experiment_info.yaml
+COPY $EXP_FILEPATH/git_versions.yaml $WORK_DIR/git_versions.yaml
+COPY $EXP_FILEPATH/configs/prediction/model_loader.yaml $WORK_DIR/configs/prediction/model_loader.yaml
+COPY $EXP_FILEPATH/configs/train/data_description.yaml $WORK_DIR/configs/train/data_description.yaml

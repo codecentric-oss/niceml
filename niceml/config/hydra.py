@@ -2,7 +2,7 @@
 import json
 from inspect import isabstract
 from tempfile import TemporaryDirectory, mkstemp
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict, Iterable, Optional, Callable
 
 import yaml
 from dagster import Field, Map, config_mapping
@@ -14,15 +14,24 @@ from niceml.scripts.hydraconfreader import load_hydra_conf
 from niceml.utilities.omegaconfutils import register_niceml_resolvers
 
 
-def instantiate_from_yaml(
-    yaml_path: str, file_system: Optional[AbstractFileSystem] = None
-) -> Any:
+def instantiate_from_yaml(yaml_path: str, file_system: Optional[AbstractFileSystem] = None) -> Any:
     """uses hydra instantiate to a yaml config"""
     file_system = file_system or LocalFileSystem()
     with file_system.open(yaml_path, "r", encoding="utf-8") as file:
         data = yaml.load(file, Loader=yaml.SafeLoader)
 
     return instantiate(data)
+
+
+def instantiate_from_yaml_factory() -> Callable:
+    """
+    The instantiate_from_yaml_factory function is a factory function
+    that returns the instantiate_from_yaml function.
+
+    Returns:
+        instantiate_from_yaml as a callable
+    """
+    return instantiate_from_yaml
 
 
 def prepend_hydra_search_paths(
@@ -96,9 +105,7 @@ class HydraInitField(Field):
         if example_value is None:
             impl_str: str = "implementation_of_" if isabstract(target_class) else ""
             default_value = {"_target_": f"{impl_str}{target_class}"}
-        super().__init__(
-            dict, description=description, default_value=default_value, **kwargs
-        )
+        super().__init__(dict, description=description, default_value=default_value, **kwargs)
         self.target_class = target_class
         self.example_value = example_value
 

@@ -9,8 +9,15 @@ from PIL import Image
 
 from niceml.config.hydra import instantiate_from_yaml
 from niceml.data.datadescriptions.datadescription import DataDescription
+from niceml.experiments.experimenterrors import EmptyExperimentError
+from niceml.experiments.experimentinfo import ExperimentInfo, load_exp_info
 from niceml.experiments.expfilenames import ExperimentFilenames, OpNames
-from niceml.utilities.fsspec.locationutils import LocationConfig, open_location
+from niceml.experiments.exppathfinder import get_exp_filepath
+from niceml.utilities.fsspec.locationutils import (
+    LocationConfig,
+    open_location,
+    join_location_w_path,
+)
 from niceml.utilities.ioutils import (
     read_csv,
     read_image,
@@ -114,3 +121,40 @@ class ExperimentContext:
                 file_system=exp_fs,
             )
         return data_description
+
+
+def get_experiment_context(exp_location: Union[dict, LocationConfig], exp_id: str):
+    """
+    The `get_experiment_context` function is used to get the experiment context for a
+    given experiment. The function takes in an `exp_location` and an `exp_id`.
+    The `exp_location` parameter is either a dictionary or a `LocationConfig` object that contains
+    information about where the experiment files are located.
+    The `exp_id` parameter is the id of the experiment whose context we want to retrieve.
+
+    Args:
+        exp_location: Specify the location of the experiments
+        exp_id: str: Specify the experiment id
+
+    Returns:
+        The experiment context of the experiment with the exp_id
+    """
+
+    exp_path = get_exp_filepath(exp_location, exp_id)
+    if isinstance(exp_path, ExperimentInfo):
+        experiment_info: ExperimentInfo = exp_path
+        exp_path = experiment_info.exp_filepath
+    else:
+        try:
+            with open_location(exp_location) as (cur_fs, root_path):
+                experiment_info: ExperimentInfo = load_exp_info(
+                    join(root_path, exp_path, ExperimentFilenames.EXP_INFO),
+                    cur_fs,
+                )
+        except FileNotFoundError as error:
+            raise EmptyExperimentError(
+                f"Experiment {exp_path} has no valid project file."
+            ) from error
+    local_run_id = experiment_info.run_id
+    local_short_id = experiment_info.short_id
+    exp_location = join_location_w_path(exp_location, exp_path)
+    return ExperimentContext(fs_config=exp_location, run_id=local_run_id, short_id=local_short_id)

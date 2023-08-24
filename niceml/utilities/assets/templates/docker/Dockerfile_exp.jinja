@@ -1,0 +1,28 @@
+FROM python:{{ python_version }}-buster
+
+WORKDIR /project
+
+RUN apt-get update
+RUN apt-get install python-opencv -y
+RUN pip install -U pip
+
+WORKDIR /project/bundle
+
+COPY ./bundle/env/requirements.txt ./env/requirements.txt
+COPY ./bundle/bundle_info.yaml ./bundle_info.yaml
+COPY ./bundle/{{wheel_name}} ./{{wheel_name}}
+
+COPY ./{{ data_description_path }} {{ working_directory }}/{{ data_description_path }}
+COPY ./{{ model_path }} {{ working_directory }}/{{ model_path }}
+COPY ./{{ exp_info_path }} {{ working_directory }}/{{ exp_info_path }}
+
+
+RUN pip install -r ./env/requirements.txt
+
+RUN pip install {{wheel_name}}
+
+ENV PYTHONPATH "${PYTHONPATH}:."
+
+EXPOSE {{port}}
+
+ENTRYPOINT {{ entry_point }}
