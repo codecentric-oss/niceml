@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "niceml"
-version = "0.7.0"
+version = "0.7.1"
 description = "Welcome to niceML 🍦, a Python-based MLOps framework that uses TensorFlow and Dagster. This framework streamlines the development, and maintenance of machine learning models, providing an end-to-end solution for building efficient and scalable pipelines."
 authors = [
     "Denis Stalz-John <denis.stalz-john@codecentric.de>",
@@ -54,7 +54,7 @@ scikit-learn = "^1.2.2"
 pandera = "^0.14.5"
 schema = "^0.7.5"
 copier = "^7.2.0"
-dagster = "~1.4.0"
+dagster = "~1.4"
 tornado = "^6.3.2"
 networkx = "^3.1"
 mkdocs-gen-files = "^0.5.0"
@@ -67,18 +67,16 @@ protobuf = "^3.0.0"
 
 
 altair = {version = "^4.2.2", optional = true}
-tensorflow-macos = {version = "~2.12.0", optional = true}
+tensorflow-macos = { version = "~2.12", optional = true}
 streamlit = {version = "^1.22.0", optional = true}
-tensorflow = {version = "~2.12.0", optional = true}
-tensorflow-metal = {version = "~1.0.1", optional = true}
-tensorflow-io-gcs-filesystem = {version = "~0.32.0", optional = true}
+tensorflow = {version = "~2.12", optional = true}
+tensorflow-metal = {version = "~1.0", optional = true}
 requests = "^2.31.0"
 cryptography = "^41.0.0"
 
 
 [tool.poetry.extras]
 tensorflow = ["tensorflow"]
-tensorflow-windows = ["tensorflow","tensorflow-io-gcs-filesystem"]
 tensorflow-macos = ["tensorflow-macos", "tensorflow-metal"]
 visu = ["altair", "streamlit"]
 
