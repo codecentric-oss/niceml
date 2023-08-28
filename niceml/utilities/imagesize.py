@@ -3,7 +3,10 @@ from math import isclose
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+from PIL import Image
 from attrs import define
+
+IDENTITY_SCALE = 1.0
 
 
 class ImageSizeDivisionError(Exception):
@@ -64,12 +67,12 @@ class ImageSize:
     def __le__(self, other: "ImageSize") -> bool:
         """Compares ImageSizes with the same aspect ratio"""
         division_factor = self.get_division_factor(other)
-        return division_factor <= 1.0
+        return division_factor <= IDENTITY_SCALE
 
     def __lt__(self, other: "ImageSize") -> bool:
         """Compares ImageSizes with the same aspect ratio"""
         division_factor = self.get_division_factor(other)
-        return division_factor < 1.0
+        return division_factor < IDENTITY_SCALE
 
     def create_with_same_aspect_ratio(  # QUEST: what should be done with both given?
         self, *, width: Optional[int] = None, height: Optional[int] = None
@@ -102,6 +105,16 @@ class ImageSize:
     def from_numpy_shape(cls, shape: Tuple[int, int]) -> "ImageSize":
         """Creates an ImageSize from a numpy shape"""
         return cls(shape[1], shape[0])
+
+    @classmethod
+    def from_pil_size(cls, size: Tuple[int, int]) -> "ImageSize":
+        """Creates an ImageSize from a PIL size"""
+        return cls(size[0], size[1])
+
+    @classmethod
+    def from_pil_image(cls, image: Image.Image) -> "ImageSize":
+        """Creates an ImageSize from a PIL Image"""
+        return cls(image.width, image.height)
 
 
 def create_image_size(
