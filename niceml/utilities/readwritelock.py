@@ -18,14 +18,12 @@ class FileLock(ABC):
     """Abstract base class for file locks."""
 
     def __init__(
-        self,
-        retry_time: float = 10,
-        timeout: float = 172800,
+        self, retry_time: float = 10, timeout: float = 172800, is_acquired: bool = False
     ):
         """Initialize FileLock"""
         self.retry_time = retry_time
         self.timeout = timeout
-        self.is_acquired: bool = False
+        self.is_acquired: bool = is_acquired
 
     @abstractmethod
     def acquire(self):
@@ -52,7 +50,7 @@ class FileLock(ABC):
 class WriteLock(FileLock):
     """Write lock for fsspec filesystems."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # noqa: PLR0913
         self,
         path_config: Union[LocationConfig, Dict[str, Any]],
         write: bool = False,
@@ -61,6 +59,7 @@ class WriteLock(FileLock):
         timeout: float = 172800,
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
+        is_acquired: bool = False,
     ):
         """Initialize WriteLock"""
         if write_lock_name == read_lock_name:
@@ -71,6 +70,7 @@ class WriteLock(FileLock):
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
         self.retry_await_time = retry_await_time
+        self.is_acquired = is_acquired
 
     def acquire(self):
         """Acquire the lock"""
@@ -78,32 +78,39 @@ class WriteLock(FileLock):
             return
         with open_location(self.path_config) as (cur_fs, root_path):
             start_time = time.monotonic()
-            while True:  # Write lock
+            cur_fs.mkdirs(root_path, exist_ok=True)
+            while True:  # Acquire Write Lock
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
-                cur_fs.mkdirs(root_path, exist_ok=True)
                 if is_lock_file_acquirable(write_lock_path, cur_fs):
                     acquire_lock_file(write_lock_path, cur_fs)
                     self.is_acquired = True
                     break
                 if time.monotonic() - start_time > self.timeout:
                     raise TimeoutError(
-                        f"Timeout while acquiring write lock {write_lock_path}"
+                        f"Timeout while waiting for write lock release at"
+                        f" '{write_lock_path}'"
                     )
-                logging.info(
-                    f"waiting for write lock release {self.retry_await_time} seconds"
+                logging.warning(
+                    f"Waiting for write lock release {self.retry_await_time} seconds"
                 )
                 time.sleep(self.retry_time)
                 self.retry_await_time += self.retry_time
-            while True:  # Read Lock
+            self.retry_await_time = 0
+            while True:  # Check if Read Lock is acquired
                 read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
                 if is_lock_file_acquirable(read_lock_path, cur_fs):
                     break
                 if time.monotonic() - start_time > self.timeout:
                     self.release()
                     raise TimeoutError(
-                        f"Timeout while acquiring read lock {read_lock_path}"
+                        f"Timeout while waiting for read lock release at"
+                        f" '{read_lock_path}'"
                     )
+                logging.warning(
+                    f"Waiting for read lock release {self.retry_await_time} seconds"
+                )
                 time.sleep(self.retry_time)
+                self.retry_await_time += self.retry_time
 
     def force_delete(self):
         """Force delete the lock"""
@@ -124,7 +131,7 @@ class WriteLock(FileLock):
 class ReadLock(FileLock):
     """Read lock for fsspec filesystems."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # noqa: PLR0913
         self,
         path_config: Union[LocationConfig, Dict[str, Any]],
         retry_time: float = 10,
@@ -132,6 +139,7 @@ class ReadLock(FileLock):
         timeout: float = 172800,
         write_lock_name: str = "write.lock",
         read_lock_name: str = "read.lock",
+        is_acquired: bool = False,
     ):
         """Initialize ReadLock"""
         if write_lock_name == read_lock_name:
@@ -141,6 +149,7 @@ class ReadLock(FileLock):
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
         self.retry_await_time = retry_await_time
+        self.is_acquired = is_acquired
 
     def acquire(self):
         """Acquire the lock"""
@@ -148,6 +157,7 @@ class ReadLock(FileLock):
             return
         with open_location(self.path_config) as (cur_fs, root_path):
             start_time = time.monotonic()
+            read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
             while True:
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
                 cur_fs.mkdirs(root_path, exist_ok=True)
@@ -155,14 +165,16 @@ class ReadLock(FileLock):
                     break
                 if time.monotonic() - start_time > self.timeout:
                     raise TimeoutError(
-                        f"Timeout while acquiring write lock {write_lock_path}"
+                        f"Timeout while waiting for write lock release "
+                        f"'{write_lock_path}' to acquire read lock at "
+                        f"'{read_lock_path}'"
                     )
-                logging.info(
-                    f"waiting for read lock release {self.retry_await_time} " f"seconds"
+                logging.warning(
+                    f"Waiting for write lock release {self.retry_await_time} "
+                    f"seconds, to acquire read lock."
                 )
                 time.sleep(self.retry_time)
                 self.retry_await_time += self.retry_time
-            read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
             increase_lock_file_usage(read_lock_path, cur_fs)
             self.is_acquired = True
 
@@ -170,8 +182,8 @@ class ReadLock(FileLock):
         """Force delete the lock"""
         self.is_acquired = False
         with open_location(self.path_config) as (cur_fs, root_path):
-            write_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
-            release_lock_file(write_lock_path, cur_fs)
+            read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
+            release_lock_file(read_lock_path, cur_fs)
 
     def release(self):
         """Release the lock"""
