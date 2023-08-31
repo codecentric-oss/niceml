@@ -1,9 +1,8 @@
 """Module for RestAPI abstract base class"""
 
-from abc import ABC, abstractmethod
 from collections import defaultdict
 from contextlib import asynccontextmanager
-from typing import Optional, Union, Any
+from typing import Optional, Union, Callable
 
 from fastapi import FastAPI
 from hydra.utils import instantiate, ConvertMode
@@ -15,23 +14,34 @@ from niceml.utilities.fsspec.locationutils import (
 )
 from niceml.utilities.ioutils import read_yaml
 
-import uvicorn
 
+class Lifespan:
+    """Helper class implementing the lifespan task of an FastAPI app"""
 
-class RestApi(ABC):
-    """Sets up a FastAPI app and loads all the assets from
-    bundle_info.yaml into memory"""
-
-    def __init__(self, bundle_location: Optional[Union[dict, LocationConfig]] = None):
+    def __init__(self, bundle_location: Optional[Union[dict, LocationConfig]], assets: dict):
         """
-        Instantiate a RestAPI. It sets up a FastAPI app and loads all the assets from
-        bundle_info.yaml into memory.
+        Sets up the instance of a FastAPI Lifespan object, and defines what attributes it has.
+        In this case, we are setting up a BundleConfig with two attributes: assets and
+        bundle_location.
 
         Args:
             bundle_location: The location of the bundle
+            assets: The assets that are loaded from the bundle
         """
-        self.bundle_location = bundle_location or {"uri": "./"}
-        self.assets = defaultdict(dict)
+        self.assets = assets
+        self.bundle_location = bundle_location
+
+    def get_lifespan(self) -> Callable:
+        """
+        The `get_lifespan function` is a factory function that returns an async context manager.
+        The returned context manager will be used by FastAPI to manage the lifespan of the app.
+        When the app is first loaded, it will open up the bundle location and read in all
+        of its assets. It then yields control back to FastAPI so that it can continue with
+        loading other plugins and starting up.
+
+        Returns:
+            A function that loads tha assets and that is a context manager
+        """
 
         @asynccontextmanager
         async def lifespan(app: FastAPI):
@@ -60,67 +70,24 @@ class RestApi(ABC):
                         instantiated_kwargs,
                     )
             yield
-            # Clean up the ML models and release the resources
-            self.clean()
+            self.assets.clear()
 
-        self.app = FastAPI(lifespan=lifespan)
-        self.setup_routes()
+        return lifespan
 
-    def clean(self):
+
+class RestApi(FastAPI):
+    """Sets up a FastAPI app and loads all the assets from
+    bundle_info.yaml into memory"""
+
+    def __init__(self, bundle_location: Optional[Union[dict, LocationConfig]] = None, **kwargs):
         """
-        The clean function is called clean up any assets that are no longer needed.
-        """
-        self.assets.clear()
-
-    def setup_routes(self):
-        """
-        The setup_routes function is used to define the routes that
-        will be available in your API. It should be called after all other setup
-        functions have been called, but before starting the server.
-        """
-
-        @self.app.post("/predict")
-        async def detect_structure(input_data: dict) -> dict:
-            return self._predict(input_data)
-
-        @self.app.get("/exp_info")
-        async def get_exp_info() -> dict:
-            return self.assets["exp_info"]
-
-        self.add_routes()
-
-    @abstractmethod
-    def _predict(self, input_data: dict) -> Any:
-        """
-        The _predict function is the main function of a model. It takes in an input_data dictionary
-        and returns the prediction results. The input_data dictionary will contain all the data
-        that was passed to the predict() function, but it may also contain additional data that
-        was added by other functions (e.g., preprocessors).
+        Instantiate a RestAPI. It sets up a FastAPI app and loads all the assets from
+        bundle_info.yaml into memory.
 
         Args:
-            input_data: dict: The data that will be used to make a prediction
-
-        Returns:
-            A prediction result
+            bundle_location: The location of the bundle
         """
-
-    @abstractmethod
-    def add_routes(self):
-        """
-        Adds routes to the application.
-
-        Args:
-            self: Represent the instance of the class
-        """
-
-    def run(self, host: str = "127.0.0.1", port: int = 8000):
-        """
-        The run function is the entry point for running the FastAPI application.
-        It will start an uvicorn server, to serve the API.
-
-
-        Args:
-            host: The host ip address of the FastAPI application
-            port: The port number that the server will listen on
-        """
-        uvicorn.run(self.app, host=host, port=port)
+        lifespan = Lifespan(bundle_location or {"uri": "./"}, defaultdict(dict))
+        super().__init__(lifespan=lifespan.get_lifespan(), **kwargs)
+        self.assets = lifespan.assets
+        self.bundle_location = lifespan.bundle_location

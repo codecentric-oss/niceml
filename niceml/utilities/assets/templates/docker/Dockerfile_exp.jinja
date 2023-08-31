@@ -25,4 +25,4 @@ ENV PYTHONPATH "${PYTHONPATH}:."
 
 EXPOSE {{port}}
 
-ENTRYPOINT {{ entry_point }}
+ENTRYPOINT {{entry_point|safe}}

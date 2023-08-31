@@ -1,17 +1,16 @@
 """Module for the deployment cli function"""
-
 import os
 import shlex
-
-from rich import print
 import subprocess
 import tempfile
 from os.path import join
 from typing import Optional
 
 import typer
+import uvicorn
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
+from rich import print
 from typing_extensions import Annotated
 
 from niceml.experiments.expdatalocalstorageloader import create_expdata_from_expcontext
@@ -39,13 +38,15 @@ app = typer.Typer()
 
 @app.command()
 def serve(
-    bundle_path: Annotated[Optional[str], typer.Option(help="Directory of the bundle ")] = "./"
+    bundle_path: Annotated[Optional[str], typer.Option(help="Directory of the bundle ")] = "./",
+    app_name: Annotated[Optional[str], typer.Option(help="Name of your app")] = "app",
 ):
     """
     The serve function is used to start a service that will serve the current bundle.
 
     Args:
         bundle_path: Path to the bundle
+        app_name: The name for the app
     """
     with open_location(join_location_w_path({"uri": bundle_path}, "bundle_info.yaml")) as (
         bundle_fs,
@@ -56,14 +57,20 @@ def serve(
         service_kwargs = bundle_info["service_kwargs"]
 
         print("[green]Start serving[/green] Current experiment will be available soon :rocket:")
-        subprocess.run(
-            shlex.split(
-                f"python -m {service_module} "
-                f"{' '.join(str(arg) for arg in service_kwargs.values())}"
-            ),
-            check=True,  # ruff: noqa: S603
-            shell=False,
-        )
+        imported_classes = [
+            obj
+            for obj in dir(eval(service_module))
+            if isinstance(getattr(eval(service_module), obj), type)
+        ]
+        if "RestApi" in imported_classes:
+            uvicorn.run(f"{service_module}:{app_name}", **service_kwargs)
+        else:
+            subprocess.run(
+                shlex.split(
+                    f"python -m {service_module} "
+                    f"{' '.join([f'--{key} {value}' for key, value in service_kwargs.items()])}"
+                )
+            )
 
 
 # S104 is disabled here because the host default is only used for the creation of the Dockerfile
@@ -233,12 +240,30 @@ def bundle(  # ruff: noqa: PLR0913
         )
 
         docker_template = template_env.get_template("Dockerfile_exp.jinja")
+        imported_classes = [
+            obj
+            for obj in dir(eval(service_path))
+            if isinstance(getattr(eval(service_path), obj), type)
+        ]
+        # ruff: noqa: E501
+        if "RestApi" in imported_classes:
+            entry_point = str(
+                shlex.split(
+                    f"uvicorn {service_path}:app "
+                    f"{' '.join([f'--{key} {value}' for key, value in config_dict['service_kwargs'].items()])}"
+                )
+            ).replace("'", '"')
+
+        else:
+            entry_point = []
+        print(entry_point)
         rendered_dockerfile = docker_template.render(
             python_version=python_version,
             data_description_path=data_description_path,
             exp_info_path=ExperimentFilenames.EXP_INFO,
             model_path=model_path,
-            entry_point=f'["python","-m","{service_path}", "{host}", "{port}"]',
+            service_path=service_path,
+            entry_point=entry_point,
             wheel_name=wheel_name,
             port=port,
             working_directory=working_directory,
