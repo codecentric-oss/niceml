@@ -90,7 +90,7 @@ class WriteLock(FileLock):
                         f"Timeout while waiting for write lock release at"
                         f" '{write_lock_path}'"
                     )
-                logging.warning(
+                logging.info(
                     f"Waiting for write lock release {self.retry_await_time} seconds"
                 )
                 time.sleep(self.retry_time)
@@ -106,7 +106,7 @@ class WriteLock(FileLock):
                         f"Timeout while waiting for read lock release at"
                         f" '{read_lock_path}'"
                     )
-                logging.warning(
+                logging.info(
                     f"Waiting for read lock release {self.retry_await_time} seconds"
                 )
                 time.sleep(self.retry_time)
@@ -169,7 +169,7 @@ class ReadLock(FileLock):
                         f"'{write_lock_path}' to acquire read lock at "
                         f"'{read_lock_path}'"
                     )
-                logging.warning(
+                logging.info(
                     f"Waiting for write lock release {self.retry_await_time} "
                     f"seconds, to acquire read lock."
                 )
