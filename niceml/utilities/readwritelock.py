@@ -64,13 +64,12 @@ class WriteLock(FileLock):
         """Initialize WriteLock"""
         if write_lock_name == read_lock_name:
             raise ValueError("write_lock_name and read_lock_name must be different")
-        super().__init__(retry_time, timeout)
+        super().__init__(retry_time, timeout, is_acquired)
         self.path_config = path_config
         self.write = write
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
         self.retry_await_time = retry_await_time
-        self.is_acquired = is_acquired
 
     def acquire(self):
         """Acquire the lock"""
@@ -144,12 +143,11 @@ class ReadLock(FileLock):
         """Initialize ReadLock"""
         if write_lock_name == read_lock_name:
             raise ValueError("write_lock_name and read_lock_name must be different")
-        super().__init__(retry_time, timeout)
+        super().__init__(retry_time, timeout, is_acquired)
         self.path_config = path_config
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
         self.retry_await_time = retry_await_time
-        self.is_acquired = is_acquired
 
     def acquire(self):
         """Acquire the lock"""
