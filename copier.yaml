@@ -17,11 +17,6 @@ use_apple_silicon:
   help: Do you use Apple Silicon as a GPU?
   default: no
 
-use_windows:
-  type: bool
-  help: Is Windows your operating system?
-  default: no
-
 use_dashboard:
   type: bool
   help: Do you want to use our awesome dashboard?
@@ -30,6 +25,6 @@ use_dashboard:
 _tasks:
   - "mkdir -p data"
   - "{% if setup_env %}poetry config virtualenvs.create true{% else %}poetry config virtualenvs.create false{% endif %}"
-  - "poetry lock && poetry install {% if use_apple_silicon %} -E tensorflow-macos {% endif %} {% if use_windows %} -E tensorflow {% endif %} {% if not use_windows and not use_apple_silicon %} -E tensorflow {% endif %} {% if use_dashboard %} -E visu {% endif%}"
+  - "poetry lock && poetry install {% if use_apple_silicon %} -E tensorflow-macos {% endif %} {% if not use_apple_silicon %} -E tensorflow {% endif %} {% if use_dashboard %} -E visu {% endif%}"
   - "{% if setup_env %}poetry shell{% endif %}"
   - "{% if use_precommit %} cp {{ _copier_conf.src_path }}/.pre-commit-config.yaml .pre-commit-config.yaml && pre-commit install{% endif %}"
