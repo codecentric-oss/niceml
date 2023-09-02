@@ -95,8 +95,6 @@ system and preferences:
   poetry environment)
 - `Do you use Apple Silicon as a GPU?` Answer: No (If you are using
   Apple Silicon as a GPU, answer Yes)
-- `Is Windows your operating system?` Answer: No (If you are using
-  Windows as your operating system, answer Yes)
 - `Do you want to use our awesome dashboard?` Answer: Yes (This is where
   the experiment results can be shown)
 

@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.2 (2023-09-01)
+
+### Fix
+
+* Remove Windows from documentation ([`0c252aa`](https://github.com/codecentric-oss/niceml/commit/0c252aa9e779f42233a810dd242d8934c3edeec9))
+* Remove `tensorflow-io-gcs-filesystem` as a dependency from the project template ([`ce4ea6c`](https://github.com/codecentric-oss/niceml/commit/ce4ea6c142cee8ecd611cc80a64863202bed3749))
+* Remove Windows as an option in `niceml init`. ([`a07cab4`](https://github.com/codecentric-oss/niceml/commit/a07cab4e641a1d9caf3b8f9b246382b397ed29d9))
+* Safely remove `tensorflow-io-gcs-filesystem` from `poetry-lock` ([`31515ca`](https://github.com/codecentric-oss/niceml/commit/31515cadd8c6c1eacaf2000cc6e7e135a4b73257))
+
 ## v0.7.1 (2023-08-22)
 
 ### Fix
