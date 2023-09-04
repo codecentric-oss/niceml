@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.3 (2023-09-04)
+
+### Fix
+
+* Optimize file locks and remove outdated template config ([#72](https://github.com/codecentric-oss/niceml/issues/72)) ([`dc374a6`](https://github.com/codecentric-oss/niceml/commit/dc374a639da2214cea77654e6da3a610f7a31aa5))
+* Implemented image_size.from_pil image and size ([#71](https://github.com/codecentric-oss/niceml/issues/71)) ([`0643bf2`](https://github.com/codecentric-oss/niceml/commit/0643bf2c659d3d7d82c4bc9b6a9b46c8ba934e3c))
+
 ## v0.7.2 (2023-09-01)
 
 ### Fix
