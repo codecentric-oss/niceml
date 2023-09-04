@@ -91,3 +91,13 @@ def test_create_with_same_aspect_ratio2_raises_error():
     image_size = ImageSize(width=100, height=200)
     with pytest.raises(ValueError):
         image_size.create_with_same_aspect_ratio()
+
+
+def test_creation_from_pil_image():
+    from PIL import Image
+
+    image = Image.new("RGB", (100, 200))
+    image_size = ImageSize.from_pil_image(image)
+    assert image_size.width == 100 and image_size.height == 200
+    image_size = ImageSize.from_pil_size(image.size)
+    assert image_size.width == 100 and image_size.height == 200
