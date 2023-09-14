@@ -24,4 +24,4 @@ def get_exp_filepath(fs_path_config: LocationConfig, exp_id: str):
         raise ExperimentNotFoundError(
             f"Multiple experiments with id: {exp_id} found in path: {fs_path_config.uri}"
         )
-    return exps_w_id[0]
+    return exps_w_id[0].exp_filepath
