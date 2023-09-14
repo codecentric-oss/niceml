@@ -4,7 +4,7 @@ from typing import List
 from niceml.data.storages.fsspecstorage import FSSpecStorage
 from niceml.experiments.experimenterrors import (
     ExperimentNotFoundError,
-    MultipleExperimentFoundError,
+    MultipleExperimentsFoundError,
 )
 from niceml.experiments.experimentinfo import ExperimentInfo
 from niceml.utilities.fsspec.locationutils import LocationConfig
@@ -24,7 +24,7 @@ def get_exp_filepath(fs_path_config: LocationConfig, exp_id: str):
             f"Experiment with id: {exp_id} not found in path: {fs_path_config.uri}"
         )
     if len(exps_w_id) > 1:
-        raise MultipleExperimentFoundError(
+        raise MultipleExperimentsFoundError(
             f"Multiple experiments with id: {exp_id} found in path: {fs_path_config.uri}"
         )
     return exps_w_id[0].exp_filepath

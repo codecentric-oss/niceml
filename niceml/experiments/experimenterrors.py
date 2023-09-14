@@ -25,7 +25,7 @@ class ExperimentNotFoundError(Exception):
     """Error when the path doesn't contain an experiment"""
 
 
-class MultipleExperimentFoundError(Exception):
+class MultipleExperimentsFoundError(Exception):
     """Error when the path contain multiple experiment with a given id"""
 
 

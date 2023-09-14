@@ -4,7 +4,7 @@ from typing import Union
 import pytest
 
 from niceml.experiments.experimenterrors import (
-    MultipleExperimentFoundError,
+    MultipleExperimentsFoundError,
     ExperimentNotFoundError,
 )
 from niceml.experiments.experimentinfo import ExperimentInfo
@@ -62,12 +62,12 @@ def exp_location(
     "exp_id,expected",
     [
         ("abcd", "abcd"),
-        ("efgh", MultipleExperimentFoundError),
+        ("efgh", MultipleExperimentsFoundError),
         ("ijkl", ExperimentNotFoundError),
     ],
 )
 def test_get_exp_filepath(exp_location, exp_id: str, expected: Union[str, Exception]):
-    if isinstance(expected, type):
+    if expected in [MultipleExperimentsFoundError, ExperimentNotFoundError]:
         with pytest.raises(expected):
             get_exp_filepath(fs_path_config=exp_location, exp_id=exp_id)
     else:
