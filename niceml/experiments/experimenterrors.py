@@ -25,5 +25,9 @@ class ExperimentNotFoundError(Exception):
     """Error when the path doesn't contain an experiment"""
 
 
+class MultipleExperimentFoundError(Exception):
+    """Error when the path contain multiple experiment with a given id"""
+
+
 class AmbigousFilenameError(Exception):
     """Filename can be interpreted in multiple ways"""
