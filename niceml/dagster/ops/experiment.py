@@ -1,6 +1,8 @@
 """Module for experiment op"""
 import json
 
+import mlflow
+
 from niceml.config.writeopconfig import write_op_config
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import OpNames
@@ -25,7 +27,8 @@ from dagster import Field, OpExecutionContext, op
             description="Folder pattern of the experiment. "
             "Can use $RUN_ID and $SHORT_ID to make the name unique",
         ),
-    )
+    ),
+    required_resource_keys={"mlflow"},
 )
 def experiment(context: OpExecutionContext) -> ExperimentContext:
     """This Op creates the experiment params"""
@@ -40,6 +43,7 @@ def experiment(context: OpExecutionContext) -> ExperimentContext:
         short_id=local_short_id,
     )
     write_op_config(op_config, exp_context, OpNames.OP_EXPERIMENT.value)
+    mlflow.log_params(dict(run_id=local_run_id, short_id=local_short_id))
 
     return exp_context
 

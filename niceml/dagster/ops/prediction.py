@@ -40,6 +40,7 @@ from niceml.utilities.readwritelock import FileLock
         model_loader=HydraInitField(ModelLoader),
     ),
     out={"expcontext": Out(), "filelock_dict": Out()},
+    required_resource_keys={"mlflow"},
 )
 def prediction(
     context: OpExecutionContext,

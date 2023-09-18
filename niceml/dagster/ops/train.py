@@ -37,7 +37,11 @@ train_config: dict = dict(
 )
 
 
-@op(config_schema=train_config, out={"expcontext": Out(), "filelock_dict": Out()})
+@op(
+    config_schema=train_config,
+    out={"expcontext": Out(), "filelock_dict": Out()},
+    required_resource_keys={"mlflow"},
+)
 def train(
     context: OpExecutionContext,
     exp_context: ExperimentContext,

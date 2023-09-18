@@ -1,4 +1,5 @@
 """Module for default learner"""
+import mlflow.keras
 import tensorflow as tf
 
 # pylint: disable=import-error, no-name-in-module
@@ -36,6 +37,8 @@ class DefaultLearner(Learner):
         custom_load_objects: ModelCustomLoadObjects,
         callbacks: list,
     ):
+        """runs the training"""
+        mlflow.keras.autolog()
         model_bundle: ModelBundle = self.model_compiler.compile(
             model_factory, data_description
         )

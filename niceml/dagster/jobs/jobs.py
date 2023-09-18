@@ -1,4 +1,6 @@
 """Module containing all dagster jobs"""
+from dagster_mlflow import mlflow_tracking
+
 from niceml.config.hydra import hydra_conf_mapping_factory
 from niceml.dagster.ops.analysis import analysis
 from niceml.dagster.ops.copyexp import copy_exp
@@ -33,7 +35,7 @@ def job_data_generation():
     df_normalization(current_data_location)
 
 
-@job(config=hydra_conf_mapping_factory())
+@job(config=hydra_conf_mapping_factory(), resource_defs={"mlflow": mlflow_tracking})
 def job_train():
     """Job for training an experiment"""
     filelock_dict = acquire_locks()  # pylint: disable=no-value-for-parameter
