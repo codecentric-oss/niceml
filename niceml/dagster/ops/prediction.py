@@ -19,6 +19,7 @@ from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
     ModelCustomLoadObjects,
 )
 from niceml.mlcomponents.modelloader.modelloader import ModelLoader
+from niceml.mlcomponents.predictionfunction.predictionfunction import PredictionFunction
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
 from niceml.utilities.fsspec.locationutils import join_fs_path, open_location
 from dagster import Field, Noneable, OpExecutionContext, op, Out
@@ -38,6 +39,7 @@ from niceml.utilities.readwritelock import FileLock
             "Otherwise only `prediction_steps` are evaluated.",
         ),
         model_loader=HydraInitField(ModelLoader),
+        prediction_function=HydraInitField(PredictionFunction),
     ),
     out={"expcontext": Out(), "filelock_dict": Out()},
 )
@@ -87,6 +89,7 @@ def prediction(
             prediction_handler=instantiated_op_config["prediction_handler"],
             exp_context=exp_context,
             filename=dataset_key,
+            prediction_function=instantiated_op_config["prediction_function"],
         )
 
     return exp_context, filelock_dict
@@ -99,6 +102,7 @@ def predict_dataset(  # pylint: disable=too-many-arguments
     prediction_set: Dataset,
     filename: str,
     exp_context: ExperimentContext,
+    prediction_function: PredictionFunction,
     prediction_steps: Optional[int] = None,
 ):
     """Predicts the given dataset with the given model and prediction handler"""
@@ -112,12 +116,7 @@ def predict_dataset(  # pylint: disable=too-many-arguments
     with prediction_handler as handler:
         for index, (data_info, batch) in enumerate(prediction_set.iter_with_info()):
             data_x, _ = batch
-            try:
-                pred = model.predict_step(data_x).numpy()
-            except AttributeError:
-                pred = model.forward(data_x)
-            if not is_numpy_output(pred):
-                pred = pred.detach().numpy()
+            pred = prediction_function.predict(model, data_x)
             handler.add_prediction(data_info, pred)
             progress.update()
             if index >= batch_count:

@@ -65,14 +65,21 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         return ret_str
 
     def get_all_model_files(self) -> List[str]:
-        """get list of all model files"""
+        """get list of all model files. All model files are located in the models folder
+        even if that are folders"""
         model_files = sorted(
             [
-                x
-                for x in self.all_exp_files
-                if ExperimentFilenames.MODELS_FOLDER == basename(dirname(x))
+                file[len(ExperimentFilenames.MODELS_FOLDER) + 1 :]
+                for file in self.all_exp_files
+                if file.startswith(ExperimentFilenames.MODELS_FOLDER)
+                and len(file) > len(ExperimentFilenames.MODELS_FOLDER) + 1
             ]
         )
+        model_files = [file.replace("\\", "/") for file in model_files]
+        model_files = set((file.split("/")[0] for file in model_files))
+        model_files = [
+            join(ExperimentFilenames.MODELS_FOLDER, file) for file in model_files
+        ]
         return model_files
 
     def get_run_id(self) -> str:
