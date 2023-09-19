@@ -3,9 +3,7 @@ import json
 
 import mlflow
 
-from niceml.config.writeopconfig import write_op_config
 from niceml.experiments.experimentcontext import ExperimentContext
-from niceml.experiments.expfilenames import OpNames
 from niceml.utilities.factoryutils import subs_path_and_create_folder
 from niceml.utilities.fsspec.locationutils import join_location_w_path
 from niceml.utilities.idutils import generate_short_id
@@ -42,8 +40,7 @@ def experiment(context: OpExecutionContext) -> ExperimentContext:
         run_id=local_run_id,
         short_id=local_short_id,
     )
-    write_op_config(op_config, exp_context, OpNames.OP_EXPERIMENT.value)
-    mlflow.log_params(dict(run_id=local_run_id, short_id=local_short_id))
+    mlflow.set_tags(dict(run_id=local_run_id, short_id=local_short_id))
 
     return exp_context
 

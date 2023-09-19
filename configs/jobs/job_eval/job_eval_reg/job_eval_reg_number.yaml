@@ -12,6 +12,8 @@ defaults:
   - ops/exptests@ops.exptests.config.tests: exptests_default.yaml
   # experiment locations
   - shared/locations@globals: exp_locations.yaml
+  # ressources
+  - resources/mlflow@resources.mlflow.config: res_mlflow_base.yaml
   - _self_
 
 hydra:

@@ -4,6 +4,7 @@ from typing import Dict, Tuple
 
 from hydra.utils import ConvertMode, instantiate
 
+from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
 from niceml.config.hydra import HydraInitField
 from niceml.config.trainparams import TrainParams
 from niceml.config.writeopconfig import write_op_config
@@ -20,7 +21,7 @@ from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
     ModelCustomLoadObjects,
 )
 from niceml.mlcomponents.models.modelfactory import ModelFactory
-from dagster import OpExecutionContext, op, Out
+from dagster import OpExecutionContext, op, Out, Field
 
 from niceml.utilities.readwritelock import FileLock
 
@@ -34,6 +35,11 @@ train_config: dict = dict(
     callbacks=HydraInitField(CallbackInitializer),
     learner=HydraInitField(Learner),
     exp_initializer=HydraInitField(ExpOutInitializer),
+    remove_key_list=Field(
+        list,
+        default_value=DEFAULT_REMOVE_CONFIG_KEYS,
+        description="These key are removed from any config recursively before it is saved.",
+    ),
 )
 
 
@@ -49,7 +55,9 @@ def train(
 ) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
     """DagsterOp that trains the model"""
     op_config = json.loads(json.dumps(context.op_config))
-    write_op_config(op_config, exp_context, OpNames.OP_TRAIN.value)
+    write_op_config(
+        op_config, exp_context, OpNames.OP_TRAIN.value, op_config["remove_key_list"]
+    )
     instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
 
     data_train = instantiated_op_config["data_train"]
