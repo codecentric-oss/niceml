@@ -73,6 +73,7 @@ tensorflow = {version = "~2.12", optional = true}
 tensorflow-metal = {version = "~1.0", optional = true}
 requests = "^2.31.0"
 cryptography = "^41.0.0"
+dagster-mlflow = "^0.20.14"
 
 
 [tool.poetry.extras]

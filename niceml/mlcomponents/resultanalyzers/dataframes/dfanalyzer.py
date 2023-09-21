@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from os.path import basename, join
 from typing import List
 
+import mlflow
 import pandas as pd
 
 from niceml.data.datadescriptions.datadescription import DataDescription
@@ -87,4 +88,5 @@ class DataframeAnalyzer(ResultAnalyzer):
         log_str += get_logstr_from_dict(out_dict)
         logging.getLogger(__name__).info(log_str)
 
+        mlflow.log_dict(out_dict, output_file)
         exp_context.write_yaml(out_dict, output_file)

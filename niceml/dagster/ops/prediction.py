@@ -7,6 +7,7 @@ import numpy as np
 import tqdm
 from hydra.utils import ConvertMode, instantiate
 
+from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
 from niceml.config.hydra import HydraInitField, HydraMapField, instantiate_from_yaml
 from niceml.config.writeopconfig import write_op_config
 from niceml.data.datadescriptions.datadescription import DataDescription
@@ -40,8 +41,14 @@ from niceml.utilities.readwritelock import FileLock
         ),
         model_loader=HydraInitField(ModelLoader),
         prediction_function=HydraInitField(PredictionFunction),
+        remove_key_list=Field(
+            list,
+            default_value=DEFAULT_REMOVE_CONFIG_KEYS,
+            description="These key are removed from any config recursively before it is saved.",
+        ),
     ),
     out={"expcontext": Out(), "filelock_dict": Out()},
+    required_resource_keys={"mlflow"},
 )
 def prediction(
     context: OpExecutionContext,
@@ -50,7 +57,12 @@ def prediction(
 ) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
     """Dagster op to predict the stored model with the given datasets"""
     op_config = json.loads(json.dumps(context.op_config))
-    write_op_config(op_config, exp_context, OpNames.OP_PREDICTION.value)
+    write_op_config(
+        op_config,
+        exp_context,
+        OpNames.OP_PREDICTION.value,
+        op_config["remove_key_list"],
+    )
     instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
     data_description: DataDescription = (
         exp_context.instantiate_datadescription_from_yaml()
@@ -95,7 +107,7 @@ def prediction(
     return exp_context, filelock_dict
 
 
-def predict_dataset(  # pylint: disable=too-many-arguments
+def predict_dataset(  # noqa: PLR0913
     data_description: DataDescription,
     model,
     prediction_handler: PredictionHandler,
