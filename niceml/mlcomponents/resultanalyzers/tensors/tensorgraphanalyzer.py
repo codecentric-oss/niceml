@@ -2,6 +2,8 @@
 from os.path import join
 from typing import List
 
+import mlflow
+
 from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames
@@ -72,4 +74,5 @@ class TensorGraphAnalyzer(ResultAnalyzer):
             ExperimentFilenames.ANALYSIS_FOLDER,
             ExperimentFilenames.ANALYSIS_FILE.format(subset_name=dataset_name),
         )
+        mlflow.log_metrics(out_dict)
         exp_context.write_yaml(out_dict, output_file)

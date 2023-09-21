@@ -38,6 +38,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "action@github.com"
+          cp -r configs template
           semantic-release publish
         env:
           GH_TOKEN: ${{secrets.RELEASE_WORKFLOW}}
