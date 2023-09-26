@@ -47,14 +47,14 @@ from niceml.utilities.readwritelock import FileLock
             description="These key are removed from any config recursively before it is saved.",
         ),
     ),
-    out={"expcontext": Out(), "filelock_dict": Out()},
+    out={"expcontext": Out(), "datasets": Out(), "filelock_dict": Out()},
     required_resource_keys={"mlflow"},
 )
 def prediction(
     context: OpExecutionContext,
     exp_context: ExperimentContext,
     filelock_dict: Dict[str, FileLock],
-) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
+) -> Tuple[ExperimentContext, Dict[str, Dataset], Dict[str, FileLock]]:
     """Dagster op to predict the stored model with the given datasets"""
     op_config = json.loads(json.dumps(context.op_config))
     write_op_config(
@@ -104,7 +104,7 @@ def prediction(
             prediction_function=instantiated_op_config["prediction_function"],
         )
 
-    return exp_context, filelock_dict
+    return exp_context, datasets_dict, filelock_dict
 
 
 def predict_dataset(  # noqa: PLR0913

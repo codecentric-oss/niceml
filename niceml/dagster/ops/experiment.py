@@ -41,6 +41,7 @@ def experiment(context: OpExecutionContext) -> ExperimentContext:
         short_id=local_short_id,
     )
     mlflow.set_tags(dict(run_id=local_run_id, short_id=local_short_id))
+    mlflow.set_tag("mlflow.runName", local_short_id)
 
     return exp_context
 

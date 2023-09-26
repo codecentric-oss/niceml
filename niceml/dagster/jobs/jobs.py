@@ -44,11 +44,11 @@ def job_train():
     exp_context, filelock_dict = train(
         exp_context, filelock_dict
     )  # pylint: disable=no-value-for-parameter
-    exp_context, filelock_dict = prediction(
+    exp_context, datasets, filelock_dict = prediction(
         exp_context, filelock_dict
     )  # pylint: disable=no-value-for-parameter
     exp_context, filelock_dict = analysis(
-        exp_context, filelock_dict
+        exp_context, datasets, filelock_dict
     )  # pylint: disable=no-value-for-parameter
     release_locks(filelock_dict)  # pylint: disable=no-value-for-parameter
     exptests(exp_context)  # pylint: disable=no-value-for-parameter
@@ -61,11 +61,11 @@ def job_eval():
     filelock_dict = acquire_locks()  # pylint: disable=no-value-for-parameter
     exp_context = localize_experiment()  # pylint: disable=no-value-for-parameter
     exp_context = eval_copy_exp(exp_context)  # pylint: disable=no-value-for-parameter
-    exp_context, filelock_dict = prediction(
+    exp_context, datasets, filelock_dict = prediction(
         exp_context, filelock_dict
     )  # pylint: disable=no-value-for-parameter
     exp_context, filelock_dict = analysis(
-        exp_context, filelock_dict
+        exp_context, datasets, filelock_dict
     )  # pylint: disable=no-value-for-parameter
     release_locks(filelock_dict)  # pylint: disable=no-value-for-parameter
     exptests(exp_context)  # pylint: disable=no-value-for-parameter
