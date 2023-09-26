@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.1 (2023-09-26)
+
+### Fix
+
+* Analysis now have credentials for datasets ([#81](https://github.com/codecentric-oss/niceml/issues/81)) ([`aeb6e63`](https://github.com/codecentric-oss/niceml/commit/aeb6e63846004a97c069d5849fb8fb34657d65d2))
+* Analysis now have credentials for datasets ([`87f7214`](https://github.com/codecentric-oss/niceml/commit/87f72148dbadab64370bb84004d8242127c1a558))
+
 ## v0.8.0 (2023-09-21)
 
 ### Feature
