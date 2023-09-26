@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.0 (2023-09-21)
+
+### Feature
+
+* Integrate mlflow in niceml ([#79](https://github.com/codecentric-oss/niceml/issues/79)) ([`23aa7dc`](https://github.com/codecentric-oss/niceml/commit/23aa7dce5de354d00c674e61099522ee4cfda668))
+* Add predictionfunction and models as folder ([#78](https://github.com/codecentric-oss/niceml/issues/78)) ([`368c25c`](https://github.com/codecentric-oss/niceml/commit/368c25c18b3a2de3b82119fb74b7c3f3a4bd53ec))
+
+### Fix
+
+* Return the experiment path instead of the `ExperimentInfo` if `exp_id` is not latest ([#76](https://github.com/codecentric-oss/niceml/issues/76)) ([`2d31041`](https://github.com/codecentric-oss/niceml/commit/2d310411d94aae32e8410b4b0299fc4b06620a4f))
+
 ## v0.7.3 (2023-09-04)
 
 ### Fix
