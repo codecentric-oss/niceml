@@ -1,5 +1,5 @@
 """Module containing all dagster jobs"""
-from dagster_mlflow import mlflow_tracking, end_mlflow_on_run_finished
+from dagster_mlflow import mlflow_tracking
 
 from niceml.config.hydra import hydra_conf_mapping_factory
 from niceml.dagster.ops.analysis import analysis
@@ -35,7 +35,6 @@ def job_data_generation():
     df_normalization(current_data_location)
 
 
-@end_mlflow_on_run_finished
 @job(config=hydra_conf_mapping_factory(), resource_defs={"mlflow": mlflow_tracking})
 def job_train():
     """Job for training an experiment"""
@@ -54,7 +53,6 @@ def job_train():
     exptests(exp_context)  # pylint: disable=no-value-for-parameter
 
 
-@end_mlflow_on_run_finished
 @job(config=hydra_conf_mapping_factory(), resource_defs={"mlflow": mlflow_tracking})
 def job_eval():
     """Job for evaluating experiment"""
