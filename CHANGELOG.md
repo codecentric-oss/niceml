@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.2 (2023-10-09)
+
+### Fix
+
+* Add installation info to main documentation ([#84](https://github.com/codecentric-oss/niceml/issues/84)) ([`10e60db`](https://github.com/codecentric-oss/niceml/commit/10e60dbc999e2e396a223d2bbc81f4329a807264))
+* Add installation info to main documentation ([`b2f8c10`](https://github.com/codecentric-oss/niceml/commit/b2f8c10f1c0ab4a7e95ac08092f585f2f6a9ba46))
+
 ## v0.8.1 (2023-09-26)
 
 ### Fix
