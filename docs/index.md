@@ -25,3 +25,12 @@ The documentation of **niceML** is separated into four paths:
 
 Quickly find what you're looking for depending on
 your use case by looking at the provided pages.
+
+## Installation
+
+```bash
+poetry add niceml
+```
+
+For a detailed installation guide, have a look at the [Getting Started Tutorial](
+    getting-started.md#installation).
