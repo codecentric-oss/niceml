@@ -1,7 +1,7 @@
 """Module for generating mkdocs str for jobs"""
 from typing import List
 
-from dagster.core.definitions import NodeDefinition
+from dagster._core.definitions import NodeDefinition
 
 from niceml.mkdocs.mdgraph import get_graph_md
 from niceml.mkdocs.mdop import get_md_op
