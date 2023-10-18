@@ -55,7 +55,7 @@ To add niceML as a dependency to your project, use the following
 command:
 
 ```bash
-poetry add niceML
+poetry add niceml
 ```
 
 This will automatically resolve and install the latest compatible
