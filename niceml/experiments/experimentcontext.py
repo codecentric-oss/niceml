@@ -1,4 +1,5 @@
 """Module for the ExperimentContext"""
+import logging
 from dataclasses import dataclass
 from os.path import join
 from typing import Optional, Union
@@ -7,6 +8,7 @@ import pandas as pd
 from fsspec import AbstractFileSystem
 from PIL import Image
 
+from niceml.config.envconfig import LAST_MODIFIED_KEY
 from niceml.config.hydra import instantiate_from_yaml
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.experiments.expfilenames import ExperimentFilenames, OpNames
@@ -21,6 +23,7 @@ from niceml.utilities.ioutils import (
     write_parquet,
     write_yaml,
 )
+from niceml.utilities.timeutils import generate_timestamp
 
 
 @dataclass
@@ -36,6 +39,7 @@ class ExperimentContext:
         dataframe: pd.DataFrame,
         data_path: str,
         compression: Optional[str] = "gzip",
+        apply_last_modified: bool = True,
         **kwargs,
     ):
         """writes the dataframe as parquet file relative to the experiment"""
@@ -48,6 +52,8 @@ class ExperimentContext:
                 file_system=file_system,
                 **kwargs,
             )
+        if apply_last_modified:
+            self.update_last_modified()
 
     def read_parquet(self, data_path: str) -> pd.DataFrame:
         """reads the dataframe as parquet file relative to the experiment"""
@@ -59,7 +65,9 @@ class ExperimentContext:
         with open_location(self.fs_config) as (file_system, root_path):
             return read_yaml(join(root_path, data_path), file_system=file_system)
 
-    def write_yaml(self, data: dict, data_path: str, **kwargs):
+    def write_yaml(
+        self, data: dict, data_path: str, apply_last_modified: bool = True, **kwargs
+    ):
         """writes the yaml file relative to the experiment"""
         with open_location(self.fs_config) as (file_system, root_path):
             write_yaml(
@@ -68,13 +76,21 @@ class ExperimentContext:
                 file_system=file_system,
                 **kwargs,
             )
+        if apply_last_modified:
+            self.update_last_modified()
 
     def read_csv(self, data_path: str) -> pd.DataFrame:
         """Reads a csv file relative to the experiment"""
         with open_location(self.fs_config) as (file_system, root_path):
             return read_csv(join(root_path, data_path), file_system=file_system)
 
-    def write_csv(self, data: pd.DataFrame, data_path: str, **kwargs):
+    def write_csv(
+        self,
+        data: pd.DataFrame,
+        data_path: str,
+        apply_last_modified: bool = True,
+        **kwargs,
+    ):
         """Writes a csv file relative to the experiment"""
         with open_location(self.fs_config) as (file_system, root_path):
             write_csv(
@@ -83,11 +99,17 @@ class ExperimentContext:
                 file_system=file_system,
                 **kwargs,
             )
+        if apply_last_modified:
+            self.update_last_modified()
 
-    def write_image(self, image: Image.Image, data_path: str):
+    def write_image(
+        self, image: Image.Image, data_path: str, apply_last_modified: bool = True
+    ):
         """Writes an image relative to the experiment"""
         with open_location(self.fs_config) as (file_system, root_path):
             write_image(image, join(root_path, data_path), file_system=file_system)
+        if apply_last_modified:
+            self.update_last_modified()
 
     def read_image(self, data_path: str) -> Image.Image:
         """Reads an image relative to the experiment"""
@@ -114,3 +136,18 @@ class ExperimentContext:
                 file_system=exp_fs,
             )
         return data_description
+
+    def update_last_modified(self, timestamp: Optional[str] = None):
+        """Updates the last modified timestamp of the experiment info"""
+        timestamp = timestamp or generate_timestamp()
+        try:
+            exp_info_dict = self.read_yaml(ExperimentFilenames.EXP_INFO)
+            exp_info_dict[LAST_MODIFIED_KEY] = timestamp
+            self.write_yaml(
+                exp_info_dict, ExperimentFilenames.EXP_INFO, apply_last_modified=False
+            )
+        except FileNotFoundError:
+            logging.getLogger(__name__).warning(
+                "Could not update last modified timestamp, because the "
+                "experiment info file was not found."
+            )
