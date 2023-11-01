@@ -36,6 +36,7 @@ class ExperimentManager(object):
         self.exp_dict[experiment.get_run_id()] = experiment
 
     def __contains__(self, exp_id: Union[str, ExperimentInfo]):
+        """Checks if the experiment is in the manager"""
         if type(exp_id) == ExperimentInfo:
             exp_id = exp_id.short_id
         for experiment in self.experiments:
@@ -98,6 +99,13 @@ class ExperimentManager(object):
             metric_set.update(cur_exp.get_metrics())
 
         return sorted(list(metric_set))
+
+    def is_exp_modified(self, exp_id: str, new_time_str: str) -> bool:
+        """Checks if the experiment has been modified"""
+        if exp_id not in self.exp_dict:
+            return True
+        exp = self.get_exp_by_id(exp_id)
+        return exp.exp_info.is_modified(new_time_str)
 
     def get_datasets(self) -> List[str]:
         """Returns a list of all datasets used in the experiments"""
@@ -234,6 +242,7 @@ class ExperimentManager(object):
     def get_value_information_dict(
         self, info_path: List[str], list_connection_str: str = "x"
     ) -> Dict[Any, List[str]]:
+        """Returns a dict with information about the values"""
         value_information_dict = defaultdict(list)
         for exp in self.experiments:
             try:
@@ -254,6 +263,7 @@ class ExperimentManager(object):
         return epochs_information_dict
 
     def get_datasets_information_dict(self) -> Dict[str, List[str]]:
+        """Returns a dict with information about the datasets"""
         datasets_information_dict = defaultdict(list)
         for exp in self.experiments:
             dataset = exp.get_experiment_path().split("/")[0]
@@ -261,10 +271,12 @@ class ExperimentManager(object):
         return datasets_information_dict
 
     def get_dataset(self, exp: ExperimentData) -> str:
+        """Returns the dataset of the given experiment"""
         dataset = exp.get_experiment_path().split("/")[0]
         return dataset
 
     def get_date_information_dict(self) -> Dict[date, List[str]]:
+        """Returns a dict with information about the dates"""
         date_information_dict = defaultdict(list)
         for exp in self.experiments:
             date_string = exp.exp_info.run_id.split("T")[0]
@@ -273,6 +285,7 @@ class ExperimentManager(object):
         return date_information_dict
 
     def get_experiment_type_information_dict(self) -> Dict[str, List[str]]:
+        """Returns a dict with information about the experiment types"""
         experiment_type_information_dict = defaultdict(list)
         for exp in self.experiments:
             experiment_type = exp.get_experiment_path().split("/")[-1].split("-")[0]
@@ -300,6 +313,7 @@ def local_exp_manager_factory(path: str) -> ExperimentManager:
 
 
 def get_add_min_max(metric_name: str, mode_dict: Dict[str, str]) -> Tuple[bool, bool]:
+    """Returns if min and max should be added"""
     add_min: bool = True
     add_max: bool = True
     for key, mode in mode_dict.items():

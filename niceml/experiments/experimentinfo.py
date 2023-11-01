@@ -51,6 +51,10 @@ class ExperimentInfo:
             LAST_MODIFIED_KEY: self.last_modified,
         }
 
+    def is_modified(self, other) -> bool:
+        """Checks if the other experiment info is modified"""
+        return self.last_modified != other.last_modified
+
 
 def load_exp_info(
     exp_info_file, file_system: Optional[AbstractFileSystem] = None
