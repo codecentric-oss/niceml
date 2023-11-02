@@ -14,7 +14,7 @@ from niceml.experiments.expdatastorageloader import create_expdata_from_storage
 from niceml.experiments.experimentdata import ExperimentData
 from niceml.experiments.experimentinfo import ExpIdNotFoundError, ExperimentInfo
 from niceml.experiments.expfilenames import ExperimentFilenames
-from niceml.utilities.ioutils import list_dir, write_parquet
+from niceml.utilities.ioutils import list_dir, write_parquet, read_yaml
 from niceml.utilities.regexutils import check_exp_name
 
 
@@ -39,6 +39,10 @@ class ExperimentCache(ABC):
         """Loads the experiment from the cache"""
 
     @abstractmethod
+    def load_exp_info(self, exp_id: str) -> ExperimentInfo:
+        """Loads the experiment info from the cache"""
+
+    @abstractmethod
     def save_experiment(self, exp_data: ExperimentData):
         """Saves the experiment to the cache"""
 
@@ -46,8 +50,8 @@ class ExperimentCache(ABC):
         """Checks if the experiment should be reloaded"""
         if experiment_info.short_id not in self:
             return True
-        exp_data = self.load_experiment(experiment_info.short_id)
-        return experiment_info.is_modified(exp_data.exp_info)
+        loaded_exp_info = self.load_exp_info(experiment_info.short_id)
+        return experiment_info.is_modified(loaded_exp_info)
 
 
 def create_exp_file_df(exp_data: ExperimentData) -> pd.DataFrame:
@@ -131,6 +135,15 @@ class LocalExperimentCache(ExperimentCache):
             if exp_id in folder_name and isdir(join(self.store_folder, folder_name)):
                 return folder_name
         raise ExpIdNotFoundError(f"Experiment with id: {exp_id} not in Cache")
+
+    def load_exp_info(self, exp_id: str) -> ExperimentInfo:
+        """Loads the experiment info from the cache"""
+        exp_folder = self.find_folder_name_of_exp_id(exp_id)
+        exp_info_file = join(
+            self.store_folder, exp_folder, ExperimentFilenames.EXP_INFO
+        )
+        exp_info_dict = read_yaml(exp_info_file)
+        return ExperimentInfo(**exp_info_dict)
 
     def load_experiment(
         self,
