@@ -12,7 +12,7 @@ from niceml.data.dataloaders.interfaces.imageloader import ImageLoader
 from niceml.data.storages.localstorage import LocalStorage
 from niceml.experiments.expdatastorageloader import create_expdata_from_storage
 from niceml.experiments.experimentdata import ExperimentData
-from niceml.experiments.experimentinfo import ExpIdNotFoundError
+from niceml.experiments.experimentinfo import ExpIdNotFoundError, ExperimentInfo
 from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.utilities.ioutils import list_dir, write_parquet
 from niceml.utilities.regexutils import check_exp_name
@@ -41,6 +41,13 @@ class ExperimentCache(ABC):
     @abstractmethod
     def save_experiment(self, exp_data: ExperimentData):
         """Saves the experiment to the cache"""
+
+    def should_reload(self, experiment_info: ExperimentInfo) -> bool:
+        """Checks if the experiment should be reloaded"""
+        if experiment_info.short_id not in self:
+            return True
+        exp_data = self.load_experiment(experiment_info.short_id)
+        return experiment_info.is_modified(exp_data.exp_info)
 
 
 def create_exp_file_df(exp_data: ExperimentData) -> pd.DataFrame:
@@ -100,11 +107,13 @@ class LocalExperimentCache(ExperimentCache):
     """Implementation of the ExperimentCache interface for local disk experiments."""
 
     def __init__(self, store_folder: str):
+        """Factory method for the local experiment cache"""
         self.store_folder = store_folder
         if not isdir(self.store_folder):
             makedirs(self.store_folder, exist_ok=True)
 
     def __contains__(self, exp_id: str) -> bool:
+        """Checks if the experiment is in the cache"""
         try:
             self.find_folder_name_of_exp_id(exp_id)
             return True
@@ -112,6 +121,7 @@ class LocalExperimentCache(ExperimentCache):
             return False
 
     def get_exp_count_in_cache(self):
+        """Returns the amount of cached experiments"""
         return len(get_exp_folder_list(self.store_folder))
 
     def find_folder_name_of_exp_id(self, exp_id) -> Optional[str]:
@@ -136,6 +146,7 @@ class LocalExperimentCache(ExperimentCache):
         )
 
     def save_experiment(self, exp_data: ExperimentData):
+        """Saves the experiment to the cache"""
         if self.store_folder is None:
             return
         self._create_output_folders(exp_data=exp_data)

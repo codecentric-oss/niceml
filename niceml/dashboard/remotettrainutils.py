@@ -79,7 +79,10 @@ def load_experiments(
     ) -> List[ExperimentData]:
         experiments_list = []
         for cur_exp_info in exp_info_list:
-            if local_exp_cache is not None and cur_exp_info.short_id in local_exp_cache:
+            if local_exp_cache is not None and local_exp_cache.should_reload(
+                cur_exp_info
+            ):
+                # TODO check if experiment is modified
                 initialized_df_loader: DfLoader = df_loader_factory.create_df_loader(
                     storage, cur_exp_info.exp_filepath
                 )
