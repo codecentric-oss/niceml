@@ -12,9 +12,13 @@ from niceml.data.dataloaders.interfaces.imageloader import ImageLoader
 from niceml.data.storages.localstorage import LocalStorage
 from niceml.experiments.expdatastorageloader import create_expdata_from_storage
 from niceml.experiments.experimentdata import ExperimentData
-from niceml.experiments.experimentinfo import ExpIdNotFoundError, ExperimentInfo
+from niceml.experiments.experimentinfo import (
+    ExpIdNotFoundError,
+    ExperimentInfo,
+    load_exp_info,
+)
 from niceml.experiments.expfilenames import ExperimentFilenames
-from niceml.utilities.ioutils import list_dir, write_parquet, read_yaml
+from niceml.utilities.ioutils import list_dir, write_parquet
 from niceml.utilities.regexutils import check_exp_name
 
 
@@ -142,8 +146,9 @@ class LocalExperimentCache(ExperimentCache):
         exp_info_file = join(
             self.store_folder, exp_folder, ExperimentFilenames.EXP_INFO
         )
-        exp_info_dict = read_yaml(exp_info_file)
-        return ExperimentInfo(**exp_info_dict)
+        exp_info = load_exp_info(exp_info_file)
+
+        return exp_info
 
     def load_experiment(
         self,
