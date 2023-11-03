@@ -35,7 +35,6 @@ learner:
     optimizer:
       _target_: tensorflow.keras.optimizers.RMSprop
       learning_rate: 0.0001
-      decay: 0.000001
     metrics:
       - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetClsLoss
       - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetBoxLoss

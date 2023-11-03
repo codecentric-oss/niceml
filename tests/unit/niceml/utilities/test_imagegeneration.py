@@ -111,12 +111,12 @@ def test_crop_text_layer_to_text():
     [
         (
             "test_image",
-            "positive",
+            "1",
             np.zeros((4, 4), dtype=np.uint8),
             (2, 2),
             {
                 "identifier": "test_image",
-                "label": "positive",
+                "label": 1,
                 "px_0_0": 0,
                 "px_0_1": 0,
                 "px_1_0": 0,
@@ -125,12 +125,12 @@ def test_crop_text_layer_to_text():
         ),
         (
             "test_image_2",
-            "negative",
+            "0",
             np.ones((3, 3), dtype=np.uint8),
             None,
             {
                 "identifier": "test_image_2",
-                "label": "negative",
+                "label": 0,
                 "px_0_0": 1,
                 "px_0_1": 1,
                 "px_0_2": 1,

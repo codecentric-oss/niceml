@@ -1,0 +1,2 @@
+mlflow_tracking_uri: ${oc.env:MLFLOW_TRACKING_URI,mlflow-logs}
+experiment_name: ${globals.exp_name}

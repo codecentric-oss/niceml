@@ -20,6 +20,8 @@ def fs_path_config():
 
 
 def test_read_lock(fs_path_config):
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "read.lock"))
     rw_lock = ReadLock(fs_path_config)
     rw_lock.acquire()
     with open_location(fs_path_config) as (cur_fs, root_path):
@@ -33,8 +35,12 @@ def test_read_lock(fs_path_config):
 
 
 def test_write_lock(fs_path_config):
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     write_lock = WriteLock(fs_path_config)
     write_lock.acquire()
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     time.sleep(1)
     write_lock.release()
 
@@ -45,8 +51,12 @@ def test_write_lock(fs_path_config):
 
 
 def test_read_write_lock(fs_path_config):
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     write_lock = WriteLock(fs_path_config, write=True)
     write_lock.acquire()
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
     time.sleep(1)
     write_lock.release()
 
@@ -114,3 +124,24 @@ def test_raise_write_during_read(fs_path_config):
     write_lock.release()
     with open_location(fs_path_config) as (cur_fs, root_path):
         assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
+
+
+def test_read_lock_force_delete(fs_path_config):
+    read_lock = ReadLock(fs_path_config, retry_time=0.05, timeout=0.5)
+    read_lock.acquire()
+    read_lock2 = ReadLock(fs_path_config, retry_time=0.05, timeout=0.5)
+    read_lock2.acquire()
+    read_lock.force_delete()
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "read.lock"))
+
+
+def test_write_lock_force_delete(fs_path_config):
+    write_lock1 = WriteLock(fs_path_config, retry_time=0.05, timeout=0.5)
+    write_lock2 = WriteLock(fs_path_config, retry_time=0.05, timeout=0.5)
+    write_lock1.acquire()
+    write_lock2.force_delete()
+    with open_location(fs_path_config) as (cur_fs, root_path):
+        assert not cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
+
+    write_lock1.release()

@@ -6,22 +6,19 @@ authors = {{authors}}
 
 [tool.poetry.dependencies]
 {{dependencies}}
-tensorflow = {version = "2.9", optional = true}
-tensorflow-macos = {version = "2.9", optional = true}
-tensorflow-metal = {version = "^0.8.0", optional = true}
-tensorflow-io-gcs-filesystem = {version = "0.31.0", optional = true}
 altair = {version = "^4.2.2", optional = true}
+tensorflow-macos = {version = "~2.12", optional = true}
 streamlit = {version = "^1.22.0", optional = true}
+tensorflow = {version = "~2.12", optional = true}
+tensorflow-metal = {version = "~1.0", optional = true}
 
 [tool.poetry.extras]
 tensorflow = ["tensorflow"]
-tensorflow-windows = ["tensorflow", "tensorflow-io-gcs-filesystem"]
 tensorflow-macos = ["tensorflow-macos", "tensorflow-metal"]
 visu = ["altair", "streamlit"]
 
 {% if use_precommit %}
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.3.1"
 pre-commit = "^3.3.1"
 
 [tool.ruff]

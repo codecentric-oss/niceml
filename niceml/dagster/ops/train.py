@@ -1,8 +1,10 @@
 """Module for train op"""
 import json
+from typing import Dict, Tuple
 
 from hydra.utils import ConvertMode, instantiate
 
+from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
 from niceml.config.hydra import HydraInitField
 from niceml.config.trainparams import TrainParams
 from niceml.config.writeopconfig import write_op_config
@@ -19,7 +21,9 @@ from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
     ModelCustomLoadObjects,
 )
 from niceml.mlcomponents.models.modelfactory import ModelFactory
-from dagster import OpExecutionContext, op
+from dagster import OpExecutionContext, op, Out, Field
+
+from niceml.utilities.readwritelock import FileLock
 
 train_config: dict = dict(
     train_params=HydraInitField(TrainParams),
@@ -31,16 +35,29 @@ train_config: dict = dict(
     callbacks=HydraInitField(CallbackInitializer),
     learner=HydraInitField(Learner),
     exp_initializer=HydraInitField(ExpOutInitializer),
+    remove_key_list=Field(
+        list,
+        default_value=DEFAULT_REMOVE_CONFIG_KEYS,
+        description="These key are removed from any config recursively before it is saved.",
+    ),
 )
 
 
-@op(config_schema=train_config)
+@op(
+    config_schema=train_config,
+    out={"expcontext": Out(), "filelock_dict": Out()},
+    required_resource_keys={"mlflow"},
+)
 def train(
-    context: OpExecutionContext, exp_context: ExperimentContext
-) -> ExperimentContext:
+    context: OpExecutionContext,
+    exp_context: ExperimentContext,
+    filelock_dict: Dict[str, FileLock],
+) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
     """DagsterOp that trains the model"""
     op_config = json.loads(json.dumps(context.op_config))
-    write_op_config(op_config, exp_context, OpNames.OP_TRAIN.value)
+    write_op_config(
+        op_config, exp_context, OpNames.OP_TRAIN.value, op_config["remove_key_list"]
+    )
     instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
 
     data_train = instantiated_op_config["data_train"]
@@ -68,4 +85,4 @@ def train(
         custom_model_load_objects,
         callbacks,
     )
-    return exp_context
+    return exp_context, filelock_dict

@@ -11,16 +11,26 @@ It provides pipelines for a variety of ML tasks, like
 
 All you have to do is configure your pipeline, and you're ready to go!
 
-You can also add your own components to the build-in dashboard, 
+You can also add your own components to the built-in dashboard, 
 where you can compair the results and performance of your ML models.
 
 
 The documentation of **niceML** is separated into four paths:
 
-1. [Getting Started](tutorials.md)
-2. [How-To Guides](how-to-guides.md)
-3. [First Steps for your Use-case](first-steps.md)
-4. [Concept Overview](concepts.md)
+1. Tutorials
+2. How-To Guides
+3. Concepts
+4. References
+
 
 Quickly find what you're looking for depending on
 your use case by looking at the provided pages.
+
+## Installation
+
+```bash
+poetry add niceml
+```
+
+For a detailed installation guide, have a look at the [Getting Started Tutorial](
+    getting-started.md#installation).

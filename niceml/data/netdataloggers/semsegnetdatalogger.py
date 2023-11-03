@@ -4,7 +4,9 @@ from typing import List, Tuple
 import numpy as np
 from PIL import Image
 
-from niceml.data.datadescriptions.outputdatadescriptions import OutputImageDataDescription
+from niceml.data.datadescriptions.outputdatadescriptions import (
+    OutputImageDataDescription,
+)
 from niceml.data.datainfos.imagedatainfo import ImageDataInfo
 from niceml.data.datainfos.semsegdatainfo import SemSegDataInfo
 from niceml.data.netdataloggers.netdatalogger import NetDataLogger
@@ -19,6 +21,7 @@ class SemSegNetDataLogger(NetDataLogger):
     """NetDataLogger for semantic segmentation"""
 
     def __init__(self, max_log: int = 10, scale: bool = True):
+        """initialize SemSegNetDataLogger parameters"""
         super().__init__()
         self.scale: bool = scale  # If true, the masks are scaled to the image size.
         # If false the images are scaled to the mask size.
@@ -32,6 +35,7 @@ class SemSegNetDataLogger(NetDataLogger):
         exp_context: ExperimentContext,
         set_name: str,
     ):
+        """initialize SemSegNetDataLogger parameters before training"""
         super().initialize(
             data_description=data_description,
             exp_context=exp_context,
@@ -72,7 +76,6 @@ class SemSegNetDataLogger(NetDataLogger):
         for net_input, net_target, data_info in zip(
             net_inputs, net_targets, data_info_list
         ):
-
             instance_labels = [
                 SemSegInstanceLabel(
                     class_name=self.data_description.get_output_channel_names()[
@@ -85,7 +88,7 @@ class SemSegNetDataLogger(NetDataLogger):
                     # `draw_error_mask_on_image` doesn't work with binary masks.
                     # RGB values are required. * 255 converts mask to RGB
                 )
-                for class_idx in range(net_target.shape[-1])
+                for class_idx in range(self.data_description.get_output_channel_count())
                 if net_target[:, :, class_idx].max() > 0
             ]
 

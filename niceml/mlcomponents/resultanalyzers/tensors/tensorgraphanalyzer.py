@@ -1,7 +1,8 @@
 """Module for tensorgraphanalyzer"""
-import logging
-from os.path import basename, join
+from os.path import join
 from typing import List
+
+import mlflow
 
 from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
@@ -12,7 +13,6 @@ from niceml.mlcomponents.resultanalyzers.tensors.tensordataiterators import (
 )
 from niceml.mlcomponents.resultanalyzers.tensors.tensormetric import TensorMetric
 from niceml.utilities.fsspec.locationutils import open_location
-from niceml.utilities.logutils import get_logstr_from_dict
 
 
 class TensorGraphAnalyzer(ResultAnalyzer):
@@ -26,6 +26,7 @@ class TensorGraphAnalyzer(ResultAnalyzer):
         dataiterator: TensordataIterator,
         zarr_file_prefix: str = "",
     ):
+        """Initializes the TensorGraphAnalyzer"""
         super().__init__()
         self.zarr_file_prefix = zarr_file_prefix
         self.df_metrics: List[TensorMetric] = metrics
@@ -34,6 +35,7 @@ class TensorGraphAnalyzer(ResultAnalyzer):
     def __call__(
         self, dataset: Dataset, exp_context: ExperimentContext, dataset_name: str
     ):  # pylint: disable=too-many-locals
+        """Analyzes the dataset with the given metrics"""
         with open_location(exp_context.fs_config) as (exp_fs, exp_root):
             input_file: str = join(
                 exp_root,
@@ -41,8 +43,6 @@ class TensorGraphAnalyzer(ResultAnalyzer):
                 f"{self.zarr_file_prefix}{dataset_name}",
             )
             self.dataiterator.open(input_file, file_system=exp_fs)
-
-        output_filename = f"result_{dataset_name}.yaml"
 
         cur_metric: TensorMetric
         for cur_metric in self.df_metrics:
@@ -70,9 +70,9 @@ class TensorGraphAnalyzer(ResultAnalyzer):
             if final_metric is not None:
                 out_dict.update(final_metric)
 
-        log_str = f"{basename(output_filename)}\n" f"========================\n"
-
-        log_str += get_logstr_from_dict(out_dict)
-        logging.getLogger(__name__).info(log_str)
-
-        exp_context.write_yaml(out_dict, output_filename)
+        output_file = join(
+            ExperimentFilenames.ANALYSIS_FOLDER,
+            ExperimentFilenames.ANALYSIS_FILE.format(subset_name=dataset_name),
+        )
+        mlflow.log_metrics(out_dict)
+        exp_context.write_yaml(out_dict, output_file)

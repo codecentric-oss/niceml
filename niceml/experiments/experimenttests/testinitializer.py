@@ -3,6 +3,7 @@ import logging
 from os.path import join
 from typing import List, Optional
 
+import mlflow
 import pandas as pd
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
@@ -29,6 +30,7 @@ class ExpTestProcess(object):  # pylint: disable=too-few-public-methods
         raise_exception: bool = True,
         store_results: bool = True,
     ):
+        """Initialize the ExpTestProcess"""
         self.test_list = test_list
         self.csv_out_name = csv_out_name
         self.raise_exception = raise_exception
@@ -60,6 +62,8 @@ class ExpTestProcess(object):  # pylint: disable=too-few-public-methods
             write_csv(
                 dataframe, out_path, file_system=file_system, sep=";", decimal=","
             )
+            df_dict = dataframe.to_dict(orient="records")
+            mlflow.log_dict(df_dict, "exp_tests.yaml")
 
         if len(failed) > 0 and self.raise_exception:
             for failed_exp in failed:
