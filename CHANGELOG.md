@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.3 (2023-11-08)
+
+### Fix
+
+* Reload finished experiments in dashboard ([#87](https://github.com/codecentric-oss/niceml/issues/87)) ([`39764f5`](https://github.com/codecentric-oss/niceml/commit/39764f5238696881e1002e2a3b6e454457efe4c9))
+* Generate mkdocs graphs with multiple dependencies ([#86](https://github.com/codecentric-oss/niceml/issues/86)) ([`ac56427`](https://github.com/codecentric-oss/niceml/commit/ac564270c8b1ea0cb3d8f7fa86ee0ceac639b4fc))
+* Replace lambda `class_extractor` in `DirClsDataInfoListing` with a private function because lambdas are not pickable ([#85](https://github.com/codecentric-oss/niceml/issues/85)) ([`def7d1a`](https://github.com/codecentric-oss/niceml/commit/def7d1ae08168ce2edef063268b9ae95b9c60f18))
+
 ## v0.8.2 (2023-10-09)
 
 ### Fix
