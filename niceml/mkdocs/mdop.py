@@ -1,13 +1,11 @@
 """Module for generating markdown strings for dagster ops"""
 from typing import Dict, List
 
-from dagster._core.definitions import NodeDefinition
-
 from niceml.mkdocs.mdtable import get_md_table
-from dagster import Field
+from dagster import Field, OpDefinition
 
 
-def get_md_op(op_def: NodeDefinition) -> str:
+def get_md_op(op_def: OpDefinition) -> str:
     """generates markdown strings for dagster ops"""
     col_widths: List[int] = [80, 120]
     op_fields = get_op_fields(op_def)
@@ -24,7 +22,7 @@ def get_md_op(op_def: NodeDefinition) -> str:
     return cur_md
 
 
-def get_op_fields(op_def: NodeDefinition) -> Dict[str, Field]:
+def get_op_fields(op_def: OpDefinition) -> Dict[str, Field]:
     """returns fields from OpDefinition"""
     try:
         return op_def.config_schema.config_type.fields
