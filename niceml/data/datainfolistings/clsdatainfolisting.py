@@ -31,12 +31,14 @@ class LabelClsDataInfoListing(
         label_suffix: str = ".json",
         image_suffixes: Optional[List[str]] = None,
     ):
+        """Init method of LabelClsDataInfoListing"""
         self.sub_dir = sub_dir
         self.data_location = data_location
         self.label_suffix = label_suffix
         self.image_suffixes = image_suffixes or [".png", ".jpg", ".jpeg"]
 
     def list(self, data_description: DataDescription) -> List[ClsDataInfo]:
+        """Lists all data infos"""
         output_data_description: OutputVectorDataDescription = check_instance(
             data_description, OutputVectorDataDescription
         )
@@ -73,6 +75,11 @@ class LabelClsDataInfoListing(
         return new_data_info_list
 
 
+def _default_class_extractor(input_str: str) -> str:
+    """Default class extractor for DirClsDataInfoListing"""
+    return splitext(input_str)[0].rsplit("_", maxsplit=1)[-1]
+
+
 class DirClsDataInfoListing(
     DataInfoListing
 ):  # pylint: disable=too-few-public-methods, too-many-arguments
@@ -85,14 +92,14 @@ class DirClsDataInfoListing(
         class_extractor: Optional[Callable] = None,
         image_suffixes: Optional[List[str]] = None,
     ):
+        """Init method of DirClsDataInfoListing"""
         self.sub_dir = sub_dir
         self.location = location
-        self.class_extractor = class_extractor or (
-            lambda x: splitext(x)[0].rsplit("_", maxsplit=1)[-1]
-        )
+        self.class_extractor = class_extractor or _default_class_extractor
         self.image_suffixes = image_suffixes or [".png", ".jpg", ".jpeg"]
 
     def list(self, data_description: DataDescription) -> List[ClsDataInfo]:
+        """Lists all data infos"""
         output_data_description: OutputVectorDataDescription = check_instance(
             data_description, OutputVectorDataDescription
         )
