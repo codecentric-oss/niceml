@@ -1,11 +1,9 @@
 """Module for generating mkdocs str for jobs"""
 from typing import List
 
-from dagster._core.definitions import NodeDefinition
-
 from niceml.mkdocs.mdgraph import get_graph_md
 from niceml.mkdocs.mdop import get_md_op
-from dagster import JobDefinition
+from dagster import JobDefinition, OpDefinition
 
 
 def get_job_md(job: JobDefinition, include_graph: bool = True) -> str:
@@ -17,13 +15,13 @@ def get_job_md(job: JobDefinition, include_graph: bool = True) -> str:
         graph_md = get_graph_md(job)
         if len(graph_md) > 0:
             job_md += graph_md + "\n\n"
-    op_list: List[NodeDefinition] = get_ops_from_job(job)
+    op_list: List[OpDefinition] = get_ops_from_job(job)
     for cur_op in op_list:
         job_md += get_md_op(cur_op)
 
     return job_md
 
 
-def get_ops_from_job(job: JobDefinition) -> List[NodeDefinition]:
+def get_ops_from_job(job: JobDefinition) -> List[OpDefinition]:
     """Returns all ops from job"""
     return job.all_node_defs
