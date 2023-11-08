@@ -79,10 +79,9 @@ def load_experiments(
     ) -> List[ExperimentData]:
         experiments_list = []
         for cur_exp_info in exp_info_list:
-            if local_exp_cache is not None and local_exp_cache.should_reload(
+            if local_exp_cache is not None and not local_exp_cache.should_reload(
                 cur_exp_info
             ):
-                # TODO check if experiment is modified
                 initialized_df_loader: DfLoader = df_loader_factory.create_df_loader(
                     storage, cur_exp_info.exp_filepath
                 )
@@ -118,10 +117,7 @@ def load_experiments(
             )
             if experiment is not None:
                 experiments.append(experiment)
-                if (
-                    local_exp_cache is not None
-                    and experiment.get_short_id() not in local_exp_cache
-                ):
+                if local_exp_cache is not None:
                     local_exp_cache.save_experiment(experiment)
             prog_bar.progress(idx / load_exp_count)
             status_text.text(f"Cached {idx}/{load_exp_count} experiments")
