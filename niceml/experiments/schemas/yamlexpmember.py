@@ -19,6 +19,7 @@ class YamlMember(ExpMember):
         description: str,
         yaml_schema: Optional[schema.Schema] = None,
     ):
+        """Constructor of YamlMember"""
         super().__init__(
             path=path,
             required=required,
@@ -28,6 +29,7 @@ class YamlMember(ExpMember):
         self.yaml_schema: Optional[schema.Schema] = yaml_schema
 
     def validate(self, exp_data: ExperimentData) -> bool:
+        """Validates the yaml file"""
         result = super().validate(exp_data)
         val_data = exp_data.get_loaded_yaml(self.path)
         val_result = self._validate_schema(val_data)
@@ -47,16 +49,22 @@ class ExpInfoMember(YamlMember):
     """Specific member of the experiment containing the experiment info"""
 
     def __init__(self):
+        """Constructor of ExpInfoMember"""
+        short_id_len = 4
+        run_id_len = 24
         exp_schema = schema.Schema(
             {
                 envc.EXP_NAME_KEY: str,
                 envc.ENVIRONMENT_KEY: dict,
                 envc.DESCRIPTION_KEY: str,
                 envc.EXP_PREFIX_KEY: str,
-                envc.SHORT_ID_KEY: lambda val: isinstance(val, str) and len(val) == 4,
-                envc.RUN_ID_KEY: lambda val: isinstance(val, str) and len(val) == 24,
+                envc.SHORT_ID_KEY: lambda val: isinstance(val, str)
+                and len(val) == short_id_len,
+                envc.RUN_ID_KEY: lambda val: isinstance(val, str)
+                and len(val) == run_id_len,
                 envc.EXP_TYPE_KEY: str,
                 envc.EXP_DIR_KEY: str,
+                schema.Optional(envc.LAST_MODIFIED_KEY): str,
             }
         )
         super().__init__(

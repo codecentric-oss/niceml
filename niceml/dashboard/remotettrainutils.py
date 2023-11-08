@@ -40,7 +40,7 @@ def select_to_load_exps(
     That means which are not in the experiment manager"""
     experiments_to_load = []
     for exp_info in exp_info_list:
-        if exp_info not in exp_manager:
+        if exp_manager.is_exp_modified(exp_info.short_id, exp_info.last_modified):
             experiments_to_load.append(exp_info)
     return experiments_to_load
 
@@ -66,7 +66,8 @@ def load_experiments(
     local_exp_cache: Optional[ExperimentCache] = None,
 ):
     """Load the experiments from the cloud storage and
-    stores them in the experiment manager. Additionally, they are saved in the local cache"""
+    stores them in the experiment manager. Additionally, they are saved in the local cache
+    """
     experiments: List[ExperimentData]
     dir_info_list: List[str] = []
     load_exp_info_list: List[ExperimentInfo] = []
@@ -78,7 +79,9 @@ def load_experiments(
     ) -> List[ExperimentData]:
         experiments_list = []
         for cur_exp_info in exp_info_list:
-            if local_exp_cache is not None and cur_exp_info.short_id in local_exp_cache:
+            if local_exp_cache is not None and not local_exp_cache.should_reload(
+                cur_exp_info
+            ):
                 initialized_df_loader: DfLoader = df_loader_factory.create_df_loader(
                     storage, cur_exp_info.exp_filepath
                 )
@@ -114,10 +117,7 @@ def load_experiments(
             )
             if experiment is not None:
                 experiments.append(experiment)
-                if (
-                    local_exp_cache is not None
-                    and experiment.get_short_id() not in local_exp_cache
-                ):
+                if local_exp_cache is not None:
                     local_exp_cache.save_experiment(experiment)
             prog_bar.progress(idx / load_exp_count)
             status_text.text(f"Cached {idx}/{load_exp_count} experiments")

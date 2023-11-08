@@ -15,6 +15,7 @@ from niceml.config.envconfig import (
     EXP_TYPE_KEY,
     RUN_ID_KEY,
     SHORT_ID_KEY,
+    LAST_MODIFIED_KEY,
 )
 from niceml.utilities.idutils import ALPHANUMERICLIST
 from niceml.utilities.ioutils import read_yaml
@@ -34,6 +35,7 @@ class ExperimentInfo:
     description: str
     exp_dir: str
     exp_filepath: Optional[str] = None
+    last_modified: Optional[str] = None
 
     def as_save_dict(self) -> dict:
         """Returns a dictionary which can be saved to a yaml file"""
@@ -46,7 +48,12 @@ class ExperimentInfo:
             ENVIRONMENT_KEY: self.environment,
             DESCRIPTION_KEY: self.description,
             EXP_DIR_KEY: self.exp_dir,
+            LAST_MODIFIED_KEY: self.last_modified,
         }
+
+    def is_modified(self, other) -> bool:
+        """Checks if the other experiment info is modified"""
+        return self.last_modified != other.last_modified
 
 
 def load_exp_info(
@@ -72,6 +79,7 @@ def experiment_info_factory(data: dict, path: Optional[str] = None) -> Experimen
         description=data.get(DESCRIPTION_KEY, ""),
         exp_dir=data.get(EXP_DIR_KEY, ""),
         exp_filepath=path,
+        last_modified=data.get(LAST_MODIFIED_KEY, None),
     )
 
 
@@ -91,7 +99,7 @@ def get_exp_id_from_name(input_name: str) -> str:
             f"ID not found anywhere starting with 'id_': {input_name}"
         )
     cur_id = input_name[index + 3 : index + 7]
-    if len(cur_id) != 4:
+    if len(cur_id) != 4:  # noqa: PLR2004
         raise ExpIdNotFoundError(f"ID not complete: {input_name}")
     if any((x not in ALPHANUMERICLIST for x in cur_id)):
         raise ExpIdNotFoundError(

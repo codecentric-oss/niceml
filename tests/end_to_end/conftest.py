@@ -24,7 +24,7 @@ def tmp_dir() -> str:
 
 
 @pytest.fixture(scope="session")
-def trainregression(tmp_dir: str):
+def trainregression(tmp_dir: str, generate_number_data: str):
     os.environ["EXPERIMENT_URI"] = tmp_dir
     os.environ["EPOCHS"] = "1"
     config_path = (

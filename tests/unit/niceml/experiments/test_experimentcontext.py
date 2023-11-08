@@ -6,7 +6,10 @@ import pandas as pd
 import pytest
 from PIL import Image
 
+from niceml.config.envconfig import LAST_MODIFIED_KEY
 from niceml.experiments.experimentcontext import ExperimentContext
+from niceml.experiments.experimentdata import ExperimentData
+from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.utilities.fsspec.locationutils import LocationConfig
 
 
@@ -77,3 +80,24 @@ def test_read_write_image(experiment_context, exp_tmp_dir):
     result = experiment_context.read_image(image_path)
     result_np = np.array(result)
     assert np.array_equal(np_image, result_np)
+
+
+def test_update_last_modified(
+    experiment_context: ExperimentContext,
+    exp_tmp_dir: str,
+    experiment_data: ExperimentData,
+):
+    # Generate a timestamp to be used for updating last modified
+    timestamp = "2022-01-01T00:00:00"
+
+    experiment_context.write_yaml(
+        experiment_data.exp_info.as_save_dict(), ExperimentFilenames.EXP_INFO
+    )
+    # Call the update_last_modified method
+    experiment_context.update_last_modified(timestamp)
+
+    # Read the updated experiment info file
+    updated_exp_info = experiment_context.read_yaml(ExperimentFilenames.EXP_INFO)
+
+    # Assert the last modified timestamp is updated
+    assert updated_exp_info[LAST_MODIFIED_KEY] == timestamp
