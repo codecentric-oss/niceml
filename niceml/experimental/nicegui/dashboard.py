@@ -75,9 +75,10 @@ class Dashboard:
                     self.component = self.site_components[site.name]
                     with self.ng_frame(site.name):
                         if self.expdata_list:
-
-                            #Sidebar
-                            with ui.left_drawer().props('width=330 bordered').classes("bg-[#eee]"):
+                            # Sidebar
+                            with ui.left_drawer().props("width=330 bordered").classes(
+                                "bg-[#eee]"
+                            ):
                                 ui.label("Select from the following filters:")
                                 exp_filter_manager = NGFilterManager(
                                     self.exp_filter_list
@@ -89,15 +90,18 @@ class Dashboard:
 
                             self.container = ui.column().classes("w-full")
                             self.container.clear()
-                            self.render_main(
-                                self.expdata_list, self.component, False
-                            )
+                            self.render_main(self.expdata_list, self.component, False)
                         else:
-                            ui.label("You have no experiments loaded, please head to the home page and press \"Load experiments\"")
+                            ui.label(
+                                'You have no experiments loaded, please head to the home page and press "Load experiments"'
+                            )
                             self.loading_button_container = ui.row().classes("w-90")
                             self.loading_button_container.clear()
                             with self.loading_button_container:
-                                ui.button("Load Experiments", on_click=self.load_experiments_button)
+                                ui.button(
+                                    "Load Experiments",
+                                    on_click=self.load_experiments_button,
+                                )
                 except:
                     home_frame = self.ng_frame("- Home -")
                     with home_frame:
@@ -109,7 +113,10 @@ class Dashboard:
                         self.loading_button_container = ui.row().classes("w-90")
                         self.loading_button_container.clear()
                         with self.loading_button_container:
-                            ui.button("Load Experiments", on_click=self.load_experiments_button)
+                            ui.button(
+                                "Load Experiments",
+                                on_click=self.load_experiments_button,
+                            )
 
     def on_change(self, expdata_list):
         update = True
@@ -144,7 +151,7 @@ class Dashboard:
         self.expdata_list: List[ExperimentData] = self.exp_manager.get_experiments()
 
         with self.loading_button_container:
-            ui.icon("done", color='primary').classes("text-5xl")
+            ui.icon("done", color="primary").classes("text-5xl")
 
         self.load_pages()
 
@@ -152,22 +159,47 @@ class Dashboard:
         await self.load_experiments()
 
     def generate_experiment_chart(self):
-        experiment_list = np.array([dir.split("-")[0] for dir in os.listdir("experiment_outputs") if dir[0] != "."])
+        experiment_list = np.array(
+            [
+                dir.split("-")[0]
+                for dir in os.listdir("experiment_outputs")
+                if dir[0] != "."
+            ]
+        )
         unique, counts = np.unique(experiment_list, return_counts=True)
 
         experiment_counts = dict(zip(unique, counts))
 
         ui.label(f"You have {len(experiment_list)} experiments in your list.")
-        ui.chart({
-            'title': False,
-            'chart': {'type': 'bar'},
-            'xAxis': {'categories': "counts"},
-            'series': [
-                {'name': key, 'data': [experiment_counts[key]]}
-                for key in experiment_counts
-            ],
-        }
-        ).classes('w-90 h-64')
+        ui.highchart(
+            {
+                "title": False,
+                "chart": {"type": "bar"},
+                "xAxis": {"categories": "counts"},
+                "series": [
+                    {"name": key, "data": [experiment_counts[key]]}
+                    for key in experiment_counts
+                ],
+            }
+        ).classes("w-90 h-64")
+
+        ui.echart(
+            {
+                "yAxis": {
+                    "type": "category",
+                    "data": [name for name in experiment_counts],
+                },
+                "xAxis": {"type": "value"},
+                "series": [
+                    {
+                        "data": [value for value in experiment_counts.values()],
+                        "type": "bar",
+                        "showBackground": True,
+                        "backgroundStyle": {"color": "rgba(180, 180, 180, 0.2)"},
+                    }
+                ],
+            }
+        ).classes("w-90 h-64")
 
 
 def run_dashboard_with_confpath(config_path: str):
