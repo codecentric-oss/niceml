@@ -1,8 +1,7 @@
-"""Module for ExpVisComponent for the dashboard"""
+"""module for ExpVisComponent"""
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
 
-import streamlit as st
 from PIL import Image
 
 from niceml.data.storages.storageinterface import StorageInterface
@@ -11,12 +10,8 @@ from niceml.experiments.experimentmanager import ExperimentManager
 from niceml.experiments.metafunctions import MetaFunction
 
 
-class RenderingError(Exception):
-    """Error when component could not be rendered"""
-
-
 class ExpVisComponent(ABC):
-    """Basic dashboard component to visualize experiments"""
+    """A component which can visualize experiments in the dashboard"""
 
     def __init__(
         self,
@@ -42,11 +37,14 @@ class ExpVisComponent(ABC):
         storage_interface: StorageInterface,
         exp_ids: List[str],
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
         """Called when a component is rendered"""
         try:
             if self.meta_function is None:
-                self._render(exp_manager, storage_interface, exp_ids, subset_name)
+                self._render(
+                    exp_manager, storage_interface, exp_ids, subset_name, update
+                )
             else:
                 filtered_exp_list: List[str] = []
                 for exp_id in exp_ids:
@@ -55,10 +53,13 @@ class ExpVisComponent(ABC):
                     if meta_target in self.target_value_list:
                         filtered_exp_list.append(exp_id)
                 self._render(
-                    exp_manager, storage_interface, filtered_exp_list, subset_name
+                    exp_manager,
+                    storage_interface,
+                    filtered_exp_list,
+                    subset_name,
+                    update,
                 )
         except Exception as error:  # pylint: disable=broad-except
-            st.error(f"Rendering failed: {error}")
             if self.assert_on_error:
                 raise error
 
@@ -69,6 +70,7 @@ class ExpVisComponent(ABC):
         storage_interface: StorageInterface,
         exp_ids: List[str],
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
         """Used by the render method to render the individual component"""
 
@@ -98,18 +100,27 @@ class SingleExpVisComponent(ABC):
         storage_interface: StorageInterface,
         exp_id: str,
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
         """Called when a component is rendered"""
         try:
             if self.meta_function is None:
-                self._render(exp_manager, storage_interface, exp_id, subset_name)
+                self._render(
+                    exp_manager, storage_interface, exp_id, subset_name, update
+                )
             else:
                 exp_data: ExperimentData = exp_manager.get_exp_by_id(exp_id)
                 meta_target = self.meta_function(exp_data)
                 if meta_target in self.target_value_list:
-                    self._render(exp_manager, storage_interface, exp_id, subset_name)
-        except RenderingError as error:
-            st.error(f"Rendering failed: {error}")
+                    self._render(
+                        exp_manager,
+                        storage_interface,
+                        exp_id,
+                        subset_name,
+                        update,
+                    )
+        except Exception as error:  # pylint: disable=broad-except
+            # st.error(f"Rendering failed: {error}")
             if self.assert_on_error:
                 raise error
 
@@ -120,6 +131,7 @@ class SingleExpVisComponent(ABC):
         storage_interface: StorageInterface,
         exp_id: str,
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
         """Used by the render method to render the individual component"""
 

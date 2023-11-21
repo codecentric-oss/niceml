@@ -1,4 +1,4 @@
-"""Module for LinearVisComponent"""
+"""module for LinearVisComponent"""
 from typing import List, Optional
 
 from PIL import Image
@@ -18,6 +18,7 @@ class LinearVisComponent(ExpVisComponent):
         **kwargs,
     ):
         super().__init__(component_name=component_name, **kwargs)
+        self.component_name = component_name
         self.vis_components: List[ExpVisComponent] = vis_components
 
     def _render(
@@ -26,25 +27,12 @@ class LinearVisComponent(ExpVisComponent):
         storage_interface: StorageInterface,
         exp_ids: List[str],
         subset_name: Optional[str] = None,
+        update: bool = False,
     ):
-        """
-        Takes in an ExperimentManager, a StorageInterface,
-        and a list of experiment IDs. It then calls the render method
-        of each component in self.vis_components with these arguments.
-
-        Args:
-            exp_manager: Current experiment manager
-            storage_interface: Current storage
-            exp_ids: list of experiment ids to be rendered
-            subset_name: Specify a subst to render
-        """
         if len(exp_ids) > 0:
             for comp in self.vis_components:
                 comp.render(
-                    exp_manager,
-                    storage_interface,
-                    exp_ids,
-                    subset_name,
+                    exp_manager, storage_interface, exp_ids, subset_name, update
                 )
 
     def get_images(self) -> List[Image.Image]:
