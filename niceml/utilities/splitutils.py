@@ -114,7 +114,7 @@ def create_copy_files_container(
                 identifier = "".join(
                     [char for char in cur_basename if char in ALPHANUMERICLIST]
                 )
-                cur_seed = int(identifier, base=len(ALPHANUMERICLIST)) % (2 ** 32 - 1)
+                cur_seed = int(identifier, base=len(ALPHANUMERICLIST)) % (2**32 - 1)
                 rng = np.random.default_rng(seed=cur_seed)
                 drawn_set = rng.choice(set_list, 1, p=prob_list)[0]
                 output_file = join(drawn_set, file)

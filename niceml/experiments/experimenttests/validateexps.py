@@ -7,7 +7,9 @@ from fsspec.implementations.local import LocalFileSystem
 
 from niceml.data.storages.fsfilesystemstorage import FsFileSystemStorage
 from niceml.data.storages.fsspecstorage import FSSpecStorage
-from niceml.experiments.expdatalocalstorageloader import create_expdata_from_local_storage
+from niceml.experiments.expdatalocalstorageloader import (
+    create_expdata_from_local_storage,
+)
 from niceml.experiments.experimenterrors import EmptyExperimentError
 from niceml.experiments.experimenttests.exptests import (
     ExperimentTest,

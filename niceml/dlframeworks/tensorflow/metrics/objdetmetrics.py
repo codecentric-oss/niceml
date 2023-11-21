@@ -13,10 +13,11 @@ class AvgPosPredObjDet:  # pylint: disable=too-few-public-methods
     """Positive Classification Values for object detection"""
 
     def __init__(self, name: str = "avg_pos_pred"):
-
+        """Constructor"""
         self.__name__ = name
 
     def __call__(self, y_true, y_pred):
+        """Call method for metric"""
         y_pred = tf.cast(y_pred, dtype=tf.float32)
 
         cls_predictions = y_pred[:, :, 4:]
@@ -35,10 +36,11 @@ class AvgNegPredObjDet:  # pylint: disable=too-few-public-methods
     """Negative Classification Values for object detection"""
 
     def __init__(self, name: str = "avg_neg_pred"):
-
+        """Constructor"""
         self.__name__ = name
 
     def __call__(self, y_true, y_pred):
+        """Call method for metric"""
         y_pred = tf.cast(y_pred, dtype=tf.float32)
 
         cls_predictions = y_pred[:, :, 4:]

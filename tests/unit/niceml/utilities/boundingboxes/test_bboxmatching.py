@@ -151,7 +151,6 @@ def test_get_kind_of_bbox_match(
     gt_label_list: List[ObjDetInstanceLabel] = []
 
     for pred_label_idx in range(amount_pred_label):
-
         bbox = get_random_bounding_box(
             img_size=image_size,
             random_generator=random_generator,

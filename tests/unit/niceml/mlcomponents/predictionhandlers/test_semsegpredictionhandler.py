@@ -83,7 +83,6 @@ def test_create_bbox_prediction_from_mask_instances(
     class_list,
     target_coords: List[List[int]],
 ):
-
     prediction = random_generator.uniform(
         low=0.5, high=1.0, size=(image_shape[0], image_shape[1], len(class_list))
     )

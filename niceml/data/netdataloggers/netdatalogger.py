@@ -17,6 +17,7 @@ class NetDataLogger(ABC):
     """Abstract implementation of an NetDataLogger"""
 
     def __init__(self):
+        """Constructor"""
         self.data_description = None
         self.exp_context = None
         self.set_name = None
@@ -28,7 +29,6 @@ class NetDataLogger(ABC):
         exp_context: ExperimentContext,
         set_name: str,
     ):
-
         """Method to initialize the NetDataLogger"""
         self.data_description = data_description
         self.exp_context = exp_context

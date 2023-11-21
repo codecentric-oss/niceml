@@ -11,7 +11,9 @@ from niceml.mlcomponents.resultanalyzers.instancefinders.instancecontour import 
 from niceml.mlcomponents.resultanalyzers.instancefinders.instancefinder import (
     InstanceFinder,
 )
-from niceml.mlcomponents.resultanalyzers.instancefinders.maskinstance import MaskInstance
+from niceml.mlcomponents.resultanalyzers.instancefinders.maskinstance import (
+    MaskInstance,
+)
 from niceml.mlcomponents.resultanalyzers.tensors.semsegdataiterator import (
     SemSegPredictionContainer,
 )

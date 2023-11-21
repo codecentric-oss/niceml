@@ -4,7 +4,9 @@ from typing import List
 import numpy as np
 
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
-from niceml.data.datadescriptions.outputdatadescriptions import OutputImageDataDescription
+from niceml.data.datadescriptions.outputdatadescriptions import (
+    OutputImageDataDescription,
+)
 from niceml.data.datainfos.semsegdatainfo import SemSegData
 from niceml.mlcomponents.targettransformer.targettransformer import NetTargetTransformer
 from niceml.utilities.commonutils import check_instance

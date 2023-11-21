@@ -121,7 +121,12 @@ def binarize_multichannel_image(
             mask including information where the prediction is above threshold
     """
     binary_multichannel_images: Dict[str, np.ndarray] = {}
-    scores_mask = cv2.threshold(image_scores, threshold, 1, cv2.THRESH_BINARY,)[
+    scores_mask = cv2.threshold(
+        image_scores,
+        threshold,
+        1,
+        cv2.THRESH_BINARY,
+    )[
         1
     ].astype(np.uint8)
 

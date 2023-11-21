@@ -5,7 +5,9 @@ from typing import List
 
 import pytest
 
-from niceml.experiments.experimenttests.checkfilesfolderstest import CheckFilesFoldersTest
+from niceml.experiments.experimenttests.checkfilesfolderstest import (
+    CheckFilesFoldersTest,
+)
 from niceml.experiments.experimenttests.exptests import ExpTestResult, TestStatus
 
 

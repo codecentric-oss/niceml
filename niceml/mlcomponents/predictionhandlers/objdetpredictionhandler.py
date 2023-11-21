@@ -37,7 +37,6 @@ class ObjDetPredictionHandler(PredictionHandler):
         detection_idx_col: str = DETECTION_INDEX_COLUMN_NAME,
         apply_sigmoid: bool = True,
     ):
-
         super().__init__()
         self.prediction_filter = prediction_filter
         self.prediction_prefix = prediction_prefix
