@@ -5,6 +5,7 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np
 import tqdm
+from dagster import Field, Noneable, OpExecutionContext, op, Out
 from hydra.utils import ConvertMode, instantiate
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
@@ -23,8 +24,6 @@ from niceml.mlcomponents.modelloader.modelloader import ModelLoader
 from niceml.mlcomponents.predictionfunction.predictionfunction import PredictionFunction
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
 from niceml.utilities.fsspec.locationutils import join_fs_path, open_location
-from dagster import Field, Noneable, OpExecutionContext, op, Out
-
 from niceml.utilities.readwritelock import FileLock
 
 
@@ -67,6 +66,12 @@ def prediction(
     data_description: DataDescription = (
         exp_context.instantiate_datadescription_from_yaml()
     )
+    if hasattr(data_description, "target_classes"):
+        target_class_dict = {
+            i: data_description.target_classes[i]
+            for i in range(len(data_description.target_classes))
+        }
+        exp_context.write_json(target_class_dict, "target_classes.txt")
 
     exp_data: ExperimentData = create_expdata_from_expcontext(exp_context)
     model_path: str = exp_data.get_model_path(relative_path=True)
