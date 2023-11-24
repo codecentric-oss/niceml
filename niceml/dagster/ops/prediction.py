@@ -66,12 +66,6 @@ def prediction(
     data_description: DataDescription = (
         exp_context.instantiate_datadescription_from_yaml()
     )
-    if hasattr(data_description, "target_classes"):
-        target_class_dict = {
-            i: data_description.target_classes[i]
-            for i in range(len(data_description.target_classes))
-        }
-        exp_context.write_json(target_class_dict, "target_classes.txt")
 
     exp_data: ExperimentData = create_expdata_from_expcontext(exp_context)
     model_path: str = exp_data.get_model_path(relative_path=True)
