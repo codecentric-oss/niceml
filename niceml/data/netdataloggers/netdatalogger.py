@@ -17,7 +17,7 @@ class NetDataLogger(ABC):
     """Abstract implementation of an NetDataLogger"""
 
     def __init__(self):
-        """Constructor"""
+        """Initializes the NetDataLogger with default values"""
         self.data_description = None
         self.exp_context = None
         self.set_name = None

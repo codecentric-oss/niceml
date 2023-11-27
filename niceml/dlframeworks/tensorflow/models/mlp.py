@@ -24,14 +24,14 @@ class OwnMLP(ModelFactory):  # pylint: disable=too-few-public-methods
         final_activation: str = "linear",
         do_summary: bool = True,
     ):
-        """Constructor"""
+        """Initializes the OwnMLP model factory"""
         self.hidden_layers = hidden_layers
         self.activation = activation
         self.do_summary = do_summary
         self.final_activation = final_activation
 
     def create_model(self, data_description: DataDescription) -> Any:
-        """Creates the model"""
+        """Creates the mlp model"""
         input_dd: InputVectorDataDescription = check_instance(
             data_description, InputVectorDataDescription
         )
