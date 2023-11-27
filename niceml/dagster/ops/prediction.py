@@ -5,6 +5,7 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np
 import tqdm
+from dagster import Field, Noneable, OpExecutionContext, op, Out
 from hydra.utils import ConvertMode, instantiate
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
@@ -23,8 +24,6 @@ from niceml.mlcomponents.modelloader.modelloader import ModelLoader
 from niceml.mlcomponents.predictionfunction.predictionfunction import PredictionFunction
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
 from niceml.utilities.fsspec.locationutils import join_fs_path, open_location
-from dagster import Field, Noneable, OpExecutionContext, op, Out
-
 from niceml.utilities.readwritelock import FileLock
 
 

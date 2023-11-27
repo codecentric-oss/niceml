@@ -64,6 +64,15 @@ def test_write_and_read_parquet_with_compression(experiment_context):
     pd.testing.assert_frame_equal(data, result)
 
 
+def test_write_and_read_json(experiment_context):
+    """Test that we can write and read a json file"""
+    data = {"col1": [1, 2], "col2": [3, 4]}
+    data_path = "data.json"
+    experiment_context.write_json(data, data_path)
+    result = experiment_context.read_json(data_path)
+    assert data == result
+
+
 def test_create_folder(experiment_context, exp_tmp_dir):
     """Test that it is possible to create a folder"""
     folder_name = "test1/test2"
