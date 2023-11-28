@@ -22,6 +22,8 @@ from niceml.utilities.ioutils import (
     write_image,
     write_parquet,
     write_yaml,
+    write_json,
+    read_json,
 )
 from niceml.utilities.timeutils import generate_timestamp
 
@@ -101,6 +103,29 @@ class ExperimentContext:
             )
         if apply_last_modified:
             self.update_last_modified()
+
+    def write_json(
+        self,
+        data: dict,
+        data_path: str,
+        apply_last_modified: bool = True,
+        **kwargs,
+    ):
+        """Writes a json file relative to the experiment"""
+        with open_location(self.fs_config) as (file_system, root_path):
+            write_json(
+                data,
+                join(root_path, data_path),
+                file_system=file_system,
+                **kwargs,
+            )
+        if apply_last_modified:
+            self.update_last_modified()
+
+    def read_json(self, data_path: str) -> dict:
+        """reads the json file relative to the experiment"""
+        with open_location(self.fs_config) as (file_system, root_path):
+            return read_json(join(root_path, data_path), file_system=file_system)
 
     def write_image(
         self, image: Image.Image, data_path: str, apply_last_modified: bool = True
