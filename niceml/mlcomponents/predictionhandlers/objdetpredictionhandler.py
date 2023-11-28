@@ -29,7 +29,7 @@ from niceml.utilities.commonutils import check_instance
 class ObjDetPredictionHandler(PredictionHandler):
     """Prediction handler for object detection predictions (BoundingBox, class prediction)"""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # noqa: PLR0913
         self,
         prediction_filter: PredictionFilter,
         prediction_prefix: str = "pred",
@@ -37,7 +37,7 @@ class ObjDetPredictionHandler(PredictionHandler):
         detection_idx_col: str = DETECTION_INDEX_COLUMN_NAME,
         apply_sigmoid: bool = True,
     ):
-
+        """Initializes the ObjDetPredictionHandler"""
         super().__init__()
         self.prediction_filter = prediction_filter
         self.prediction_prefix = prediction_prefix
@@ -53,6 +53,7 @@ class ObjDetPredictionHandler(PredictionHandler):
         self.anchor_array = None
 
     def initialize(self):
+        """Initializes the prediction handler"""
         self.anchors: List[BoundingBox] = self.anchor_generator.generate_anchors(
             data_description=self.data_description
         )

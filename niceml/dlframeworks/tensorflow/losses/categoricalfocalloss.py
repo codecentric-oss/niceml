@@ -1,3 +1,4 @@
+"""module for categorical focal loss"""
 from typing import List, Union
 
 import numpy as np
@@ -7,6 +8,8 @@ from tensorflow.keras import backend as kb
 
 @tf.keras.utils.register_keras_serializable()
 class CategoricalFocalLoss(tf.keras.losses.Loss):
+    """class for categorical focal loss"""
+
     def __init__(self, alpha: Union[float, List[float]], gamma: float = 2.0, **kwargs):
         """
         Inspired by https://github.com/umbertogriffo/focal-loss-keras
@@ -28,7 +31,7 @@ class CategoricalFocalLoss(tf.keras.losses.Loss):
         self.gamma = gamma
 
     def __call__(self, y_true, y_pred, sample_weight=None):
-
+        """Call method for loss"""
         # Clip the prediction value to prevent NaN's and Inf's
         epsilon = kb.epsilon()
         y_pred = kb.clip(y_pred, epsilon, 1.0 - epsilon)

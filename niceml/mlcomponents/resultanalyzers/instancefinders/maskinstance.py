@@ -5,7 +5,9 @@ from typing import List
 
 import numpy as np
 
-from niceml.data.datadescriptions.outputdatadescriptions import OutputImageDataDescription
+from niceml.data.datadescriptions.outputdatadescriptions import (
+    OutputImageDataDescription,
+)
 from niceml.mlcomponents.resultanalyzers.instancefinders.instancecontour import (
     InstanceContour,
 )

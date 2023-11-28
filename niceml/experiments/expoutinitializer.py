@@ -35,7 +35,6 @@ class ExpOutInitializer:
         self.exp_type: str = exp_type or ""
 
     def __call__(self, exp_context: ExperimentContext):
-
         produce_git_version_yaml(
             exp_context,
             ExperimentFilenames.GIT_VERSIONS,

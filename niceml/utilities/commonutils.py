@@ -97,12 +97,12 @@ def human_readable_size(obj: Any) -> str:
     size = asizeof.asizeof(obj)
     if size < 1024:
         return f"{size} bytes"
-    if 1024 <= size < 1024 ** 2:
+    if 1024 <= size < 1024**2:
         size_kb = size / 1024
         return f"{size_kb:.2f} KB"
-    if 1024 ** 2 <= size < 1024 ** 3:
-        size_mb = size / 1024 ** 2
+    if 1024**2 <= size < 1024**3:
+        size_mb = size / 1024**2
         return f"{size_mb:.2f} MB"
 
-    size_gb = size / 1024 ** 3
+    size_gb = size / 1024**3
     return f"{size_gb:.2f} GB"

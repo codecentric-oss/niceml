@@ -27,7 +27,6 @@ class ObjDetTargetTransformer(NetTargetTransformer):
         self.anchors = None
 
     def get_net_targets(self, data_list: List[ObjDetData]) -> np.ndarray:
-
         if self.anchors is None:
             if isinstance(self.data_description, OutputObjDetDataDescription):
                 self.anchors = self.anchor_generator.generate_anchors(

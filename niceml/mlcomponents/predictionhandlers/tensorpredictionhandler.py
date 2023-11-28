@@ -74,7 +74,6 @@ class TensorPredictionHandler(PredictionHandler):
                     ),
                     "wb",
                 ) as file:
-
                     np.savez_compressed(file, **self.data)
 
 

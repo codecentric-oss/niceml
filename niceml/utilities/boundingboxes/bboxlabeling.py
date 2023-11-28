@@ -4,7 +4,10 @@ from typing import List, Optional, Union
 from attr import define, field
 
 from niceml.utilities.boundingboxes.bboxconversion import dict_to_bounding_box
-from niceml.utilities.boundingboxes.boundingbox import BoundingBox, bounding_box_from_ullr
+from niceml.utilities.boundingboxes.boundingbox import (
+    BoundingBox,
+    bounding_box_from_ullr,
+)
 from niceml.utilities.imagesize import ImageSize
 from niceml.utilities.instancelabeling import InstanceLabel
 

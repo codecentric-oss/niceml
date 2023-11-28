@@ -44,7 +44,6 @@ from dagster import Field, OpExecutionContext, op
     }
 )
 def split_data(context: OpExecutionContext, input_location: dict):
-
     """Splits the data in input_location into subsets (set_infos)"""
     op_config = json.loads(json.dumps(context.op_config))
 

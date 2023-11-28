@@ -45,7 +45,6 @@ def get_kind_of_label_match(
                 pred_label.color = Color.BLUE
                 pred_label.active = True
             for gt_label in gt_label_list:
-
                 iou = pred_label.calc_iou(other=gt_label)
 
                 pred_label, gt_label = get_kind_of_instance_label_match(

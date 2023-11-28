@@ -4,7 +4,10 @@ from typing import List
 import numpy as np
 from attrs import define
 
-from niceml.utilities.boundingboxes.bboxconversion import convert_to_ullr, convert_to_xywh
+from niceml.utilities.boundingboxes.bboxconversion import (
+    convert_to_ullr,
+    convert_to_xywh,
+)
 from niceml.utilities.boundingboxes.filtering.predictionfilter import PredictionFilter
 from niceml.utilities.ioumatrix import compute_iou_matrix
 

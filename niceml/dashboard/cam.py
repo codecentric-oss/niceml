@@ -12,7 +12,9 @@ from tensorflow.keras.utils import (  # pylint:disable= import-error
     load_img,
 )
 
-from niceml.experiments.expdatalocalstorageloader import create_expdata_from_local_storage
+from niceml.experiments.expdatalocalstorageloader import (
+    create_expdata_from_local_storage,
+)
 from niceml.experiments.experimentdata import ExperimentData
 
 

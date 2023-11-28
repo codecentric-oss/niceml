@@ -5,7 +5,6 @@ import numpy as np
 def encode_boxes(
     anchor_boxes_xywh: np.ndarray, gt_boxes_xywh: np.ndarray, box_variances: np.ndarray
 ) -> np.ndarray:
-
     """
     Encodes the anchor boxes to a numpy array
 
@@ -48,7 +47,6 @@ def decode_boxes(
     encoded_array_xywh: np.ndarray,
     box_variances: np.ndarray,
 ) -> np.ndarray:
-
     """
     Decodes the incoming array to target boxes
 

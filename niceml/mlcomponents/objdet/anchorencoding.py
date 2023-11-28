@@ -53,13 +53,11 @@ class SimpleAnchorEncoder(AnchorEncoder):
         encoded_feature_list: List[List[float]] = []
 
         for anchor in anchor_list:
-
             if len(gt_labels) == 0:
                 target_bbox = anchor
                 target_label = None
                 prediction_flag = NEGATIVE_MASK_VALUE
             else:
-
                 max_iou = 0
                 target_bbox = gt_labels[0].bounding_box
                 target_label = None

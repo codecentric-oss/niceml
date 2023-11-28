@@ -107,7 +107,6 @@ def test_get_kind_of_error_mask_matching(
     gt_label_list: List[SemSegInstanceLabel] = []
 
     for pred_label_idx in range(amount_pred_label):
-
         semseg_label_mask, _ = get_random_semseg_mask(
             image_shape=image_shape,
             random_generator=random_generator,
@@ -124,7 +123,6 @@ def test_get_kind_of_error_mask_matching(
         pred_label_list.append(pred_label)
 
     for gt_label_idx in range(amount_gt_label):
-
         gt_mask, _ = get_random_semseg_mask(
             image_shape=image_shape,
             random_generator=random_generator,
