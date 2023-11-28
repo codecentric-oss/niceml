@@ -42,7 +42,9 @@ def draw_bounding_box_on_image(
     font = get_font("OpenSans-Regular.ttf", font_size=font_size)
 
     text = f"{label.class_name}: {label.score:.2f}" if label.score else label.class_name
-    text_width, text_height = font.getsize(text)
+    (left, top, right, bottom) = font.getbbox(text)
+    text_width = right - left
+    text_height = bottom - top
     x_1, y_1, x_2, y_2 = label.bounding_box.get_absolute_ullr()
     draw.rectangle(
         (x_1 - line_width, y_1 - line_width, x_2 + line_width, y_2 + line_width),
@@ -69,7 +71,7 @@ def draw_bounding_box_on_image(
     return image
 
 
-def draw_labels_on_image(  # pylint: disable=too-many-arguments
+def draw_labels_on_image(  # noqa: PLR0913
     image: ImageType,
     pred_bbox_label_list: List[ObjDetInstanceLabel],
     gt_bbox_label_list: List[ObjDetInstanceLabel],

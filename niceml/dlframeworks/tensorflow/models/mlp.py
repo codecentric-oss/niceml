@@ -4,7 +4,9 @@ from typing import Any, List
 from tensorflow.keras import Sequential, layers  # pylint: disable=import-error
 
 from niceml.data.datadescriptions.datadescription import DataDescription
-from niceml.data.datadescriptions.inputdatadescriptions import InputVectorDataDescription
+from niceml.data.datadescriptions.inputdatadescriptions import (
+    InputVectorDataDescription,
+)
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,
 )
@@ -22,12 +24,14 @@ class OwnMLP(ModelFactory):  # pylint: disable=too-few-public-methods
         final_activation: str = "linear",
         do_summary: bool = True,
     ):
+        """Initializes the OwnMLP model factory"""
         self.hidden_layers = hidden_layers
         self.activation = activation
         self.do_summary = do_summary
         self.final_activation = final_activation
 
     def create_model(self, data_description: DataDescription) -> Any:
+        """Creates the mlp model"""
         input_dd: InputVectorDataDescription = check_instance(
             data_description, InputVectorDataDescription
         )

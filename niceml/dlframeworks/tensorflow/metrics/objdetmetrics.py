@@ -13,10 +13,11 @@ class AvgPosPredObjDet:  # pylint: disable=too-few-public-methods
     """Positive Classification Values for object detection"""
 
     def __init__(self, name: str = "avg_pos_pred"):
-
+        """Initializes the AvgPosPredObjDet with the given name"""
         self.__name__ = name
 
     def __call__(self, y_true, y_pred):
+        """Call method is used as a default interface for the metric"""
         y_pred = tf.cast(y_pred, dtype=tf.float32)
 
         cls_predictions = y_pred[:, :, 4:]
@@ -35,10 +36,11 @@ class AvgNegPredObjDet:  # pylint: disable=too-few-public-methods
     """Negative Classification Values for object detection"""
 
     def __init__(self, name: str = "avg_neg_pred"):
-
+        """Initializes the AvgNegPredObjDet with the given name"""
         self.__name__ = name
 
     def __call__(self, y_true, y_pred):
+        """Call method is used as a default interface for the metric"""
         y_pred = tf.cast(y_pred, dtype=tf.float32)
 
         cls_predictions = y_pred[:, :, 4:]
@@ -67,9 +69,11 @@ class AvgPosTargetCountObjDet:  # pylint: disable=too-few-public-methods
     """Average positive target count for one image in object detection"""
 
     def __init__(self, name: str = "avg_pos_target_count"):
+        """Initializes the AvgPosTargetCountObjDet"""
         self.__name__ = name
 
     def __call__(self, y_true, y_pred):
+        """Call method is used as a default interface for the metric"""
         positive_mask = tf.cast(
             tf.equal(y_true[:, :, 4], POSITIVE_MASK_VALUE), dtype=tf.float32
         )
@@ -82,9 +86,11 @@ class AvgNegTargetCountObjDet:  # pylint: disable=too-few-public-methods
     """Average negative target count for one image in object detection"""
 
     def __init__(self, name: str = "avg_neg_target_count"):
+        """Initializes the AvgNegTargetCountObjDet"""
         self.__name__ = name
 
     def __call__(self, y_true, y_pred):
+        """Call method is used as a default interface for the metric"""
         negative_mask = tf.cast(
             tf.equal(y_true[:, :, 4], NEGATIVE_MASK_VALUE), dtype=tf.float32
         )

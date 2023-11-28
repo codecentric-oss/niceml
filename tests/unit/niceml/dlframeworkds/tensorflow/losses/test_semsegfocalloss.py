@@ -19,7 +19,6 @@ def tensor_shape() -> Tuple:
 def test_positive_zero_preds(
     alpha: float, gamma: float, min_expected_vals: List[float], tensor_shape: Tuple
 ):
-
     preds = tf.ones(tensor_shape) * 0.003
     gts = tf.ones(tensor_shape)
 
@@ -43,7 +42,6 @@ def test_positive_zero_preds(
 def test_positive_one_preds(
     alpha: float, gamma: float, max_expected_vals: List[float], tensor_shape: Tuple
 ):
-
     preds = tf.ones(tensor_shape) * 0.997
     gts = tf.ones(tensor_shape)
 

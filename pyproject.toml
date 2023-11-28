@@ -44,7 +44,7 @@ click = "^8.1.3"
 opencv-python = "^4.7.0.72"
 cython = "^0.29.34"
 pyyaml = "^6.0"
-pillow = "^9.5.0"
+pillow = "^10.1.0"
 fastparquet = "^2023.2.0"
 hydra-core = "^1.3.2"
 pympler = "^1.0.1"
@@ -68,7 +68,7 @@ protobuf = "^3.0.0"
 
 altair = {version = "^4.2.2", optional = true}
 tensorflow-macos = { version = "~2.12", optional = true}
-streamlit = {version = "^1.22.0", optional = true}
+streamlit = {version = "^1.28.0", optional = true}
 tensorflow = {version = "~2.12", optional = true}
 tensorflow-metal = {version = "~1.0", optional = true}
 requests = "^2.31.0"

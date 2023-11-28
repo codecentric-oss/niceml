@@ -15,7 +15,7 @@ def test_draw_labels_on_image():
     # Given
     img_size = ImageSize(1024, 1024)
     random_generator = np.random.default_rng(seed=42)
-    random.seed(42) # Setting the seed of `random` is required by albumentation
+    random.seed(42)  # Setting the seed of `random` is required by albumentation
 
     img, _, gt_labels = generate_number_image(
         random_generator=random_generator,
@@ -74,7 +74,7 @@ def test_draw_labels_on_image():
         image=img,
         pred_bbox_label_list=pred_labels,
         gt_bbox_label_list=gt_labels,
-        iou_threshold=0.3
+        iou_threshold=0.3,
     )
     by_color = defaultdict(int)
 

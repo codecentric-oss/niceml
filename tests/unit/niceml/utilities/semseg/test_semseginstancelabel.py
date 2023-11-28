@@ -25,7 +25,6 @@ def test_semseg_iou(
     class_index: int,
     seed: int,
 ):  # pylint: disable =too-many-arguments
-
     random_generator = np.random.default_rng(seed=seed)
 
     semseg_label_mask, _ = get_random_semseg_mask(

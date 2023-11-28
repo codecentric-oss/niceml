@@ -56,7 +56,6 @@ class ImageNetDataLoggerVisComponent(NetDataLoggerVisComponent):
         def _load_net_data(
             *args,  # pylint: disable = unused-argument
         ) -> List[np.ndarray]:
-
             return [
                 self.image_loader(filepath=net_data_path)
                 for net_data_path in net_data_paths[: self.max_output]
