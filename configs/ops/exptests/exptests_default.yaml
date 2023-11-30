@@ -7,6 +7,5 @@ test_list:
   folders:
     - configs
   files:
-    - configs/train/model_load_custom_objects.yaml
     - configs/train/data_description.yaml
     - train_logs.csv
