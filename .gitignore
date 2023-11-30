@@ -297,3 +297,4 @@ cache
 image_cache
 /tmp/
 /mlflow-logs/
+test-output.xml

@@ -9,6 +9,7 @@ from niceml.config.trainparams import TrainParams
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
+from niceml.mlcomponents.callbacks.callbackinitializer import CallbackInitializer
 from niceml.mlcomponents.learners.learner import Learner
 from niceml.mlcomponents.modelcompiler.modelcompiler import ModelCompiler
 from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
@@ -22,11 +23,26 @@ from niceml.mlcomponents.models.modelfactory import ModelFactory
 class DefaultLearner(Learner):
     """default learner for keras/tensorflow models"""
 
-    def __init__(self, model_compiler: ModelCompiler):
+    def __init__(
+        self,
+        model_compiler: ModelCompiler,
+        callback_initializer: CallbackInitializer,
+        model_load_custom_objects: ModelCustomLoadObjects,
+    ):
+        """
+        Constructor for DefaultLearner
+        Args:
+            model_compiler: model compiler for keras
+            callback_initializer: callback initializer for keras
+            model_load_custom_objects: custom objects to load the model
+        """
         self.model_compiler: ModelCompiler = model_compiler
+        self.callback_initializer: CallbackInitializer = callback_initializer
+        self.model_load_custom_objects: ModelCustomLoadObjects = (
+            model_load_custom_objects
+        )
 
-    # pylint: disable=too-many-arguments, unused-argument
-    def run_training(
+    def run_training(  # noqa: PLR0913
         self,
         exp_context: ExperimentContext,
         model_factory: ModelFactory,
@@ -34,11 +50,10 @@ class DefaultLearner(Learner):
         validation_set: Dataset,
         train_params: TrainParams,
         data_description: DataDescription,
-        custom_load_objects: ModelCustomLoadObjects,
-        callbacks: list,
     ):
         """runs the training"""
         mlflow.keras.autolog()
+        callbacks = self.callback_initializer(exp_context)
         model_bundle: ModelBundle = self.model_compiler.compile(
             model_factory, data_description
         )
@@ -50,7 +65,7 @@ class DefaultLearner(Learner):
         steps_per_epoch = None
         if train_params.steps_per_epoch is not None:
             steps_per_epoch = min(train_params.steps_per_epoch, len(train_set))
-        with tf.keras.utils.custom_object_scope(custom_load_objects()):
+        with tf.keras.utils.custom_object_scope(self.model_load_custom_objects()):
             history = initialized_model.fit(
                 train_set,
                 epochs=train_params.epochs,

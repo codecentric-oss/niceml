@@ -30,8 +30,6 @@ model:
     - 25
     - 35
     - 12
-model_load_custom_objects:
-  _target_: niceml.mlcomponents.modelcompiler.modelcustomloadobjects.ModelCustomLoadObjects
 learner:
   _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
   model_compiler:
@@ -41,3 +39,5 @@ learner:
     optimizer:
       _target_: tensorflow.keras.optimizers.Adam
     metrics: ["mean_squared_error", "accuracy"]
+  model_load_custom_objects:
+    _target_: niceml.mlcomponents.modelcompiler.modelcustomloadobjects.ModelCustomLoadObjects

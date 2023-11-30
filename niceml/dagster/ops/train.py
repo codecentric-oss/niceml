@@ -14,12 +14,8 @@ from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames, OpNames
 from niceml.experiments.expoutinitializer import ExpOutInitializer
-from niceml.mlcomponents.callbacks.callbackinitializer import CallbackInitializer
 from niceml.mlcomponents.learners.fitgenerators import fit_generator
 from niceml.mlcomponents.learners.learner import Learner
-from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
-    ModelCustomLoadObjects,
-)
 from niceml.mlcomponents.models.modelfactory import ModelFactory
 from dagster import OpExecutionContext, op, Out, Field
 
@@ -31,8 +27,6 @@ train_config: dict = dict(
     data_description=HydraInitField(DataDescription),
     data_train=HydraInitField(Dataset),
     data_validation=HydraInitField(Dataset),
-    model_load_custom_objects=HydraInitField(ModelCustomLoadObjects),
-    callbacks=HydraInitField(CallbackInitializer),
     learner=HydraInitField(Learner),
     exp_initializer=HydraInitField(ExpOutInitializer),
     remove_key_list=Field(
@@ -63,7 +57,6 @@ def train(
     data_train = instantiated_op_config["data_train"]
     data_valid = instantiated_op_config["data_validation"]
     data_description = instantiated_op_config["data_description"]
-    custom_model_load_objects = instantiated_op_config["model_load_custom_objects"]
 
     data_train.initialize(data_description, exp_context)
     data_valid.initialize(data_description, exp_context)
@@ -72,7 +65,6 @@ def train(
     save_exp_data_stats(data_valid, exp_context, ExperimentFilenames.STATS_TRAIN)
 
     instantiated_op_config["exp_initializer"](exp_context)
-    callbacks = instantiated_op_config["callbacks"](exp_context)
 
     fit_generator(
         exp_context,
@@ -82,7 +74,5 @@ def train(
         data_valid,
         instantiated_op_config["train_params"],
         data_description,
-        custom_model_load_objects,
-        callbacks,
     )
     return exp_context, filelock_dict

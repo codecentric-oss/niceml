@@ -5,9 +5,6 @@ from niceml.config.trainparams import TrainParams
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
-from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
-    ModelCustomLoadObjects,
-)
 from niceml.mlcomponents.models.modelfactory import ModelFactory
 
 
@@ -16,7 +13,7 @@ class Learner(ABC):  # pylint: disable=too-few-public-methods
 
     # pylint: disable=too-many-arguments
     @abstractmethod
-    def run_training(
+    def run_training(  # noqa: PLR0913
         self,
         exp_context: ExperimentContext,
         model_factory: ModelFactory,
@@ -24,7 +21,5 @@ class Learner(ABC):  # pylint: disable=too-few-public-methods
         validation_set: Dataset,
         train_params: TrainParams,
         data_description: DataDescription,
-        custom_objects: ModelCustomLoadObjects,
-        callbacks: list,
     ):
         """Runs the training"""
