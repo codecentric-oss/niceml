@@ -28,6 +28,7 @@ def list_dir(
         return_full_path: Returns full filepaths (True) or relative path (False)
         recursive: Determine if the function should look into subfolders
         file_system: Allow the function to be used with different file systems; default = local
+        filter_ext: List of file extension to filter for; default = all files
 
     Returns:
         A list of files in the specified directory
@@ -36,8 +37,6 @@ def list_dir(
     files: List[str] = [
         relpath(cur_file, path) for cur_file in list(cur_fs.listdir(path, detail=False))
     ]
-    if filter_ext is not None:
-        files = [cur_file for cur_file in files if splitext(cur_file)[1] in filter_ext]
     if recursive:
         folders = [
             cur_folder for cur_folder in files if cur_fs.isdir(join(path, cur_folder))
@@ -49,6 +48,9 @@ def list_dir(
                     join(path, cur_folder), False, True, file_system=cur_fs
                 )
             ]
+
+    if filter_ext is not None:
+        files = [cur_file for cur_file in files if splitext(cur_file)[1] in filter_ext]
 
     if return_full_path:
         files = [join(path, cur_file) for cur_file in files]
