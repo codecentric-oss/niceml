@@ -3,7 +3,7 @@ from typing import List, Tuple
 import pytest
 import tensorflow as tf
 
-from niceml.dlframeworks.tensorflow.losses.semseglosses import SemSegFocalLoss
+from niceml.dlframeworks.keras.losses.semseglosses import SemSegFocalLoss
 
 
 @pytest.fixture()

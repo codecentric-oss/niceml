@@ -1,6 +1,6 @@
 from math import isclose
 
-from niceml.dlframeworks.tensorflow.optimizers.schedules.cycliclrschedule import (
+from niceml.dlframeworks.keras.optimizers.schedules.cycliclrschedule import (
     CyclicLRSchedule,
 )
 

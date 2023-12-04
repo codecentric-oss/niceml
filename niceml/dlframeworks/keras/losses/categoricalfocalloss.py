@@ -24,7 +24,7 @@ class CategoricalFocalLoss(tf.keras.losses.Loss):
         gamma: float
             gamma value of the paper
         kwargs:
-            all parameters are applied to tensorflow loss
+            all parameters are applied to keras loss
         """
         super().__init__(**kwargs)
         self.alpha = np.array(alpha, dtype=np.float32)

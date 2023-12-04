@@ -23,7 +23,7 @@ data_validation:
   subset_name: validation
   df_filename: numbers_tabular_data_validation.parq
 model:
-  _target_: niceml.dlframeworks.tensorflow.models.mlp.OwnMLP
+  _target_: niceml.dlframeworks.keras.models.mlp.OwnMLP
   activation: tanh
   final_activation: tanh
   hidden_layers:
@@ -31,9 +31,9 @@ model:
     - 35
     - 12
 learner:
-  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  _target_: niceml.dlframeworks.keras.learners.keraslearner.KerasLearner
   model_compiler:
-    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    _target_: niceml.dlframeworks.keras.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
     loss: mse
     # Optimizer used in the experiment
     optimizer:

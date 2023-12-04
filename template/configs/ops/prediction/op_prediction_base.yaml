@@ -1,3 +1,3 @@
 model_loader:
-  _target_: niceml.dlframeworks.tensorflow.kerasmodelloader.KerasModelLoader
+  _target_: niceml.dlframeworks.keras.kerasmodelloader.KerasModelLoader
 prediction_steps: ${niceml.to_int:${oc.env:PREDICTION_STEPS,null}}
