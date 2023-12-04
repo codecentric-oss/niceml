@@ -20,8 +20,8 @@ from niceml.mlcomponents.models.modelfactory import ModelFactory
 
 
 # pylint: disable=too-few-public-methods
-class DefaultLearner(Learner):
-    """default learner for keras/tensorflow models"""
+class KerasLearner(Learner):
+    """default learner for keras/keras models"""
 
     def __init__(
         self,

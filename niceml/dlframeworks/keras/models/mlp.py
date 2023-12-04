@@ -1,4 +1,4 @@
-"""Module for ownmlp for tensorflow model"""
+"""Module for ownmlp for keras model"""
 from typing import Any, List
 
 from tensorflow.keras import Sequential, layers  # pylint: disable=import-error

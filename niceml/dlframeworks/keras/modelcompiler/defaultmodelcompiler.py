@@ -1,4 +1,4 @@
-"""Module for model compilers in tensorflow"""
+"""Module for model compilers in keras"""
 from typing import Any, List, Union
 
 from niceml.data.datadescriptions.datadescription import DataDescription
@@ -8,7 +8,7 @@ from niceml.mlcomponents.models.modelfactory import ModelFactory
 
 
 class DefaultModelCompiler(ModelCompiler):  # pylint: disable=too-few-public-methods
-    """Simplest model compiler for tensorflow"""
+    """Simplest model compiler for keras"""
 
     def __init__(
         self, loss: Union[str, dict], metrics: List, optimizer: dict, **kwargs
@@ -32,7 +32,7 @@ class DefaultModelCompiler(ModelCompiler):  # pylint: disable=too-few-public-met
 
 
 class ComplexModelCompiler(ModelCompiler):  # pylint: disable=too-few-public-methods
-    """Complex model compiler for tensorflow"""
+    """Complex model compiler for keras"""
 
     def __init__(
         self,

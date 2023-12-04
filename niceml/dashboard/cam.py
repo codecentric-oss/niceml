@@ -62,7 +62,7 @@ def _load_model(exp: ExperimentData):
         exp: experiment (ExperimentData)
 
     Returns:
-        tensorflow model
+        keras model
     """
 
     model = load_model(exp.get_model_path())
@@ -92,7 +92,7 @@ def create_heatmap(
     generates heatmap using last conv layer "conv" specified in create_model section
 
     Args:
-        model: tensorflow Model
+        model: keras Model
         img: image as numpy array
         class_idx: class index of output tensor
         layer_name: last conv layer name - DEFAULT: "conv"
