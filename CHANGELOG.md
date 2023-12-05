@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.0 (2023-11-28)
+
+### Feature
+
+* Write and read json options in experiment context ([#90](https://github.com/codecentric-oss/niceml/issues/90)) ([`77d3dc9`](https://github.com/codecentric-oss/niceml/commit/77d3dc92b71087f3787ff6d51d5761f73e52c2a3))
+
+### Fix
+
+* Pillow vulnerability and other + formatting ([#89](https://github.com/codecentric-oss/niceml/issues/89)) ([`3d3e6af`](https://github.com/codecentric-oss/niceml/commit/3d3e6af88b2d353c136aec8ba7a825d899673087))
+
 ## v0.8.3 (2023-11-08)
 
 ### Fix
