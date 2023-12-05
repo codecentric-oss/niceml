@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.1 (2023-12-05)
+
+### Fix
+
+* List_dir filter_ext ([#93](https://github.com/codecentric-oss/niceml/issues/93)) ([`d8171fb`](https://github.com/codecentric-oss/niceml/commit/d8171fb2dfd5c7620767e3b409263def521b8423))
+
 ## v0.9.0 (2023-11-28)
 
 ### Feature
