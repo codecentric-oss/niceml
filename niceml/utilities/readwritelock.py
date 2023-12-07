@@ -30,6 +30,10 @@ class FileLock(ABC):
         """Acquire the lock"""
 
     @abstractmethod
+    def is_acquirable(self) -> bool:
+        """Checks if lock file does not exist"""
+
+    @abstractmethod
     def release(self):
         """Release the lock"""
 
@@ -45,6 +49,14 @@ class FileLock(ABC):
     def __exit__(self, exc_type, exc_value, traceback):
         """context manager exit method"""
         self.release()
+
+    def __eq__(self, other: "FileLock"):
+        """Compares two file locks"""
+        return (
+            self.retry_time == other.retry_time
+            and self.timeout == other.timeout
+            and self.is_acquired == other.is_acquired
+        )
 
 
 class WriteLock(FileLock):
@@ -111,6 +123,13 @@ class WriteLock(FileLock):
                 time.sleep(self.retry_time)
                 self.retry_await_time += self.retry_time
 
+    def is_acquirable(self) -> bool:
+        """Checks if lock file does not exist"""
+        with open_location(self.path_config) as (cur_fs, root_path):
+            lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
+            lock_is_acquirable = is_lock_file_acquirable(lock_path, cur_fs)
+        return lock_is_acquirable
+
     def force_delete(self):
         """Force delete the lock"""
         self.is_acquired = False
@@ -125,6 +144,17 @@ class WriteLock(FileLock):
                 write_lock_path = join_fs_path(cur_fs, root_path, self.write_lock_name)
                 release_lock_file(write_lock_path, cur_fs)
                 self.is_acquired = False
+
+    def __eq__(self, other: "WriteLock"):
+        """Compares two file locks"""
+        return (
+            super.__eq__(self, other)
+            and self.write == other.write
+            and self.path_config == other.path_config
+            and self.write_lock_name == other.write_lock_name
+            and self.read_lock_name == other.read_lock_name
+            and self.retry_await_time == other.retry_await_time
+        )
 
 
 class ReadLock(FileLock):
@@ -176,6 +206,13 @@ class ReadLock(FileLock):
             increase_lock_file_usage(read_lock_path, cur_fs)
             self.is_acquired = True
 
+    def is_acquirable(self) -> bool:
+        """Checks if lock file does not exist"""
+        with open_location(self.path_config) as (cur_fs, root_path):
+            lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
+            lock_is_acquirable = is_lock_file_acquirable(lock_path, cur_fs)
+        return lock_is_acquirable
+
     def force_delete(self):
         """Force delete the lock"""
         self.is_acquired = False
@@ -190,6 +227,16 @@ class ReadLock(FileLock):
                 read_lock_path = join_fs_path(cur_fs, root_path, self.read_lock_name)
                 decrease_lock_file_usage(read_lock_path, cur_fs)
                 self.is_acquired = False
+
+    def __eq__(self, other: "ReadLock"):
+        """Compares two file locks"""
+        return (
+            super.__eq__(self, other)
+            and self.path_config == other.path_config
+            and self.write_lock_name == other.write_lock_name
+            and self.read_lock_name == other.read_lock_name
+            and self.retry_await_time == other.retry_await_time
+        )
 
 
 def is_lock_file_acquirable(
