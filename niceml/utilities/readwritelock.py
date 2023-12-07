@@ -65,7 +65,6 @@ class WriteLock(FileLock):
     def __init__(  # noqa: PLR0913
         self,
         path_config: Union[LocationConfig, Dict[str, Any]],
-        write: bool = False,
         retry_time: float = 10,
         retry_await_time: int = 0,
         timeout: float = 172800,
@@ -78,7 +77,6 @@ class WriteLock(FileLock):
             raise ValueError("write_lock_name and read_lock_name must be different")
         super().__init__(retry_time, timeout, is_acquired)
         self.path_config = path_config
-        self.write = write
         self.write_lock_name = write_lock_name
         self.read_lock_name = read_lock_name
         self.retry_await_time = retry_await_time
@@ -148,8 +146,10 @@ class WriteLock(FileLock):
     def __eq__(self, other: "WriteLock"):
         """Compares two file locks"""
         return (
-            super.__eq__(self, other)
-            and self.write == other.write
+            isinstance(other, WriteLock)
+            and self.retry_time == other.retry_time
+            and self.timeout == other.timeout
+            and self.is_acquired == other.is_acquired
             and self.path_config == other.path_config
             and self.write_lock_name == other.write_lock_name
             and self.read_lock_name == other.read_lock_name
@@ -231,7 +231,10 @@ class ReadLock(FileLock):
     def __eq__(self, other: "ReadLock"):
         """Compares two file locks"""
         return (
-            super.__eq__(self, other)
+            isinstance(other, ReadLock)
+            and self.retry_time == other.retry_time
+            and self.timeout == other.timeout
+            and self.is_acquired == other.is_acquired
             and self.path_config == other.path_config
             and self.write_lock_name == other.write_lock_name
             and self.read_lock_name == other.read_lock_name
@@ -251,7 +254,7 @@ def is_lock_file_acquirable(
 
 
 def acquire_lock_file(
-    lock_file_path: str, file_system: Optional[AbstractFileSystem]
+    lock_file_path: str, file_system: Optional[AbstractFileSystem] = None
 ) -> None:
     """Acquire the lock file."""
     file_system = file_system or LocalFileSystem()
@@ -261,7 +264,7 @@ def acquire_lock_file(
 
 
 def release_lock_file(
-    lock_file_path: str, file_system: Optional[AbstractFileSystem]
+    lock_file_path: str, file_system: Optional[AbstractFileSystem] = None
 ) -> None:
     """Release the lock file."""
     file_system = file_system or LocalFileSystem()
@@ -273,7 +276,7 @@ def release_lock_file(
 
 
 def increase_lock_file_usage(
-    lock_file_path: str, file_system: Optional[AbstractFileSystem]
+    lock_file_path: str, file_system: Optional[AbstractFileSystem] = None
 ) -> None:
     """Increase the lock file usage."""
     file_system = file_system or LocalFileSystem()
@@ -287,7 +290,7 @@ def increase_lock_file_usage(
 
 
 def decrease_lock_file_usage(
-    lock_file_path: str, file_system: Optional[AbstractFileSystem]
+    lock_file_path: str, file_system: Optional[AbstractFileSystem] = None
 ) -> None:
     """Decrease the lock file usage."""
     file_system = file_system or LocalFileSystem()
@@ -300,4 +303,4 @@ def decrease_lock_file_usage(
         with file_system.open(lock_file_path, "w") as file:
             file.write(str(current_usage - 1))
     else:
-        file_system.rm(lock_file_path)
+        release_lock_file(lock_file_path, file_system)
