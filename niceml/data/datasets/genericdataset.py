@@ -1,6 +1,6 @@
+"""module for generic dataset implementation"""
 from typing import Dict, List, Optional
 
-from tensorflow.keras.utils import Sequence
 
 from niceml.data.augmentation.augmentation import AugmentationProcessor
 from niceml.data.datadescriptions.datadescription import DataDescription
@@ -20,10 +20,14 @@ from niceml.mlcomponents.targettransformer.targettransformer import (
 )
 
 
-class GenericDataset(Sequence, Dataset):
-    def __init__(
+class GenericDataset(Dataset):
+    """Generic dataset implementation. This is a flexible dataset for multiple
+    use cases. It can be used for classification, segmentation, object detection, etc.
+    For specific frameworks, there are subclasses of this class, e.g. KerasGenericDataset
+    """
+
+    def __init__(  # noqa: PLR0913
         self,
-        batch_size: int,
         set_name: str,
         datainfo_listing: DataInfoListing,
         data_loader: DataLoader,
@@ -35,11 +39,24 @@ class GenericDataset(Sequence, Dataset):
         augmentator: Optional[AugmentationProcessor] = None,
         net_data_logger: Optional[NetDataLogger] = None,
     ):
+        """
+        Constructor of the GenericDataset
+        Args:
+            set_name: Name of the subset e.g. train
+            datainfo_listing: How to list the data
+            data_loader: How to load the data
+            target_transformer: How to transform the
+                target of the model (e.g. one-hot encoding)
+            input_transformer: How to transform the input of the model
+            shuffle: bool if the data should be shuffled
+            data_shuffler: A way of shuffling the data (e.g. random, sampled)
+            stats_generator: Write dataset stats
+            augmentator: Augment the data on the fly
+            net_data_logger: Stores the in the way it is presented to the model
+        """
         super().__init__()
         self.net_data_logger = net_data_logger
         self.set_name = set_name
-        self.batch_size = batch_size
-        self.batch_count = None
         self.datainfo_listing: DataInfoListing = datainfo_listing
         self.data_loader: DataLoader = data_loader
         self.shuffle = shuffle
@@ -55,6 +72,7 @@ class GenericDataset(Sequence, Dataset):
     def initialize(
         self, data_description: DataDescription, exp_context: ExperimentContext
     ):
+        """Initializes the dataset with the data description and context"""
         self.data_description = data_description
 
         self.data_loader.initialize(data_description)
@@ -76,56 +94,51 @@ class GenericDataset(Sequence, Dataset):
 
         self.on_epoch_end()
 
-    def __getitem__(self, batch_index: int):
-        cur_data_infos = self.get_datainfo(batch_index)
-        dc_list: list = [self.data_loader.load_data(x) for x in cur_data_infos]
+    def get_item_count(self) -> int:
+        """Returns the current count of items in the dataset"""
+        return len(self.data_info_list)
+
+    def get_items_per_epoch(self) -> int:
+        """Returns the items per epoch"""
+        return len(self.index_list)
+
+    def __getitem__(self, item_index: int):
+        """Returns the data of the item at index"""
+        real_index = self.index_list[item_index]
+        data_info = self.data_info_list[real_index]
+        data_item = self.data_loader.load_data(data_info)
         if self.augmentator is not None:
-            dc_list = [self.augmentator(x) for x in dc_list]
-        net_inputs = self.input_transformer.get_net_inputs(dc_list)
-        net_targets = self.target_transformer.get_net_targets(dc_list)
+            data_item = self.augmentator(data_item)
+        net_inputs = self.input_transformer.get_net_inputs([data_item])
+        net_targets = self.target_transformer.get_net_targets([data_item])
         if self.net_data_logger is not None:
             self.net_data_logger.log_data(
                 net_inputs=net_inputs,
                 net_targets=net_targets,
-                data_info_list=cur_data_infos,
+                data_info_list=[data_info],
             )
         return net_inputs, net_targets
 
-    def get_batch_size(self) -> int:
-        return self.batch_size
-
     def get_set_name(self) -> str:
+        """Returns the name of the set e.g. train"""
         return self.set_name
 
     def __len__(self):
-        batch_count, rest = divmod(len(self.index_list), self.batch_size)
-        if rest > 0:
-            batch_count += 1
-        if self.batch_count is not None:
-            batch_count = min(self.batch_count, batch_count)
-        return batch_count
-
-    def get_datainfo(self, batch_index: int) -> List[DataInfo]:
-        start_idx = batch_index * self.batch_size
-        end_idx = min(len(self.index_list), (batch_index + 1) * self.batch_size)
-        data_info_list: List[DataInfo] = []
-        for cur_idx in range(start_idx, end_idx):
-            real_index = self.index_list[cur_idx]
-            image_info = self.data_info_list[real_index]
-            data_info_list.append(image_info)
-        return data_info_list
+        """Returns the number of batches"""
+        return self.get_items_per_epoch()
 
     def get_data_by_key(self, data_key):
+        """Returns the data by the key (identifier of the data)"""
         data_info: DataInfo = self.data_info_dict[data_key]
         return self.data_loader.load_data(data_info)
 
     def get_dataset_stats(self) -> dict:
+        """Returns the dataset stats"""
         return self.data_stats_generator.generate_stats(
             self.data_info_list, self.index_list
         )
 
     def on_epoch_end(self):
+        """Shuffles the data if required"""
         if self.shuffle:
-            self.index_list = self.data_shuffler.shuffle(
-                self.data_info_list, batch_size=self.batch_size
-            )
+            self.index_list = self.data_shuffler.shuffle(self.data_info_list)
