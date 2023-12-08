@@ -4,9 +4,6 @@ from typing import List, Union, Optional, Any
 
 import numpy as np
 import pandas as pd
-from tensorflow.keras.utils import (  # pylint: disable=import-error,no-name-in-module
-    Sequence,
-)
 
 from niceml.data.datadescriptions.regdatadescription import (
     RegDataDescription,
@@ -74,13 +71,12 @@ class RegDataInfo(DataInfo):
         return self.data[item]
 
 
-class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attributes
+class DfDataset(Dataset):  # pylint: disable=too-many-instance-attributes
     """Dataset for dataframes"""
 
     def __init__(  # ruff: noqa: PLR0913
         self,
         id_key: str,
-        batch_size: int,
         subset_name: str,
         data_location: Union[dict, LocationConfig],
         df_filename: str = ExperimentFilenames.SUBSET_NAME,
@@ -95,7 +91,6 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
         Args:
             id_key: Column name of the id column in your dataframe
-            batch_size: Size of a batch
             subset_name: Name of the dataset
             data_location: Location of the data used in the data set
             df_filename: Specify the file name of the dataframe
@@ -108,7 +103,6 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
         self.dataframe_filters = dataframe_filters or []
         self.df_path = df_filename
         self.data_location = data_location
-        self.batch_size = batch_size
         self.subset_name = subset_name
         self.id_key = id_key
         self.index_list = []
@@ -158,14 +152,13 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
         self.on_epoch_end()
 
-    def get_batch_size(self) -> int:
-        """
-        The get_batch_size function returns the batch size of the dataset.
+    def get_item_count(self) -> int:
+        """Get the number of items in the dataset"""
+        return len(self.data)
 
-        Returns:
-            The batch size
-        """
-        return self.batch_size
+    def get_items_per_epoch(self) -> int:
+        """Get the number of items per epoch"""
+        return len(self.index_list)
 
     def get_set_name(self) -> str:
         """
@@ -235,33 +228,26 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
 
     def __getitem__(self, index):
         """
-        The __getitem__ function returns the indexed data batch in the size of `self.batch_size`.
-        It is called when the DfDataset is accessed, using the notation self[`index`]
-        (while training a model).
+        The __getitem__ function returns the indexed data item.
 
          Args:
-             index: Specify `index` of the batch
+             index: Specify `index` of the item
 
          Returns:
-             A batch of input data and target data with the batch size `self.batch_size`
+             An item of input data and target data
         """
-        start_idx = index * self.batch_size
-        end_idx = min(len(self.index_list), (index + 1) * self.batch_size)
-        input_data, target_data = self.get_data(start_idx, end_idx)
+        input_data, target_data = self.get_data(index, index + 1)
 
         return input_data, target_data
 
     def __len__(self):
         """
-        The __len__ function is used to determine the number of batches in an epoch.
+        The __len__ function is used to determine the number of steps in a dataset.
 
         Returns:
-            The number of batches in an epoch
+            The number of items
         """
-        batch_count, rest = divmod(len(self.index_list), self.batch_size)
-        if rest > 0:
-            batch_count += 1
-        return batch_count
+        return self.get_items_per_epoch()
 
     def on_epoch_end(self):
         """
@@ -285,35 +271,6 @@ class DfDataset(Dataset, Sequence):  # pylint: disable=too-many-instance-attribu
             A dataiterator object
         """
         return DataIterator(self)
-
-    def get_datainfo(self, batch_index) -> List[RegDataInfo]:
-        """
-        The get_datainfo function is used to get the data information for a given batch.
-
-        Args:
-            batch_index: Determine which batch of data (datainfo) to return
-
-        Returns:
-            A list of `RegDataInfo` objects of the batch with index `batch_index`
-        """
-        start_idx = batch_index * self.batch_size
-        end_idx = min(len(self.index_list), (batch_index + 1) * self.batch_size)
-        data_info_list: List[RegDataInfo] = []
-        input_keys = [input_dict["key"] for input_dict in self.inputs]
-        target_keys = [target_dict["key"] for target_dict in self.targets]
-        data_subset = self.data[
-            [self.id_key] + input_keys + target_keys + self.extra_key_list
-        ]
-        real_index_list = [self.index_list[idx] for idx in range(start_idx, end_idx)]
-        data_info_dicts: List[dict] = data_subset.iloc[real_index_list].to_dict(
-            "records"
-        )
-
-        for data_info_dict in data_info_dicts:
-            key = data_info_dict[self.id_key]
-            data_info_dict.pop(self.id_key)
-            data_info_list.append(RegDataInfo(key, data_info_dict))
-        return data_info_list
 
     def get_all_data_info(self) -> List[RegDataInfo]:
         """

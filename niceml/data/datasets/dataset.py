@@ -12,8 +12,12 @@ class Dataset(ABC):
     """Dataset to load, transform, shuffle the data before training"""
 
     @abstractmethod
-    def get_batch_size(self) -> int:
-        """Returns the current batch size"""
+    def get_item_count(self) -> int:
+        """Returns the current count of items in the dataset"""
+
+    @abstractmethod
+    def get_items_per_epoch(self) -> int:
+        """Returns the items per epoch"""
 
     @abstractmethod
     def get_set_name(self) -> str:
@@ -31,6 +35,7 @@ class Dataset(ABC):
 
     @abstractmethod
     def __getitem__(self, index: int):
+        """Returns the data of the item/batch at index"""
         pass
 
     @abstractmethod
@@ -39,11 +44,12 @@ class Dataset(ABC):
 
     @abstractmethod
     def __len__(self):
+        """Returns the number of batches/items"""
         pass
 
     def get_dataset_stats(self) -> dict:
         """Returns the dataset stats"""
-        return dict(size=len(self) * self.get_batch_size())
+        return dict(size=self.get_item_count())
 
     @abstractmethod
     def get_data_by_key(self, data_key):
