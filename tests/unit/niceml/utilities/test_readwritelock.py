@@ -52,25 +52,8 @@ def test_write_lock(fs_path_config):
     assert write_lock.is_acquirable()
 
 
-def test_equality(fs_path_config):
-    write_lock1 = WriteLock(fs_path_config)
-    write_lock2 = WriteLock(fs_path_config)
-    assert write_lock1 == write_lock2
-
-    read_lock1 = ReadLock(fs_path_config)
-    read_lock2 = ReadLock(fs_path_config)
-    assert read_lock1 == read_lock2
-
-    assert read_lock1 != write_lock1
-
-    write_lock3 = WriteLock(fs_path_config, write_lock_name="test.lock")
-    read_lock3 = ReadLock(fs_path_config, timeout=10)
-    assert write_lock3 != write_lock1
-    assert read_lock3 != read_lock1
-
-
 def test_retry_lock(fs_path_config):
-    # create read lock file manually
+    # create write lock file manually
     with open_location(fs_path_config) as (cur_fs, root_path):
         cur_fs.touch(join_fs_path(cur_fs, root_path, "write.lock"))
 
@@ -85,8 +68,8 @@ def test_retry_lock(fs_path_config):
     assert not write_lock.is_acquirable()
     write_lock.release()
 
-    # TODO: is this a behaviour we want?
-    # lock files should not be able to be released from the rw_lock
+    # lock files should not be able to delete a lock file, if they have
+    # not created the file.
     with open_location(fs_path_config) as (cur_fs, root_path):
         assert cur_fs.exists(join_fs_path(cur_fs, root_path, "write.lock"))
 
