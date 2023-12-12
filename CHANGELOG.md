@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.0 (2023-12-12)
+
+### Feature
+
+* Optimize file locks ([#94](https://github.com/codecentric-oss/niceml/issues/94)) ([`907c169`](https://github.com/codecentric-oss/niceml/commit/907c169c257c30a158b32b9c15359bb1ed8100ec))
+
 ## v0.9.1 (2023-12-05)
 
 ### Fix
