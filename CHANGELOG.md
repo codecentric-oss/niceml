@@ -2,6 +2,28 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.0 (2023-12-12)
+
+### Feature
+
+* Optimize file locks ([#94](https://github.com/codecentric-oss/niceml/issues/94)) ([`907c169`](https://github.com/codecentric-oss/niceml/commit/907c169c257c30a158b32b9c15359bb1ed8100ec))
+
+## v0.9.1 (2023-12-05)
+
+### Fix
+
+* List_dir filter_ext ([#93](https://github.com/codecentric-oss/niceml/issues/93)) ([`d8171fb`](https://github.com/codecentric-oss/niceml/commit/d8171fb2dfd5c7620767e3b409263def521b8423))
+
+## v0.9.0 (2023-11-28)
+
+### Feature
+
+* Write and read json options in experiment context ([#90](https://github.com/codecentric-oss/niceml/issues/90)) ([`77d3dc9`](https://github.com/codecentric-oss/niceml/commit/77d3dc92b71087f3787ff6d51d5761f73e52c2a3))
+
+### Fix
+
+* Pillow vulnerability and other + formatting ([#89](https://github.com/codecentric-oss/niceml/issues/89)) ([`3d3e6af`](https://github.com/codecentric-oss/niceml/commit/3d3e6af88b2d353c136aec8ba7a825d899673087))
+
 ## v0.8.3 (2023-11-08)
 
 ### Fix
