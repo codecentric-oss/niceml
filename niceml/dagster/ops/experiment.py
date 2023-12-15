@@ -1,40 +1,40 @@
 """Module for experiment op"""
-import json
 
 import mlflow
+from pydantic import Field
 
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.factoryutils import subs_path_and_create_folder
 from niceml.utilities.fsspec.locationutils import join_location_w_path
 from niceml.utilities.idutils import generate_short_id
 from niceml.utilities.timeutils import generate_timestamp
-from dagster import Field, OpExecutionContext, op
+from dagster import OpExecutionContext, op, Config
+
+
+class ExperimentConfig(Config):
+    exp_out_location: dict = Field(  # TODO: add LocationConfigConfig / Location
+        default=dict(uri="experiments"),
+        description="Folder to store the experiments",
+    )
+    exp_folder_pattern: str = Field(
+        default="EXP-$RUN_ID-id_$SHORT_ID",
+        description="Folder pattern of the experiment. "
+        "Can use $RUN_ID and $SHORT_ID to make the name unique",
+    )
 
 
 # pylint: disable=use-dict-literal
 @op(
-    config_schema=dict(
-        exp_out_location=Field(
-            dict,
-            default_value=dict(uri="experiments"),
-            description="Folder to store the experiments",
-        ),
-        exp_folder_pattern=Field(
-            str,
-            default_value="EXP-$RUN_ID-id_$SHORT_ID",
-            description="Folder pattern of the experiment. "
-            "Can use $RUN_ID and $SHORT_ID to make the name unique",
-        ),
-    ),
     required_resource_keys={"mlflow"},
 )
-def experiment(context: OpExecutionContext) -> ExperimentContext:
+def experiment(
+    context: OpExecutionContext, config: ExperimentConfig
+) -> ExperimentContext:
     """This Op creates the experiment params"""
-    op_config = json.loads(json.dumps(context.op_config))
-    exp_out_location: dict = op_config["exp_out_location"]
-    exp_folder_pattern: str = op_config["exp_folder_pattern"]
-    exp_folder, local_run_id, local_short_id = create_exp_settings(exp_folder_pattern)
-    exp_location = join_location_w_path(exp_out_location, exp_folder)
+    exp_folder, local_run_id, local_short_id = create_exp_settings(
+        config.exp_folder_pattern
+    )
+    exp_location = join_location_w_path(config.exp_out_location, exp_folder)
     exp_context = ExperimentContext(
         fs_config=exp_location,
         run_id=local_run_id,

@@ -5,10 +5,11 @@ from tempfile import TemporaryDirectory, mkstemp
 from typing import Any, Dict, Iterable, Optional
 
 import yaml
-from dagster import Field, Map, config_mapping
+from dagster import config_mapping
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 from hydra.utils import instantiate
+from pydantic import Field
 
 from niceml.scripts.hydraconfreader import load_hydra_conf
 from niceml.utilities.omegaconfutils import register_niceml_resolvers
@@ -68,74 +69,65 @@ def hydra_conf_mapping_factory(drop: Iterable[str] = ("globals",)):
     return hydra_conf_mapping
 
 
-class HydraInitField(Field):
-    """Used to configure Dagster Ops"""
+def create_hydra_init_field(
+    target_class,
+    description: Optional[str] = None,
+    default_value: Optional[dict] = None,
+    example_value: Optional[dict] = None,
+    **kwargs,
+):
+    """
+    Used to configure Dagster Ops with a target class
 
-    def __init__(
-        self,
-        target_class,
-        description: Optional[str] = None,
-        default_value: Optional[dict] = None,
-        example_value: Optional[dict] = None,
+    Args:
+        target_class: class which is instantiated from the op
+        description: description of the class or field
+        default_value: default value of the field when nothing is provided
+        example_value: example value of the field shown in the documentation
+        **kwargs: additional kwargs passed to the Field class
+    """
+    if description is None:
+        description = target_class.__doc__
+    if default_value is None:
+        default_value = {}
+    if example_value is None:
+        impl_str: str = "implementation_of_" if isabstract(target_class) else ""
+        default_value = {"_target_": f"{impl_str}{target_class}"}
+    return Field(
+        description=description,
+        default=default_value,
+        example_value=example_value,
         **kwargs,
-    ):
-        """
-        Used to configure Dagster Ops with a target class
-
-        Args:
-            target_class: class which is instantiated from the op
-            description: description of the class or field
-            default_value: default value of the field when nothing is provided
-            example_value: example value of the field shown in the documentation
-            **kwargs: additional kwargs passed to the Field class
-        """
-        if description is None:
-            description = target_class.__doc__
-        if default_value is None:
-            default_value = dict()
-        if example_value is None:
-            impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-            default_value = {"_target_": f"{impl_str}{target_class}"}
-        super().__init__(
-            dict, description=description, default_value=default_value, **kwargs
-        )
-        self.target_class = target_class
-        self.example_value = example_value
+    )
 
 
-class HydraMapField(Field):
-    """Used to configure Dagster Ops"""
+def create_hydra_map_field(
+    target_class,
+    description: Optional[str] = None,
+    default_value: Optional[dict] = None,
+    example_value: Optional[dict] = None,
+    **kwargs,
+):
+    """
+    Used to configure Dagster Ops with a map
 
-    def __init__(
-        self,
-        target_class,
-        description: Optional[str] = None,
-        default_value: Optional[dict] = None,
-        example_value: Optional[dict] = None,
+    Args:
+        target_class: class which is instantiated from the op in the map
+        description: description of the class or field
+        default_value: default value of the field when nothing is provided
+        example_value: example value of the field shown in the documentation
+        **kwargs: additional kwargs passed to the Field class
+    """
+    if description is None:
+        description = target_class.__doc__
+    if default_value is None:
+        default_value = {}
+    if example_value is None:
+        impl_str: str = "implementation_of_" if isabstract(target_class) else ""
+        example_value = {"value": {"_target_": f"{impl_str}{target_class}"}}
+    return Field(
+        description=description,
+        default=default_value,
+        example_value=example_value,
         **kwargs,
-    ):
-        """
-        Used to configure Dagster Ops with a map
-
-        Args:
-            target_class: class which is instantiated from the op in the map
-            description: description of the class or field
-            default_value: default value of the field when nothing is provided
-            example_value: example value of the field shown in the documentation
-            **kwargs: additional kwargs passed to the Field class
-        """
-        if description is None:
-            description = target_class.__doc__
-        if default_value is None:
-            default_value = dict()
-        if example_value is None:
-            impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-            example_value = {"value": {"_target_": f"{impl_str}{target_class}"}}
-        super().__init__(
-            Map(str, dict),
-            description=description,
-            default_value=default_value,
-            **kwargs,
-        )
-        self.target_class = target_class
-        self.example_value = example_value
+    )

@@ -1,11 +1,12 @@
 """Module for train op"""
-import json
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
+from dagster import OpExecutionContext, op, Out, Config
 from hydra.utils import ConvertMode, instantiate
+from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
-from niceml.config.hydra import HydraInitField
+from niceml.config.hydra import create_hydra_init_field
 from niceml.config.trainparams import TrainParams
 from niceml.config.writeopconfig import write_op_config
 from niceml.dagster.ops.prediction import save_exp_data_stats
@@ -21,30 +22,58 @@ from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
     ModelCustomLoadObjects,
 )
 from niceml.mlcomponents.models.modelfactory import ModelFactory
-from dagster import OpExecutionContext, op, Out, Field
-
 from niceml.utilities.readwritelock import FileLock
 
-train_config: dict = dict(
-    train_params=HydraInitField(TrainParams),
-    model=HydraInitField(ModelFactory),
-    data_description=HydraInitField(DataDescription),
-    data_train=HydraInitField(Dataset),
-    data_validation=HydraInitField(Dataset),
-    model_load_custom_objects=HydraInitField(ModelCustomLoadObjects),
-    callbacks=HydraInitField(CallbackInitializer),
-    learner=HydraInitField(Learner),
-    exp_initializer=HydraInitField(ExpOutInitializer),
-    remove_key_list=Field(
-        list,
-        default_value=DEFAULT_REMOVE_CONFIG_KEYS,
-        description="These key are removed from any config recursively before it is saved.",
-    ),
-)
+
+class TrainConfig(Config):
+    train_params: TrainParams = Field(default_factory=TrainParams)
+    model: dict = create_hydra_init_field(ModelFactory)
+    data_description: dict = create_hydra_init_field(DataDescription)
+    data_train: dict = create_hydra_init_field(Dataset)
+    data_validation: dict = create_hydra_init_field(Dataset)
+    model_load_custom_objects: dict = create_hydra_init_field(ModelCustomLoadObjects)
+    callbacks: dict = create_hydra_init_field(CallbackInitializer)
+    learner: dict = create_hydra_init_field(Learner)
+    exp_initializer: dict = create_hydra_init_field(ExpOutInitializer)
+    remove_key_list: List[str] = Field(
+        default=DEFAULT_REMOVE_CONFIG_KEYS,
+        description="These keys are removed from any config recursively before it is saved.",
+    )  # TODO: refactor
+
+    @property
+    def model_factory_init(self) -> ModelFactory:
+        return instantiate(self.model, _convert_=ConvertMode.ALL)
+
+    @property
+    def data_description_init(self) -> DataDescription:
+        return instantiate(self.data_description, _convert_=ConvertMode.ALL)
+
+    @property
+    def data_train_init(self) -> Dataset:
+        return instantiate(self.data_train, _convert_=ConvertMode.ALL)
+
+    @property
+    def data_validation_init(self) -> Dataset:
+        return instantiate(self.data_validation, _convert_=ConvertMode.ALL)
+
+    @property
+    def model_load_custom_objects_init(self) -> ModelCustomLoadObjects:
+        return instantiate(self.model_load_custom_objects, _convert_=ConvertMode.ALL)
+
+    @property
+    def callbacks_init(self) -> CallbackInitializer:
+        return instantiate(self.callbacks, _convert_=ConvertMode.ALL)
+
+    @property
+    def learner_init(self) -> Learner:
+        return instantiate(self.learner, _convert_=ConvertMode.ALL)
+
+    @property
+    def exp_initializer_init(self) -> ExpOutInitializer:
+        return instantiate(self.exp_initializer, _convert_=ConvertMode.ALL)
 
 
 @op(
-    config_schema=train_config,
     out={"expcontext": Out(), "filelock_dict": Out()},
     required_resource_keys={"mlflow"},
 )
@@ -52,37 +81,32 @@ def train(
     context: OpExecutionContext,
     exp_context: ExperimentContext,
     filelock_dict: Dict[str, FileLock],
+    config: TrainConfig,
 ) -> Tuple[ExperimentContext, Dict[str, FileLock]]:
     """DagsterOp that trains the model"""
-    op_config = json.loads(json.dumps(context.op_config))
-    write_op_config(
-        op_config, exp_context, OpNames.OP_TRAIN.value, op_config["remove_key_list"]
+    write_op_config(config, exp_context, OpNames.OP_TRAIN.value, config.remove_key_list)
+
+    config.data_train_init.initialize(config.data_description_init, exp_context)
+    config.data_validation_init.initialize(config.data_description_init, exp_context)
+
+    save_exp_data_stats(
+        config.data_train_init, exp_context, ExperimentFilenames.STATS_TRAIN
     )
-    instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
+    save_exp_data_stats(
+        config.data_validation_init, exp_context, ExperimentFilenames.STATS_TRAIN
+    )
 
-    data_train = instantiated_op_config["data_train"]
-    data_valid = instantiated_op_config["data_validation"]
-    data_description = instantiated_op_config["data_description"]
-    custom_model_load_objects = instantiated_op_config["model_load_custom_objects"]
-
-    data_train.initialize(data_description, exp_context)
-    data_valid.initialize(data_description, exp_context)
-
-    save_exp_data_stats(data_train, exp_context, ExperimentFilenames.STATS_TRAIN)
-    save_exp_data_stats(data_valid, exp_context, ExperimentFilenames.STATS_TRAIN)
-
-    instantiated_op_config["exp_initializer"](exp_context)
-    callbacks = instantiated_op_config["callbacks"](exp_context)
+    config.exp_initializer_init(exp_context)
 
     fit_generator(
         exp_context,
-        instantiated_op_config["learner"],
-        instantiated_op_config["model"],
-        data_train,
-        data_valid,
-        instantiated_op_config["train_params"],
-        data_description,
-        custom_model_load_objects,
-        callbacks,
+        config.learner_init,
+        config.model_factory_init,
+        config.data_train_init,
+        config.data_validation_init,
+        config.train_params,
+        config.data_description_init,
+        config.model_load_custom_objects_init,
+        config.callbacks_init(exp_context),
     )
     return exp_context, filelock_dict

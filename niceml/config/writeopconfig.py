@@ -1,21 +1,23 @@
 """module for writing config files"""
 from os.path import join
-from typing import List
+from typing import List, Union
 
 import mlflow
+from pydantic import BaseModel
 
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames
 
 
 def write_op_config(
-    op_conf: dict,
+    op_conf: Union[dict, BaseModel],
     exp_context: ExperimentContext,
     op_name: str,
     remove_key_list: List[str],
 ):
     """Writes a dict as yamls. With one file per key"""
-    for key, values in op_conf.items():
+    op_conf_dict = op_conf.dict() if isinstance(op_conf, BaseModel) else op_conf
+    for key, values in op_conf_dict.items():
         removed_values = remove_key_recursive(values, remove_key_list)
         outfile = join(ExperimentFilenames.CONFIGS_FOLDER, op_name, f"{key}.yaml")
         mlflow.log_dict(removed_values, outfile)

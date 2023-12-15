@@ -1,15 +1,21 @@
 """Module for prediction op"""
-import json
+
+import contextlib
 from os.path import join
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
 
 import numpy as np
 import tqdm
-from dagster import Field, Noneable, OpExecutionContext, op, Out
+from dagster import OpExecutionContext, op, Out, Config
 from hydra.utils import ConvertMode, instantiate
+from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
-from niceml.config.hydra import HydraInitField, HydraMapField, instantiate_from_yaml
+from niceml.config.hydra import (
+    create_hydra_init_field,
+    create_hydra_map_field,
+    instantiate_from_yaml,
+)
 from niceml.config.writeopconfig import write_op_config
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datasets.dataset import Dataset
@@ -27,25 +33,40 @@ from niceml.utilities.fsspec.locationutils import join_fs_path, open_location
 from niceml.utilities.readwritelock import FileLock
 
 
+class PredictionConfig(Config):
+    prediction_handler: dict = create_hydra_init_field(PredictionHandler)
+    datasets: dict = create_hydra_map_field(Dataset)
+    prediction_steps: Optional[int] = Field(
+        default=None,
+        description="If None the whole datasets are processed. "
+        "Otherwise only `prediction_steps` are evaluated.",
+    )
+    model_loader: dict = create_hydra_init_field(ModelLoader)
+    prediction_function: dict = create_hydra_init_field(PredictionFunction)
+    remove_key_list: List[str] = Field(
+        default=DEFAULT_REMOVE_CONFIG_KEYS,
+        description="These key are removed from any config recursively before it is saved.",
+    )  # TODO: refactor
+
+    @property
+    def prediction_handler_init(self) -> PredictionHandler:
+        return instantiate(self.prediction_handler, _convert_=ConvertMode.ALL)
+
+    @property
+    def datasets_init(self) -> Dict[str, Dataset]:
+        return instantiate(self.datasets, _convert_=ConvertMode.ALL)
+
+    @property
+    def model_loader_init(self) -> ModelLoader:
+        return instantiate(self.model_loader, _convert_=ConvertMode.ALL)
+
+    @property
+    def prediction_function_init(self) -> PredictionFunction:
+        return instantiate(self.prediction_function, _convert_=ConvertMode.ALL)
+
+
 # pylint: disable=use-dict-literal
 @op(
-    config_schema=dict(
-        prediction_handler=HydraInitField(PredictionHandler),
-        datasets=HydraMapField(Dataset),
-        prediction_steps=Field(
-            Noneable(int),
-            default_value=None,
-            description="If None the whole datasets are processed. "
-            "Otherwise only `prediction_steps` are evaluated.",
-        ),
-        model_loader=HydraInitField(ModelLoader),
-        prediction_function=HydraInitField(PredictionFunction),
-        remove_key_list=Field(
-            list,
-            default_value=DEFAULT_REMOVE_CONFIG_KEYS,
-            description="These key are removed from any config recursively before it is saved.",
-        ),
-    ),
     out={"expcontext": Out(), "datasets": Out(), "filelock_dict": Out()},
     required_resource_keys={"mlflow"},
 )
@@ -53,23 +74,21 @@ def prediction(
     context: OpExecutionContext,
     exp_context: ExperimentContext,
     filelock_dict: Dict[str, FileLock],
+    config: PredictionConfig,
 ) -> Tuple[ExperimentContext, Dict[str, Dataset], Dict[str, FileLock]]:
     """Dagster op to predict the stored model with the given datasets"""
-    op_config = json.loads(json.dumps(context.op_config))
     write_op_config(
-        op_config,
+        config,
         exp_context,
         OpNames.OP_PREDICTION.value,
-        op_config["remove_key_list"],
+        config.remove_key_list,
     )
-    instantiated_op_config = instantiate(op_config, _convert_=ConvertMode.ALL)
     data_description: DataDescription = (
         exp_context.instantiate_datadescription_from_yaml()
     )
 
     exp_data: ExperimentData = create_expdata_from_expcontext(exp_context)
     model_path: str = exp_data.get_model_path(relative_path=True)
-    model_loader: ModelLoader = instantiated_op_config["model_loader"]
     with open_location(exp_context.fs_config) as (exp_fs, exp_root):
         custom_model_load_objects: ModelCustomLoadObjects = instantiate_from_yaml(
             join(
@@ -80,13 +99,13 @@ def prediction(
             ),
             file_system=exp_fs,
         )
-        model = model_loader(
+        model = config.model_loader_init(
             join_fs_path(exp_fs, exp_root, model_path),
             custom_model_load_objects,
             file_system=exp_fs,
         )
 
-    datasets_dict: Dict[str, Dataset] = instantiated_op_config["datasets"]
+    datasets_dict: Dict[str, Dataset] = config.datasets_init
 
     for dataset_key, cur_pred_set in datasets_dict.items():
         context.log.info(f"Predict dataset: {dataset_key}")
@@ -94,13 +113,13 @@ def prediction(
         save_exp_data_stats(cur_pred_set, exp_context, ExperimentFilenames.STATS_PRED)
         predict_dataset(
             data_description=data_description,
-            prediction_steps=instantiated_op_config["prediction_steps"],
+            prediction_steps=config.prediction_steps,
             model=model,
             prediction_set=cur_pred_set,
-            prediction_handler=instantiated_op_config["prediction_handler"],
+            prediction_handler=config.prediction_handler_init,
             exp_context=exp_context,
             filename=dataset_key,
-            prediction_function=instantiated_op_config["prediction_function"],
+            prediction_function=config.prediction_function_init,
         )
 
     return exp_context, datasets_dict, filelock_dict
@@ -141,12 +160,9 @@ def is_numpy_output(output) -> bool:
         return True
     if isinstance(output, list) and isinstance(output[0], np.ndarray):
         return True
-    if isinstance(output, dict) and isinstance(
+    return isinstance(output, dict) and isinstance(
         output[list(output.keys())[0]], np.ndarray
-    ):
-        return True
-
-    return False
+    )
 
 
 def save_exp_data_stats(
@@ -157,9 +173,7 @@ def save_exp_data_stats(
     set_stats: dict = dataset.get_dataset_stats()
     set_name: str = dataset.get_set_name()
     stats_info = {}
-    try:
+    with contextlib.suppress(FileNotFoundError):
         stats_info = exp_context.read_yaml(yaml_file)
-    except FileNotFoundError:
-        pass
     stats_info[set_name] = set_stats
     exp_context.write_yaml(stats_info, yaml_file)

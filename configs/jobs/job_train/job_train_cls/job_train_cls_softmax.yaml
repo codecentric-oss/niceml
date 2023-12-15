@@ -27,7 +27,6 @@ globals:
     uri: ${oc.env:DATA_URI,./data}/numbers_cropped_split
 
 ops:
-
   train:
     config:
       data_description:

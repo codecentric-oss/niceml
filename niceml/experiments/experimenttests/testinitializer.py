@@ -20,7 +20,7 @@ class ExperimentTestFailedError(Exception):
     """Exception for when an experiment test fails"""
 
 
-class ExpTestProcess(object):  # pylint: disable=too-few-public-methods
+class ExpTestProcess:  # pylint: disable=too-few-public-methods
     """Class to execute a list of ExperimentTests"""
 
     def __init__(
