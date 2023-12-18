@@ -1,4 +1,5 @@
 """Module for tensorgraphanalyzer"""
+from collections import defaultdict
 from os.path import join
 from typing import List
 
@@ -74,5 +75,72 @@ class TensorGraphAnalyzer(ResultAnalyzer):
             ExperimentFilenames.ANALYSIS_FOLDER,
             ExperimentFilenames.ANALYSIS_FILE.format(subset_name=dataset_name),
         )
-        mlflow.log_metrics(out_dict)
+        mlflow_metrics_dict = metrics_dict_to_mlflow_metrics_dict(metrics_dict=out_dict)
+        mlflow.log_metrics(mlflow_metrics_dict)
         exp_context.write_yaml(out_dict, output_file)
+
+
+def metrics_dict_to_mlflow_metrics_dict(metrics_dict: dict) -> dict:
+    """
+    Converts a nested metrics dictionary to a flat dictionary suitable
+    for MLflow logging.
+
+    Args:
+        metrics_dict: A dictionary containing metrics, possibly nested.
+
+    Returns:
+        dict: A flat dictionary suitable for logging metrics in MLflow.
+
+    Raises:
+        ValueError: If a metric is not of type float, dict or list.
+
+    Example:
+        Given the input metrics_dict:
+        {
+            'accuracy': 0.85,
+            'precision': {
+                'class_0': 0.90,
+                'class_1': 0.78
+            },
+            'loss': [0.5, 0.3, 0.2],
+            'confusion_matrix': [
+                [50, 5],
+                [10, 80]
+            ]
+        }
+
+        The output mlflow_metrics_dict will be:
+        {
+            'accuracy': 0.85,
+            'precision_class_0': 0.90,
+            'precision_class_1': 0.78,
+            'loss_0': 0.5,
+            'loss_1': 0.3,
+            'loss_2': 0.2,
+            'confusion_matrix_0_0': 50.0,
+            'confusion_matrix_0_1': 5.0,
+            'confusion_matrix_1_0': 10.0,
+            'confusion_matrix_1_1': 80.0
+        }
+    """
+    mlflow_metrics_dict = defaultdict(float)
+
+    for key, metric in metrics_dict.items():
+        if isinstance(metric, float):
+            mlflow_metrics_dict[key] = metric
+        elif isinstance(metric, dict):
+            for defect_type, value in metric.items():
+                mlflow_metrics_dict[f"{key}_{defect_type}"] = value
+        elif isinstance(metric, list):
+            for idx, values in enumerate(metric):
+                if isinstance(values, list):
+                    for inner_idx, inner_value in enumerate(values):
+                        mlflow_metrics_dict[f"{key}_{idx}_{inner_idx}"] = float(
+                            inner_value
+                        )
+                else:
+                    mlflow_metrics_dict[f"{key}_{idx}"] = float(values)
+        else:
+            raise ValueError("Metric should be of type float, dict or list")
+
+    return mlflow_metrics_dict
