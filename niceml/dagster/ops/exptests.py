@@ -15,15 +15,15 @@ from niceml.utilities.fsspec.locationutils import open_location
 
 
 class ExpTestsConfig(Config):
-    tests: dict = create_hydra_init_field(ExpTestProcess)
+    tests_: dict = create_hydra_init_field(target_class=ExpTestProcess, alias="tests")
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",
     )
 
     @property
-    def tests_init(self) -> ExpTestProcess:
-        return instantiate(self.tests, _convert_=ConvertMode.ALL)
+    def tests(self) -> ExpTestProcess:
+        return instantiate(self.tests_, _convert_=ConvertMode.ALL)
 
 
 # pylint: disable=use-dict-literal
@@ -37,7 +37,7 @@ def exptests(
     write_op_config(
         config, exp_context, OpNames.OP_EXPTESTS.value, config.remove_key_list
     )
-    exp_test_process = config.tests_init
+    exp_test_process = config.tests
     with open_location(exp_context.fs_config) as (file_system, root_path):
         exp_test_process(root_path, file_system=file_system)
     return exp_context

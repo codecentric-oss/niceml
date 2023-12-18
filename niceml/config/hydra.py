@@ -92,7 +92,9 @@ def create_hydra_init_field(
         default_value = {}
     if example_value is None:
         impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-        default_value = {"_target_": f"{impl_str}{target_class}"}
+        default_value = {
+            "_target_": f"{impl_str}{target_class.__module__}.{target_class.__name__}"
+        }
     return Field(
         description=description,
         default=default_value,
@@ -124,7 +126,11 @@ def create_hydra_map_field(
         default_value = {}
     if example_value is None:
         impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-        example_value = {"value": {"_target_": f"{impl_str}{target_class}"}}
+        default_value = {
+            "value": {
+                "_target_": f"{impl_str}{target_class.__module__}.{target_class.__name__}"
+            }
+        }
     return Field(
         description=description,
         default=default_value,

@@ -1,3 +1,5 @@
+import os
+
 from dagster import Config, RunConfig
 from dagster_mlflow import mlflow_tracking
 
@@ -32,7 +34,15 @@ cls_run_config = RunConfig(
         "analysis": AnalysisConfig(),
         "exptests": ExpTestsConfig(),
     },
-    resources={"mlflow": mlflow_tracking()},  # TODO: here is an error
+    resources={
+        "mlflow": {
+            "config": {
+                "mlflow_tracking_uri": os.getenv("MLFLOW_TRACKING_URI")
+                or "mlflow-logs",
+                "experiment_name": "CLS",
+            }
+        }
+    },
 )
 
 

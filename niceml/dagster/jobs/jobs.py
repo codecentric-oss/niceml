@@ -1,7 +1,7 @@
 """Module containing all dagster jobs"""
 from dagster_mlflow import mlflow_tracking
 
-from niceml.config.clsconfig import cls_run_config
+from niceml.config.clsconfig import cls_run_config, CLSOpConfig
 from niceml.dagster.ops.analysis import analysis
 from niceml.dagster.ops.experiment import experiment
 from niceml.dagster.ops.exptests import exptests
@@ -26,7 +26,10 @@ from dagster import job
 #     df_normalization(current_data_location)
 
 
-@job(config=cls_run_config, resource_defs={"mlflow": mlflow_tracking})
+@job(
+    config=cls_run_config,
+    resource_defs={"mlflow": mlflow_tracking},
+)
 def job_train():
     """Job for training an experiment"""
     filelock_dict = acquire_locks()  # pylint: disable=no-value-for-parameter
@@ -42,6 +45,7 @@ def job_train():
     )  # pylint: disable=no-value-for-parameter
     release_locks(filelock_dict)  # pylint: disable=no-value-for-parameter
     exptests(exp_context)  # pylint: disable=no-value-for-parameter
+
 
 #
 # @job(config=hydra_conf_mapping_factory(), resource_defs={"mlflow": mlflow_tracking})
