@@ -37,8 +37,7 @@ cls_run_config = RunConfig(
     resources={
         "mlflow": {
             "config": {
-                "mlflow_tracking_uri": os.getenv("MLFLOW_TRACKING_URI")
-                or "mlflow-logs",
+                "mlflow_tracking_uri": os.getenv("MLFLOW_TRACKING_URI", "mlflow-logs"),
                 "experiment_name": "CLS",
             }
         }
