@@ -1,4 +1,4 @@
-# Coding Guidelines for 🍦 niceML 🍦
+# Coding Guidelines for niceML 🍦
 
 Welcome to the coding guidelines for niceML! To ensure consistency and
 maintainability across the codebase, please follow these guidelines when contributing to

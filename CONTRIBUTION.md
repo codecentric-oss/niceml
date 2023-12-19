@@ -1,4 +1,4 @@
-# Contribution Guidelines for 🍦 niceML 🍦
+# Contribution Guidelines for niceML 🍦
 
 Hello and welcome to the niceML community! We're thrilled that you want to contribute to
 our project. Here are some guidelines to help you get started and make your contribution
@@ -44,11 +44,14 @@ and outline the functionality you'd like to see.
 2. Make your changes and ensure that tests pass.
 3. Submit a pull request with a clear and concise description of your changes following
    our [Pull Request Template](https://github.com/codecentric-oss/niceml/compare).
+4. There is a **Checklist** in the Pull Request Template. 
+   Please ensure that you follow the checklist where appropriate.
+
 
 ## Setting Up Your Development Environment
 
 To set up your local development environment, follow the instructions
-in [DEV_ENV_SETUP.md](DEV_ENV_SETUP.md).
+in [Development Environment Setup](DEV_ENV_SETUP.md).
 
 ## Coding Standards
 
