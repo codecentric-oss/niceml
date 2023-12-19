@@ -1,4 +1,5 @@
 """Module for dfdataset"""
+from abc import ABC
 from dataclasses import dataclass
 from typing import List, Union, Optional, Any
 
@@ -71,7 +72,7 @@ class RegDataInfo(DataInfo):
         return self.data[item]
 
 
-class DfDataset(Dataset):  # pylint: disable=too-many-instance-attributes
+class DfDataset(Dataset, ABC):  # pylint: disable=too-many-instance-attributes
     """Dataset for dataframes"""
 
     def __init__(  # ruff: noqa: PLR0913
