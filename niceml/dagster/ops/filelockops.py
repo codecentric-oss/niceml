@@ -9,13 +9,13 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class LocksConfig(Config):
-    file_lock_dict_: dict = create_hydra_map_field(
+    file_lock_dict: dict = create_hydra_map_field(
         target_class=FileLock, alias="file_lock_dict"
     )
 
     @property
     def file_locks(self) -> Dict[str, FileLock]:
-        return instantiate(self.file_lock_dict_, _convert_=ConvertMode.ALL)
+        return instantiate(self.file_lock_dict, _convert_=ConvertMode.ALL)
 
 
 @op

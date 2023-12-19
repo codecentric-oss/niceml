@@ -34,14 +34,16 @@ def add_one(config: AddOneConfig, arg):
 class BaseSimplifiedConfig(Config):
     simplified_param: int = Field(default=5, description="All the values.")
     value: int = Field(default=8, description="Nothing to configure.")
-
-
-class SimplifiedConfig1(BaseSimplifiedConfig):
-    simplified_param: int = Field(default=1, description="Simplified vals 1.")
+    value1: int = Field(default=4)
 
 
 class SimplifiedConfig2(BaseSimplifiedConfig):
     simplified_param: int = Field(default=2, description="Simplified vals 2.")
+
+
+class SimplifiedConfig1(BaseSimplifiedConfig):
+    simplified_param: int = Field(default=1, description="Simplified vals 1.")
+    sub_conf: SimplifiedConfig2 = Field(default={})
 
 
 def get_run_conf_from_simplified_config(val) -> RunConfig:

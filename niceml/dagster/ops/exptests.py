@@ -15,7 +15,7 @@ from niceml.utilities.fsspec.locationutils import open_location
 
 
 class ExpTestsConfig(Config):
-    tests_: dict = create_hydra_init_field(target_class=ExpTestProcess, alias="tests")
+    tests_: List[dict] = Field(description="Exp tests", alias="tests")
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",

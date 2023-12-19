@@ -1,0 +1,44 @@
+defaults:
+  - op_train_base.yaml@_here_
+  - /shared/datasets@data_train: dataset_cls_test.yaml
+  - /shared/datasets@data_validation: dataset_cls_test.yaml
+  - _self_
+hydra:
+  searchpath:
+    - file://configs
+
+data_description:
+  _target_: niceml.data.datadescriptions.clsdatadescription.ClsDataDescription
+  classes:
+  - "0"
+  - "1"
+  use_binary: true
+  target_size:
+    _target_: niceml.utilities.imagesize.ImageSize
+    width: 64
+    height: 64
+
+data_train:
+  datainfo_listing:
+    sub_dir: train
+  set_name: train
+  shuffle: true
+data_validation:
+  datainfo_listing:
+    sub_dir: validation
+  set_name: validation
+model:
+  _target_: niceml.dlframeworks.tensorflow.models.mobilenet.OwnMobileNetModel
+  final_activation: sigmoid
+model_load_custom_objects:
+  _target_: niceml.mlcomponents.modelcompiler.modelcustomloadobjects.ModelCustomLoadObjects
+learner:
+  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  model_compiler:
+    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    loss: binary_crossentropy
+    # Optimizer used in the experiment
+    optimizer:
+      _target_: tensorflow.keras.optimizers.Adam
+      learning_rate: 0.0001
+    metrics: [ "accuracy" ]

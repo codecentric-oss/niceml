@@ -9,6 +9,9 @@ from niceml.dagster.ops.exptests import ExpTestsConfig
 from niceml.dagster.ops.filelockops import LocksConfig
 from niceml.dagster.ops.prediction import PredictionConfig
 from niceml.dagster.ops.train import TrainConfig
+from niceml.scripts.hydraconfreader import load_hydra_conf
+from niceml.utilities.ioutils import read_yaml
+from niceml.utilities.omegaconfutils import register_niceml_resolvers
 
 
 class CLSOpConfig(Config):
@@ -24,15 +27,25 @@ class CLSOpConfig(Config):
 #     ops: str = Field(
 #         description="bla"
 #     )
-
+register_niceml_resolvers()
 cls_run_config = RunConfig(
     ops={
-        "acquire_locks": LocksConfig(),
+        "acquire_locks": LocksConfig(file_lock_dict={}),
         "experiment": ExperimentConfig(),
-        "train": TrainConfig(),
+        "train": TrainConfig(
+            # **load_hydra_conf(
+            #     conf_path="configs/ops/train/op_train_cls_binary_save.yaml"
+            # )
+        ),
         "prediction": PredictionConfig(),
-        "analysis": AnalysisConfig(),
-        "exptests": ExpTestsConfig(),
+        "analysis": AnalysisConfig(
+            **read_yaml(filepath="configs/ops/analysis/op_analysis_cls_softmax.yaml")
+        ),
+        "exptests": ExpTestsConfig(
+            tests=read_yaml(filepath="configs/ops/exptests/exptests_default.yaml")[
+                "test_list"
+            ]
+        ),
     },
     resources={
         "mlflow": {
