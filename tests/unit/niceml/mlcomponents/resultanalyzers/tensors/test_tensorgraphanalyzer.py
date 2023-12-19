@@ -30,6 +30,26 @@ from niceml.mlcomponents.resultanalyzers.tensors.tensorgraphanalyzer import (
         ),
         (
             {
+                "accuracy": 1,
+                "precision": {"class_0": 0.90, "class_1": 0.78},
+                "loss": [0.5, 0.3, 0.2],
+                "confusion_matrix": [[50, 5], [10, 80]],
+            },
+            {
+                "accuracy": 1.0,
+                "precision_class_0": 0.90,
+                "precision_class_1": 0.78,
+                "loss_0": 0.5,
+                "loss_1": 0.3,
+                "loss_2": 0.2,
+                "confusion_matrix_0_0": 50.0,
+                "confusion_matrix_0_1": 5.0,
+                "confusion_matrix_1_0": 10.0,
+                "confusion_matrix_1_1": 80.0,
+            },
+        ),
+        (
+            {
                 "accuracy": 0.95,
                 "precision": {"class_A": 0.88, "class_B": 0.92},
                 "f1_score": [0.91, 0.93],
@@ -76,7 +96,7 @@ def test_metrics_dict_to_mlflow_metrics_dict_success(input_metrics, expected_out
     "input_metrics",
     [
         {
-            "accuracy": 1,  # int
+            "accuracy": "exception",
             "precision": {"class_0": 0.90, "class_1": 0.78},
             "loss": [0.5, 0.3, 0.2],
             "confusion_matrix": [[50, 5], [10, 80]],
@@ -84,12 +104,24 @@ def test_metrics_dict_to_mlflow_metrics_dict_success(input_metrics, expected_out
         {
             "accuracy": 0.85,
             "precision": {"class_0": 0.90, "class_1": 0.78},
-            "loss": (0.5, 0.2),  # tuple
+            "loss": ("exception", 0.2),
             "confusion_matrix": [[50, 5], [10, 80]],
+        },
+        {
+            "accuracy": 0.85,
+            "precision": {"class_0": "exception", "class_1": 0.78},
+            "loss": (0.8, 0.2),
+            "confusion_matrix": [[50, 5], [10, 80]],
+        },
+        {
+            "accuracy": 0.85,
+            "precision": {"class_0": 0.90, "class_1": 0.78},
+            "loss": (0.8, 0.2),
+            "confusion_matrix": [["exception", 5], [10, 80]],
         },
     ],
 )
 def test_metrics_dict_to_mlflow_metrics_dict_exception(input_metrics: dict):
-    with pytest.raises(ValueError):
+    with pytest.raises(Exception):
         metrics_dict_to_mlflow_metrics_dict(input_metrics)
         assert True

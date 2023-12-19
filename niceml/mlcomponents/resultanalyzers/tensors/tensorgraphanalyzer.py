@@ -126,21 +126,30 @@ def metrics_dict_to_mlflow_metrics_dict(metrics_dict: dict) -> dict:
     mlflow_metrics_dict = defaultdict(float)
 
     for key, metric in metrics_dict.items():
-        if isinstance(metric, float):
-            mlflow_metrics_dict[key] = metric
-        elif isinstance(metric, dict):
-            for defect_type, value in metric.items():
-                mlflow_metrics_dict[f"{key}_{defect_type}"] = value
-        elif isinstance(metric, list):
-            for idx, values in enumerate(metric):
-                if isinstance(values, list):
-                    for inner_idx, inner_value in enumerate(values):
-                        mlflow_metrics_dict[f"{key}_{idx}_{inner_idx}"] = float(
-                            inner_value
-                        )
-                else:
-                    mlflow_metrics_dict[f"{key}_{idx}"] = float(values)
-        else:
-            raise ValueError("Metric should be of type float, dict or list")
-
+        try:
+            if isinstance(metric, (float, int)):
+                mlflow_metrics_dict[key] = float(metric)
+            elif isinstance(metric, tuple):
+                mlflow_metrics_dict[f"{key}_0"] = float(metric[0])
+                mlflow_metrics_dict[f"{key}_1"] = float(metric[1])
+            elif isinstance(metric, dict):
+                for metric_key, metric_value in metric.items():
+                    mlflow_metrics_dict[f"{key}_{metric_key}"] = float(metric_value)
+            elif isinstance(metric, list):
+                for idx, metric_value in enumerate(metric):
+                    if isinstance(metric_value, list):
+                        for inner_idx, inner_metric_value in enumerate(metric_value):
+                            mlflow_metrics_dict[f"{key}_{idx}_{inner_idx}"] = float(
+                                inner_metric_value
+                            )
+                        continue
+                    mlflow_metrics_dict[f"{key}_{idx}"] = float(metric_value)
+            else:
+                raise ValueError(
+                    "Metric should be of type int, float, dict, tuple, or list."
+                )
+        except (ValueError, TypeError) as error:
+            raise TypeError(
+                "Metrics of type dict, tuple or list must have values that can be parsed to float."
+            ) from error
     return mlflow_metrics_dict
