@@ -28,7 +28,7 @@ Adhere to the project's guidelines, including coding standards, documentation re
 
 ## 7. 🚨 Reporting Violations
 
-If you witness or experience any behavior that violates this code of conduct, promptly report it to one of the project maintainers ([Anke](https://github.com/ankeko), [Denis](https://github.com/dstalzjohn) or [Nils](https://github.com/nuhrberg)). All reports will be reviewed and handled confidentially. We are dedicated to addressing any concerns and ensuring a positive project environment for all.
+If you witness or experience any behavior that violates this code of conduct, promptly report it to one of the project maintainers at [contact-niceml@codecentric.de](mailto:contact-niceml@codecentric.de). All reports will be reviewed and handled confidentially. We are dedicated to addressing any concerns and ensuring a positive project environment for all.
 
 Remember that this code of conduct applies to all project spaces, including GitHub repositories, issue trackers, communication channels, and project events.
 
