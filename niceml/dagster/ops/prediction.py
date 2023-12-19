@@ -34,35 +34,41 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class PredictionConfig(Config):
-    prediction_handler: dict = create_hydra_init_field(PredictionHandler)
-    datasets: dict = create_hydra_map_field(Dataset)
+    prediction_handler_: dict = create_hydra_init_field(
+        target_class=PredictionHandler, alias="prediction_handler"
+    )
+    datasets_: dict = create_hydra_map_field(target_class=Dataset, alias="datasets")
     prediction_steps: Optional[int] = Field(
         default=None,
         description="If None the whole datasets are processed. "
         "Otherwise only `prediction_steps` are evaluated.",
     )
-    model_loader: dict = create_hydra_init_field(ModelLoader)
-    prediction_function: dict = create_hydra_init_field(PredictionFunction)
+    model_loader_: dict = create_hydra_init_field(
+        target_class=ModelLoader, alias="model_loader"
+    )
+    prediction_function_: dict = create_hydra_init_field(
+        target_class=PredictionFunction, alias="prediction_function"
+    )
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",
     )  # TODO: refactor
 
     @property
-    def prediction_handler_init(self) -> PredictionHandler:
-        return instantiate(self.prediction_handler, _convert_=ConvertMode.ALL)
+    def prediction_handler(self) -> PredictionHandler:
+        return instantiate(self.prediction_handler_, _convert_=ConvertMode.ALL)
 
     @property
-    def datasets_init(self) -> Dict[str, Dataset]:
-        return instantiate(self.datasets, _convert_=ConvertMode.ALL)
+    def datasets(self) -> Dict[str, Dataset]:
+        return instantiate(self.datasets_, _convert_=ConvertMode.ALL)
 
     @property
-    def model_loader_init(self) -> ModelLoader:
-        return instantiate(self.model_loader, _convert_=ConvertMode.ALL)
+    def model_loader(self) -> ModelLoader:
+        return instantiate(self.model_loader_, _convert_=ConvertMode.ALL)
 
     @property
-    def prediction_function_init(self) -> PredictionFunction:
-        return instantiate(self.prediction_function, _convert_=ConvertMode.ALL)
+    def prediction_function(self) -> PredictionFunction:
+        return instantiate(self.prediction_function_, _convert_=ConvertMode.ALL)
 
 
 # pylint: disable=use-dict-literal
@@ -99,13 +105,13 @@ def prediction(
             ),
             file_system=exp_fs,
         )
-        model = config.model_loader_init(
+        model = config.model_loader(
             join_fs_path(exp_fs, exp_root, model_path),
             custom_model_load_objects,
             file_system=exp_fs,
         )
 
-    datasets_dict: Dict[str, Dataset] = config.datasets_init
+    datasets_dict: Dict[str, Dataset] = config.datasets
 
     for dataset_key, cur_pred_set in datasets_dict.items():
         context.log.info(f"Predict dataset: {dataset_key}")
@@ -116,10 +122,10 @@ def prediction(
             prediction_steps=config.prediction_steps,
             model=model,
             prediction_set=cur_pred_set,
-            prediction_handler=config.prediction_handler_init,
+            prediction_handler=config.prediction_handler,
             exp_context=exp_context,
             filename=dataset_key,
-            prediction_function=config.prediction_function_init,
+            prediction_function=config.prediction_function,
         )
 
     return exp_context, datasets_dict, filelock_dict

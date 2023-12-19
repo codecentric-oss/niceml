@@ -17,15 +17,17 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class AnalysisConfig(Config):
-    result_analyzer: dict = create_hydra_init_field(ResultAnalyzer)
+    result_analyzer_: dict = create_hydra_init_field(
+        target_class=ResultAnalyzer, alias="result_analyzer"
+    )
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",
     )  # TODO: refactor
 
     @property
-    def result_analyzer_init(self) -> ResultAnalyzer:
-        return instantiate(self.result_analyzer, _convert_=ConvertMode.ALL)
+    def result_analyzer(self) -> ResultAnalyzer:
+        return instantiate(self.result_analyzer_, _convert_=ConvertMode.ALL)
 
 
 # pylint: disable=use-dict-literal
@@ -49,11 +51,11 @@ def analysis(
         exp_context.instantiate_datadescription_from_yaml()
     )
 
-    config.result_analyzer_init.initialize(data_description)
+    config.result_analyzer.initialize(data_description)
 
     for dataset_key, cur_pred_set in datasets.items():
         context.log.info(f"Analyze dataset: {dataset_key}")
         cur_pred_set.initialize(data_description, exp_context)
-        config.result_analyzer_init(cur_pred_set, exp_context, dataset_key)
+        config.result_analyzer(cur_pred_set, exp_context, dataset_key)
 
     return exp_context, filelock_dict

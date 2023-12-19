@@ -9,19 +9,21 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class LocksConfig(Config):
-    file_lock_dict: dict = create_hydra_map_field(FileLock)
+    file_lock_dict_: dict = create_hydra_map_field(
+        target_class=FileLock, alias="file_lock_dict"
+    )
 
     @property
-    def file_locks_init(self) -> Dict[str, FileLock]:
-        return instantiate(self.file_lock_dict, _convert_=ConvertMode.ALL)
+    def file_locks(self) -> Dict[str, FileLock]:
+        return instantiate(self.file_lock_dict_, _convert_=ConvertMode.ALL)
 
 
 @op
 def acquire_locks(context: OpExecutionContext, config: LocksConfig):
     """op for acquiring locks"""
-    for filelock in config.file_locks_init.values():
+    for filelock in config.file_locks.values():
         filelock.acquire()
-    return config.file_locks_init
+    return config.file_locks
 
 
 @op
@@ -34,5 +36,5 @@ def release_locks(_: OpExecutionContext, filelock_dict: dict):
 @op
 def clear_locks(context: OpExecutionContext, config: LocksConfig):
     """op for clearing locks"""
-    for filelock in config.file_locks_init.values():
+    for filelock in config.file_locks.values():
         filelock.force_delete()
