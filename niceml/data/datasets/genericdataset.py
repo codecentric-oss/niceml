@@ -1,4 +1,5 @@
 """module for generic dataset implementation"""
+from abc import ABC
 from typing import Dict, List, Optional
 
 
@@ -20,7 +21,7 @@ from niceml.mlcomponents.targettransformer.targettransformer import (
 )
 
 
-class GenericDataset(Dataset):
+class GenericDataset(Dataset, ABC):
     """Generic dataset implementation. This is a flexible dataset for multiple
     use cases. It can be used for classification, segmentation, object detection, etc.
     For specific frameworks, there are subclasses of this class, e.g. KerasGenericDataset
