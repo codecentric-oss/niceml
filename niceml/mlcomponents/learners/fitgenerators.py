@@ -6,8 +6,7 @@ from niceml.mlcomponents.learners.learner import Learner
 from niceml.mlcomponents.models.modelfactory import ModelFactory
 
 
-# pylint: disable=too-many-arguments
-def fit_generator(
+def fit_generator(  # noqa: PLR0913
     exp_context: ExperimentContext,
     learner: Learner,
     model: ModelFactory,
@@ -15,8 +14,6 @@ def fit_generator(
     validation_set,
     train_params: TrainParams,
     data_description: DataDescription,
-    custom_objects,
-    callbacks=None,
 ):
     """Function to fit the generator with the learner"""
     if train_params.validation_steps is not None:
@@ -31,6 +28,4 @@ def fit_generator(
         validation_set,
         train_params,
         data_description,
-        custom_objects,
-        callbacks,
     )

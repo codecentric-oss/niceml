@@ -19,27 +19,27 @@ data_description:
     max_number: 3
 
 model:
-  _target_: niceml.dlframeworks.tensorflow.models.unets.mobilenetv2_unet
+  _target_: niceml.dlframeworks.keras.models.unets.mobilenetv2_unet
   use_input_scale: true
   allow_preconvolution: true
   activation: sigmoid
   alpha: 1.0
   downscale_layer_factory:
-    _target_: niceml.dlframeworks.tensorflow.models.layerfactory.DownscaleConvBlockFactory
+    _target_: niceml.dlframeworks.keras.models.layerfactory.DownscaleConvBlockFactory
     channel_list: [128, 128, 128]
   post_layer_factory:
-    _target_: niceml.dlframeworks.tensorflow.models.layerfactory.Conv2DBlockFactory
+    _target_: niceml.dlframeworks.keras.models.layerfactory.Conv2DBlockFactory
     channel_list: [1024, 1024]
     kernel_size: 1
     dropout_values: [0.25, 0.25]
 
 learner:
-  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  _target_: niceml.dlframeworks.keras.learners.defaultlearner.DefaultLearner
   model_compiler:
-    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    _target_: niceml.dlframeworks.keras.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
     run_eagerly: ${niceml.to_bool:${oc.env:RUN_EAGERLY,false}}
     loss:
-      _target_: niceml.dlframeworks.tensorflow.losses.semseglosses.SemSegFocalLoss
+      _target_: niceml.dlframeworks.keras.losses.semseglosses.SemSegFocalLoss
       alpha: 0.25
       gamma: 2.0
     # Optimizer is used in the experiment
@@ -47,11 +47,11 @@ learner:
       _target_: tensorflow.keras.optimizers.RMSprop
       learning_rate: 0.0001
     metrics:
-      - _target_: niceml.dlframeworks.tensorflow.kerasmetrics.MeanIoU
-      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgPosPredSemSeg
-      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgNegPredSemSeg
-      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgPosTargetCountSemSeg
-      - _target_: niceml.dlframeworks.tensorflow.metrics.semsegmetrics.AvgNegTargetCountSemSeg
+      - _target_: niceml.dlframeworks.keras.kerasmetrics.MeanIoU
+      - _target_: niceml.dlframeworks.keras.metrics.semsegmetrics.AvgPosPredSemSeg
+      - _target_: niceml.dlframeworks.keras.metrics.semsegmetrics.AvgNegPredSemSeg
+      - _target_: niceml.dlframeworks.keras.metrics.semsegmetrics.AvgPosTargetCountSemSeg
+      - _target_: niceml.dlframeworks.keras.metrics.semsegmetrics.AvgNegTargetCountSemSeg
 
 data_train:
   datainfo_listing:
