@@ -73,7 +73,8 @@ changes along with your code changes.
 We are using [mkdocs](https://squidfunk.github.io/mkdocs-material/) to create
 the [niceML
 documentation](https://niceml.io/). Please use Markdown to create new documentation
-pages.
+pages and add it inside the `docs` folder. Make sure to add the file in the `SUMMARY.md`
+file, so it can will be displayed on the website.
 
 ## Community
 

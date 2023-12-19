@@ -44,8 +44,6 @@ class data_processor:
     pass
 ```
 
-## Pre-commit Hooks
-
 ## Pre-Commit Hooks
 
 We use of pre-commit hooks to maintain code quality and
@@ -68,7 +66,7 @@ poetry run pre-commit install
 poetry run pre-commit run --all-files
 ```
    
-**Run Pre-Commit on your staged Code Changes: (Required)**
+**Run Pre-Commit on your staged Code Changes: (Required for each Commit)**
 ```bash
 poetry run pre-commit run
 ```
@@ -84,11 +82,13 @@ poetry run pre-commit run
 - Write unit tests for new features and bug fixes.
 - Ensure existing tests pass before submitting a pull request.
 - Strive for high test coverage to catch potential issues early.
+- Make sure all tests ran successfully, before a Merge.
 
 ## Code Organization
 
 - Keep each module focused on a specific functionality.
 - Group related functions and classes together.
+- Generalize where it is reasonable and possible.
 - Avoid overly long functions; consider breaking them into smaller, more modular
   functions.
 
@@ -96,12 +96,10 @@ poetry run pre-commit run
 
 - Use [Poetry](https://python-poetry.org/) for managing project dependencies.
 - Document dependencies in the `pyproject.toml` file.
-- Pin versions to ensure consistent behavior across environments.
+- [Pin versions](https://python-poetry.org/docs/cli/#add) to ensure consistent behavior across environments.
 
-```toml
-[tool.poetry.dependencies]
-python = "^3.9"
-requests = "^2.26.0"
+```bash
+poetry add <new-package>
 ```
 
 ## Security
