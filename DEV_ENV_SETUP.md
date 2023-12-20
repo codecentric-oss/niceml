@@ -2,7 +2,9 @@
 
 ## Overview
 
-👋 Welcome to the development environment setup guide for niceML! This guide will walk you through the process of setting up a development environment for contributing to our open-source project. We use Poetry for managing dependencies, and we recommend using **conda** environments for a seamless development experience but pipenv or comparable solution . Let's get your environment up and running smoothly! 🚀
+👋 Welcome to the development environment setup guide for niceML! This guide will walk you through the process of setting up a development environment for contributing to our open-source project. 
+We use Poetry for managing dependencies, and we recommend using **conda** environments for a seamless development experience but pipenv or comparable solution are also possible. 
+Let's get your environment up and running smoothly! 🚀
 
 ## Prerequisites
 
@@ -33,7 +35,7 @@ For Apple Silicon we recommend python 3.8.
 
 ## Install Poetry Dependencies
 
-We recommend to don't use Poetry environments. Deactive the creation of poetry environments:
+We recommend that you don't use Poetry environments. Deactivate the creation of poetry environments:
 
 ```bash
 poetry config virtualenvs.create false
