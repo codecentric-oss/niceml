@@ -46,6 +46,11 @@ and outline the functionality you'd like to see.
    our [Pull Request Template](https://github.com/codecentric-oss/niceml/compare).
 4. There is a **Checklist** in the Pull Request Template. 
    Please ensure that you follow the checklist where appropriate.
+5. If the Git history contains only conventional commits, 
+   your code contribution will be rebased.
+6. If the Git history contains at least one commit that isn't a conventional commit
+   your code contribution will be squashed with a single conventional commit.
+ 
 
 
 ## Setting Up Your Development Environment
