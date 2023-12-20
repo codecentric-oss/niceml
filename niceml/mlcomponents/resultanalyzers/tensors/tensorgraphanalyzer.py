@@ -146,10 +146,11 @@ def metrics_dict_to_mlflow_metrics_dict(metrics_dict: dict) -> dict:
                     mlflow_metrics_dict[f"{key}_{idx}"] = float(metric_value)
             else:
                 raise ValueError(
-                    "Metric should be of type int, float, dict, tuple, or list."
+                    f"Metric ({key}) should be of type int, float, dict, tuple, or list."
                 )
         except (ValueError, TypeError) as error:
             raise TypeError(
-                "Metrics of type dict, tuple or list must have values that can be parsed to float."
+                f"Metrics ({key}) of type dict, tuple or list must have values that "
+                f"can be parsed to float."
             ) from error
     return mlflow_metrics_dict
