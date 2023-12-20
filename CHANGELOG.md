@@ -2,6 +2,38 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.0 (2023-12-20)
+
+### Feature
+
+* Add contribution guidelines to the project ([#103](https://github.com/codecentric-oss/niceml/issues/103)) ([`b9ea55a`](https://github.com/codecentric-oss/niceml/commit/b9ea55af87908f6c75507aaf6930489fa3f2e20a))
+* **MLflow:** Allow logging of nested tuple or int metrics in the `TensorGraphAnalyzer` ([`daea28a`](https://github.com/codecentric-oss/niceml/commit/daea28a7d76e441d238a044b2973ccf57a27e35e))
+* Change model custom objects and callbacks refactored ([`c6f9fd3`](https://github.com/codecentric-oss/niceml/commit/c6f9fd39d592559e8656eb07a1bff8d9816c16fa))
+* Write and read json options in experiment context ([#90](https://github.com/codecentric-oss/niceml/issues/90)) ([`1aa8bd5`](https://github.com/codecentric-oss/niceml/commit/1aa8bd537ed127ac299209e5d478bc5389650a91))
+
+### Fix
+
+* Rename tensorflow to keras ([`f38536f`](https://github.com/codecentric-oss/niceml/commit/f38536f802052ca50c60ec4c29d53923913a685c))
+* Pillow vulnerability and other + formatting ([#89](https://github.com/codecentric-oss/niceml/issues/89)) ([`9c62f3b`](https://github.com/codecentric-oss/niceml/commit/9c62f3b29b686b4d5c21bb46805a719b8a632c12))
+* Reload finished experiments in dashboard ([#87](https://github.com/codecentric-oss/niceml/issues/87)) ([`aafe59a`](https://github.com/codecentric-oss/niceml/commit/aafe59a160dd73d84697ddfa0ff26447139c32f5))
+* Generate mkdocs graphs with multiple dependencies ([#86](https://github.com/codecentric-oss/niceml/issues/86)) ([`61488b2`](https://github.com/codecentric-oss/niceml/commit/61488b29cde38ecabda9c60188150724409ca757))
+* Replace lambda `class_extractor` in `DirClsDataInfoListing` with a private function because lambdas are not pickable ([#85](https://github.com/codecentric-oss/niceml/issues/85)) ([`98f25df`](https://github.com/codecentric-oss/niceml/commit/98f25df82a7275260f9588830cae727c2a21c0d5))
+* Remove job flag to prevent multiple mlflow runs ([#82](https://github.com/codecentric-oss/niceml/issues/82)) ([`31b3875`](https://github.com/codecentric-oss/niceml/commit/31b3875cf062d594afe42406fdb9dfeb6586c88e))
+* Remove job flag to prevent multiple mlflow runs ([`8c8b78f`](https://github.com/codecentric-oss/niceml/commit/8c8b78f71dc514abe444b6f6bf125aaf707c38ea))
+
+### Documentation
+
+* **contribution:** Add information about how conventional and non-conventional commits are handled in pull requests ([`ec12c19`](https://github.com/codecentric-oss/niceml/commit/ec12c19cef99d53396b2400622a8a853f5a73020))
+* **DevEntSetup:** Refactor hint for other than conda ([`bc5acfe`](https://github.com/codecentric-oss/niceml/commit/bc5acfe247eb2224224f24c30b07162fad17019b))
+* **DevEnvSetup:** Add hint for pipenv or other comparable solutions. Add recommendation for Apple Silicon ([`2c732f5`](https://github.com/codecentric-oss/niceml/commit/2c732f523874e4f7e800c33c685f1d8a0f3862b2))
+* Update contact information in `CODE_OF_CONDUCT` ([`9780565`](https://github.com/codecentric-oss/niceml/commit/978056505747f7beb1d459701cf20b8024d8a409))
+* Add contribution guidelines and community standards into documentation ([`b209c4b`](https://github.com/codecentric-oss/niceml/commit/b209c4b24c6b732060960fca3abecb7f4e662984))
+* Optimize coding standards ([`3810dcb`](https://github.com/codecentric-oss/niceml/commit/3810dcb24c1e9f612829e541369f96c17568db0d))
+* Add `Commit Guidelines ` ([`c404b38`](https://github.com/codecentric-oss/niceml/commit/c404b383bf7df66cd841d9fae10a5d75300f36d0))
+* Add `Developer Environment Setup Guide` ([`94d5e83`](https://github.com/codecentric-oss/niceml/commit/94d5e836f8076dfe3e1d048f8e393ddb8c5e1496))
+* Standardize headings ([`50805f7`](https://github.com/codecentric-oss/niceml/commit/50805f7b1251adbe5fea95ea34ac4cfa0676ec3b))
+* Add coding standards and contribution guidelines ([`3a64c22`](https://github.com/codecentric-oss/niceml/commit/3a64c22d67f4c072c9ac5e6ab27d26d4b156595f))
+
 ## v0.10.0 (2023-12-12)
 
 ### Feature
