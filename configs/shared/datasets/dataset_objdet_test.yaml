@@ -1,4 +1,4 @@
-_target_: niceml.data.datasets.genericdataset.GenericDataset
+_target_: niceml.dlframeworks.keras.datasets.kerasgenericdataset.KerasGenericDataset
 batch_size: 2
 datainfo_listing:
   _target_: niceml.data.datainfolistings.objdetdatainfolisting.ObjDetDataInfoListing

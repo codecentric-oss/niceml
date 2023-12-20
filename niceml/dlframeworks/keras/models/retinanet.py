@@ -19,7 +19,7 @@ from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDes
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputObjDetDataDescription,
 )
-from niceml.dlframeworks.tensorflow.models.premodellayers import add_premodel_layers
+from niceml.dlframeworks.keras.models.premodellayers import add_premodel_layers
 from niceml.mlcomponents.models.modelfactory import ModelFactory
 from niceml.utilities.commonutils import check_instance
 from niceml.utilities.imagesize import ImageSize

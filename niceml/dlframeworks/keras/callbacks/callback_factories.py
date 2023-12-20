@@ -4,8 +4,8 @@ from os.path import join
 from pathlib import Path
 from typing import Any, List
 
-from niceml.dlframeworks.tensorflow.callbacks.csvlogger import CSVLogger
-from niceml.dlframeworks.tensorflow.callbacks.modelcheckpoint import ModelCheckpoint
+from niceml.dlframeworks.keras.callbacks.csvlogger import CSVLogger
+from niceml.dlframeworks.keras.callbacks.modelcheckpoint import ModelCheckpoint
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.factoryutils import subs_path_and_create_folder
 from niceml.utilities.fsspec.locationutils import join_location_w_path
@@ -96,6 +96,6 @@ class CamCallbackFactory(CallbackFactory):  # pylint: disable=too-few-public-met
         Path(filepath).mkdir(exist_ok=True, parents=False)
 
         # pylint: disable=import-outside-toplevel
-        from niceml.dlframeworks.tensorflow.callbacks.cam_callback import CamCallback
+        from niceml.dlframeworks.keras.callbacks.cam_callback import CamCallback
 
         return CamCallback(output_dir=filepath, images=self.images)

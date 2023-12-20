@@ -1,7 +1,7 @@
 import pytest
 import tensorflow as tf
 
-from niceml.dlframeworks.tensorflow.metrics.semsegmetrics import (
+from niceml.dlframeworks.keras.metrics.semsegmetrics import (
     AvgNegPredSemSeg,
     AvgNegTargetCountSemSeg,
     AvgPosPredSemSeg,
