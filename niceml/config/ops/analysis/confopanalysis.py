@@ -11,13 +11,13 @@ from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DataframeA
 class ConfResultAnalyzer(InitConfig):
     """This class configures the result analyzer"""
 
-    target: str = create_field(DataframeAnalyzer)
+    target: str = InitConfig.create_target_field(DataframeAnalyzer)
 
 
 class ConfClsMetricAccuracy(InitConfig):
     """This class configures the accuracy metric"""
 
-    target: str = create_field(ClsMetric)
+    target: str = InitConfig.create_target_field(ClsMetric)
     function: str = "accuracy"
     source_col: str = "class_idx"
     target_cols_prefix: str = "pred_"
@@ -32,7 +32,7 @@ class ConfClsMetricConfusionMatrix(ConfClsMetricAccuracy):
 class ConfOpAnalysisClsSoftmax(AnalysisConfig):
     """This class configures the analysis op for classification with softmax"""
 
-    result_analyzer_: ConfResultAnalyzer = Field(
+    result_analyzer: ConfResultAnalyzer = Field(
         default_factory=ConfResultAnalyzer,
         description="Result analyzer",
         alias="result_analyzer",

@@ -1,10 +1,10 @@
 from pydantic import Field
 
-from niceml.config.hydra import InitConfig, create_field, get_class_path
+from niceml.config.hydra import InitConfig, get_class_path
 from niceml.config.subsetnames import SubsetNames
 from niceml.data.datainfolistings.clsdatainfolisting import DirClsDataInfoListing
 from niceml.data.dataloaders.clsdataloader import ClsDataLoader
-from niceml.data.datasets.genericdataset import GenericDataset
+from niceml.dlframeworks.keras.datasets.kerasgenericdataset import KerasGenericDataset
 from niceml.mlcomponents.targettransformer.imageinputtransformer import (
     ImageInputTransformer,
 )
@@ -16,7 +16,7 @@ from niceml.mlcomponents.targettransformer.targettransformercls import (
 class ConfDirClsDataInfoListingTest(InitConfig):
     """This class configures the data info listing"""
 
-    target: str = create_field(DirClsDataInfoListing)
+    target: str = InitConfig.create_target_field(DirClsDataInfoListing)
     location: dict = dict(uri="uri: ${oc.env:DATA_URI,./data}/numbers_cropped_split")
     sub_dir: str = SubsetNames.TEST
 
@@ -24,7 +24,7 @@ class ConfDirClsDataInfoListingTest(InitConfig):
 class ConfDatasetClsTest(InitConfig):
     """This class configures the dataset"""
 
-    target: str = create_field(GenericDataset)
+    target: str = InitConfig.create_target_field(KerasGenericDataset)
     set_name: str = SubsetNames.TEST
     batch_size: int = 2
     shuffle: bool = False

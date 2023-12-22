@@ -1,6 +1,6 @@
 from typing import List
 
-from niceml.config.hydra import InitConfig, create_field
+from niceml.config.hydra import InitConfig
 from niceml.dagster.ops.exptests import ExpTestsConfig
 from niceml.experiments.experimenttests.checkfilesfolderstest import (
     CheckFilesFoldersTest,
@@ -15,25 +15,25 @@ from niceml.experiments.experimenttests.validateexps import (
 class ConfModelsSavedExpTest(InitConfig):
     """Config for ModelsSavedExpTest"""
 
-    target: str = create_field(ModelsSavedExpTest)
+    target: str = InitConfig.create_target_field(ModelsSavedExpTest)
 
 
 class ConfParqFilesNoNoneExpTest(InitConfig):
     """Config for ParqFilesNoNoneExpTest"""
 
-    target: str = create_field(ParqFilesNoNoneExpTest)
+    target: str = InitConfig.create_target_field(ParqFilesNoNoneExpTest)
 
 
 class ConfExpEmptyTest(InitConfig):
     """Config for ExpEmptyTest"""
 
-    target: str = create_field(ExpEmptyTest)
+    target: str = InitConfig.create_target_field(ExpEmptyTest)
 
 
 class ConfCheckFilesFoldersTest(InitConfig):
     """Config for CheckFilesFoldersTest"""
 
-    target: str = create_field(CheckFilesFoldersTest)
+    target: str = InitConfig.create_target_field(CheckFilesFoldersTest)
     folders: List[str] = ["configs"]
     files: List[str] = [
         "configs/train/model_load_custom_objects.yaml",

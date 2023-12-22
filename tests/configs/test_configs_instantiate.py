@@ -69,5 +69,5 @@ def conf_class(request):
 
 def test_instantiate_conf_classes(conf_class):
     cur_conf = conf_class()
-    if isinstance(cur_conf, InitConfig):
+    if getattr(cur_conf, "instantiate", None) is not None:
         cur_conf.instantiate()
