@@ -7,14 +7,12 @@ from typing import Dict, Optional, Tuple, List
 import numpy as np
 import tqdm
 from dagster import OpExecutionContext, op, Out, Config
-from hydra.utils import ConvertMode, instantiate
 from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
 from niceml.config.hydra import (
-    create_field,
-    create_hydra_map_field,
-    instantiate_from_yaml,
+    InitConfig,
+    MapInitConfig,
 )
 from niceml.config.writeopconfig import write_op_config
 from niceml.data.datadescriptions.datadescription import DataDescription
@@ -31,39 +29,23 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class PredictionConfig(Config):
-    prediction_handler_: dict = create_field(
-        target_class=PredictionHandler, alias="prediction_handler"
+    prediction_handler: InitConfig = InitConfig.create_config_field(
+        target_class=PredictionHandler
     )
-    datasets_: dict = create_hydra_map_field(target_class=Dataset, alias="datasets")
+    datasets: MapInitConfig = MapInitConfig.create_config_field(target_class=Dataset)
     prediction_steps: Optional[int] = Field(
         default=None,
         description="If None the whole datasets are processed. "
         "Otherwise only `prediction_steps` are evaluated.",
     )
-    model_loader_: dict = create_field(target_class=ModelLoader, alias="model_loader")
-    prediction_function_: dict = create_field(
-        target_class=PredictionFunction, alias="prediction_function"
+    model_loader: InitConfig = InitConfig.create_config_field(target_class=ModelLoader)
+    prediction_function: InitConfig = InitConfig.create_config_field(
+        target_class=PredictionFunction
     )
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",
     )  # TODO: refactor
-
-    @property
-    def prediction_handler(self) -> PredictionHandler:
-        return instantiate(self.prediction_handler_, _convert_=ConvertMode.ALL)
-
-    @property
-    def datasets(self) -> Dict[str, Dataset]:
-        return instantiate(self.datasets_, _convert_=ConvertMode.ALL)
-
-    @property
-    def model_loader(self) -> ModelLoader:
-        return instantiate(self.model_loader_, _convert_=ConvertMode.ALL)
-
-    @property
-    def prediction_function(self) -> PredictionFunction:
-        return instantiate(self.prediction_function_, _convert_=ConvertMode.ALL)
 
 
 # pylint: disable=use-dict-literal
@@ -90,13 +72,16 @@ def prediction(
 
     exp_data: ExperimentData = create_expdata_from_expcontext(exp_context)
     model_path: str = exp_data.get_model_path(relative_path=True)
+    model_loader: ModelLoader = config.model_loader.instantiate()
     with open_location(exp_context.fs_config) as (exp_fs, exp_root):
-        model = config.model_loader(
+        model = model_loader(
             join_fs_path(exp_fs, exp_root, model_path),
             file_system=exp_fs,
         )
 
-    datasets_dict: Dict[str, Dataset] = config.datasets
+    datasets_dict: Dict[str, Dataset] = config.datasets.instantiate()
+    prediction_handler: PredictionHandler = config.prediction_handler.instantiate()
+    prediction_function: PredictionFunction = config.prediction_function.instantiate()
 
     for dataset_key, cur_pred_set in datasets_dict.items():
         context.log.info(f"Predict dataset: {dataset_key}")
@@ -107,10 +92,10 @@ def prediction(
             prediction_steps=config.prediction_steps,
             model=model,
             prediction_set=cur_pred_set,
-            prediction_handler=config.prediction_handler,
+            prediction_handler=prediction_handler,
             exp_context=exp_context,
             filename=dataset_key,
-            prediction_function=config.prediction_function,
+            prediction_function=prediction_function,
         )
 
     return exp_context, datasets_dict, filelock_dict

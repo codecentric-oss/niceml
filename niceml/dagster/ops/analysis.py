@@ -2,11 +2,10 @@
 from typing import Dict, Tuple, List
 
 from dagster import OpExecutionContext, op, Out, Config
-from hydra.utils import ConvertMode, instantiate
 from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
-from niceml.config.hydra import create_field, InitConfig
+from niceml.config.hydra import InitConfig
 from niceml.config.writeopconfig import write_op_config
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datasets.dataset import Dataset
@@ -17,18 +16,13 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class AnalysisConfig(Config):
-    result_analyzer_: InitConfig = Field(alias="result_analyzer")
-    # create_hydra_init_field(
-    #    target_class=ResultAnalyzer, alias="result_analyzer"
-    # )
+    """This class configures the analysis op"""
+
+    result_analyzer: InitConfig = InitConfig.create_config_field(ResultAnalyzer)
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",
     )  # TODO: refactor
-
-    @property
-    def result_analyzer(self) -> ResultAnalyzer:
-        return instantiate(self.result_analyzer_, _convert_=ConvertMode.ALL)
 
 
 # pylint: disable=use-dict-literal
@@ -51,12 +45,13 @@ def analysis(
     data_description: DataDescription = (
         exp_context.instantiate_datadescription_from_yaml()
     )
+    result_analyzer: ResultAnalyzer = config.result_analyzer.instantiate()
 
-    config.result_analyzer.initialize(data_description)
+    result_analyzer.initialize(data_description)
 
     for dataset_key, cur_pred_set in datasets.items():
         context.log.info(f"Analyze dataset: {dataset_key}")
         cur_pred_set.initialize(data_description, exp_context)
-        config.result_analyzer(cur_pred_set, exp_context, dataset_key)
+        result_analyzer(cur_pred_set, exp_context, dataset_key)
 
     return exp_context, filelock_dict

@@ -2,7 +2,6 @@
 from typing import Dict, Tuple, List
 
 from dagster import OpExecutionContext, op, Out, Config
-from hydra.utils import ConvertMode, instantiate
 from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
@@ -33,12 +32,6 @@ class TrainConfig(Config):
     )
     data_train: InitConfig = InitConfig.create_config_field(target_class=Dataset)
     data_validation: InitConfig = InitConfig.create_config_field(target_class=Dataset)
-    model_load_custom_objects: InitConfig = InitConfig.create_config_field(
-        target_class=ModelCustomLoadObjects
-    )
-    callbacks: InitConfig = InitConfig.create_config_field(
-        target_class=CallbackInitializer
-    )
     learner: InitConfig = InitConfig.create_config_field(target_class=Learner)
     exp_initializer: InitConfig = InitConfig.create_config_field(
         target_class=ExpOutInitializer
