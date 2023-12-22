@@ -11,6 +11,13 @@ class CyclicLRSchedule(LearningRateSchedule):
     """Cyclic learning rate schedule"""
 
     def __init__(self, max_lr: float, cycle_size: int, min_lr: Optional[float] = None):
+        """
+        Constructor for CyclicLRSchedule
+        Args:
+            max_lr: maximum learning rate
+            cycle_size: steps per cycle
+            min_lr: minimum learning rate (default: max_lr / 10)
+        """
         super().__init__()
         self.max_lr = max_lr
         self.cycle_size = cycle_size

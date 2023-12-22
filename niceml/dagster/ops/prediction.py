@@ -23,9 +23,6 @@ from niceml.experiments.expdatalocalstorageloader import create_expdata_from_exp
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.experimentdata import ExperimentData
 from niceml.experiments.expfilenames import ExperimentFilenames, OpNames
-from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
-    ModelCustomLoadObjects,
-)
 from niceml.mlcomponents.modelloader.modelloader import ModelLoader
 from niceml.mlcomponents.predictionfunction.predictionfunction import PredictionFunction
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
@@ -94,18 +91,8 @@ def prediction(
     exp_data: ExperimentData = create_expdata_from_expcontext(exp_context)
     model_path: str = exp_data.get_model_path(relative_path=True)
     with open_location(exp_context.fs_config) as (exp_fs, exp_root):
-        custom_model_load_objects: ModelCustomLoadObjects = instantiate_from_yaml(
-            join(
-                exp_root,
-                ExperimentFilenames.CONFIGS_FOLDER,
-                OpNames.OP_TRAIN.value,
-                ExperimentFilenames.CUSTOM_LOAD_OBJECTS,
-            ),
-            file_system=exp_fs,
-        )
         model = config.model_loader(
             join_fs_path(exp_fs, exp_root, model_path),
-            custom_model_load_objects,
             file_system=exp_fs,
         )
 

@@ -111,14 +111,14 @@ data_validation:
     sub_dir: validation
   set_name: validation
 model:
-  _target_: niceml.dlframeworks.tensorflow.models.mobilenet.OwnMobileNetModel
+  _target_: niceml.dlframeworks.keras.models.mobilenet.OwnMobileNetModel
   final_activation: sigmoid
 model_load_custom_objects:
   _target_: niceml.mlcomponents.modelcompiler.modelcustomloadobjects.ModelCustomLoadObjects
 learner:
-  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  _target_: niceml.dlframeworks.keras.learners.defaultlearner.DefaultLearner
   model_compiler:
-    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    _target_: niceml.dlframeworks.keras.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
     loss: binary_crossentropy
     # Optimizer used in the experiment
     optimizer:

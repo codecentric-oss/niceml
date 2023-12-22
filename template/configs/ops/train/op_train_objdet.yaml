@@ -18,30 +18,30 @@ data_description:
     height: 1024
 
 model:
-  _target_: niceml.dlframeworks.tensorflow.models.retinanet.RetinaNetFactory
+  _target_: niceml.dlframeworks.keras.models.retinanet.RetinaNetFactory
 
 learner:
-  _target_: niceml.dlframeworks.tensorflow.learners.defaultlearner.DefaultLearner
+  _target_: niceml.dlframeworks.keras.learners.defaultlearner.DefaultLearner
   model_compiler:
-    _target_: niceml.dlframeworks.tensorflow.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
+    _target_: niceml.dlframeworks.keras.modelcompiler.defaultmodelcompiler.DefaultModelCompiler
     run_eagerly: ${niceml.to_bool:${oc.env:RUN_EAGERLY,false}}
     loss:
-      _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.CombinationLoss
+      _target_: niceml.dlframeworks.keras.losses.objdetlosses.CombinationLoss
       weights: [5000.0,0.1]
       losses:
-        - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetClsLoss
-        - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetBoxLoss
+        - _target_: niceml.dlframeworks.keras.losses.objdetlosses.RetinaNetClsLoss
+        - _target_: niceml.dlframeworks.keras.losses.objdetlosses.RetinaNetBoxLoss
     # Optimizer is used in the experiment
     optimizer:
       _target_: tensorflow.keras.optimizers.RMSprop
       learning_rate: 0.0001
     metrics:
-      - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetClsLoss
-      - _target_: niceml.dlframeworks.tensorflow.losses.objdetlosses.RetinaNetBoxLoss
-      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgPosPredObjDet
-      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgPosTargetCountObjDet
-      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgNegTargetCountObjDet
-      - _target_: niceml.dlframeworks.tensorflow.metrics.objdetmetrics.AvgNegPredObjDet
+      - _target_: niceml.dlframeworks.keras.losses.objdetlosses.RetinaNetClsLoss
+      - _target_: niceml.dlframeworks.keras.losses.objdetlosses.RetinaNetBoxLoss
+      - _target_: niceml.dlframeworks.keras.metrics.objdetmetrics.AvgPosPredObjDet
+      - _target_: niceml.dlframeworks.keras.metrics.objdetmetrics.AvgPosTargetCountObjDet
+      - _target_: niceml.dlframeworks.keras.metrics.objdetmetrics.AvgNegTargetCountObjDet
+      - _target_: niceml.dlframeworks.keras.metrics.objdetmetrics.AvgNegPredObjDet
 
 
 data_train:

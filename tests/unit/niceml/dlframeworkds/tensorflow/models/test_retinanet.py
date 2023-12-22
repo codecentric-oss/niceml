@@ -3,7 +3,7 @@ import tensorflow as tf
 from keras.models import Model
 
 from niceml.data.datadescriptions.objdetdatadescription import ObjDetDataDescription
-from niceml.dlframeworks.tensorflow.models.retinanet import RetinaNetFactory
+from niceml.dlframeworks.keras.models.retinanet import RetinaNetFactory
 from niceml.utilities.imagesize import ImageSize
 
 

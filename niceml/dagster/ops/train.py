@@ -15,12 +15,8 @@ from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames, OpNames
 from niceml.experiments.expoutinitializer import ExpOutInitializer
-from niceml.mlcomponents.callbacks.callbackinitializer import CallbackInitializer
 from niceml.mlcomponents.learners.fitgenerators import fit_generator
 from niceml.mlcomponents.learners.learner import Learner
-from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
-    ModelCustomLoadObjects,
-)
 from niceml.mlcomponents.models.modelfactory import ModelFactory
 from niceml.utilities.readwritelock import FileLock
 
@@ -83,7 +79,5 @@ def train(
         data_validation,
         config.train_params,
         config.data_description.instantiate(),
-        config.model_load_custom_objects,
-        config.callbacks(exp_context),
     )
     return exp_context, filelock_dict

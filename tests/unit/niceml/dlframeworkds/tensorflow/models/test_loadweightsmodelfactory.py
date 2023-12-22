@@ -5,10 +5,10 @@ import pytest
 from keras.models import Model
 
 from niceml.data.datadescriptions.clsdatadescription import ClsDataDescription
-from niceml.dlframeworks.tensorflow.models.loadweightsmodelfactory import (
+from niceml.dlframeworks.keras.models.loadweightsmodelfactory import (
     LoadWeightsModelFactory,
 )
-from niceml.dlframeworks.tensorflow.models.mobilenet import OwnMobileNetModel
+from niceml.dlframeworks.keras.models.mobilenet import OwnMobileNetModel
 from niceml.utilities.fsspec.locationutils import LocationConfig
 from niceml.utilities.imagesize import ImageSize
 

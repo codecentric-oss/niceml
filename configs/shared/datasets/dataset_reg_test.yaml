@@ -1,4 +1,4 @@
-_target_: niceml.data.datasets.dfdataset.DfDataset
+_target_: niceml.dlframeworks.keras.datasets.kerasdfdataset.KerasDfDataset
 id_key: identifier
 batch_size: 64
 data_location: ${globals.data_location}

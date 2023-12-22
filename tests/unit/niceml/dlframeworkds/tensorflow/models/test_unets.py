@@ -5,8 +5,8 @@ from niceml.data.datadescriptions.semsegdatadescritption import (
     SemSegDataDescription,
     create_number_semseg_datadescription,
 )
-from niceml.dlframeworks.tensorflow.models.layerfactory import DownscaleConvBlockFactory
-from niceml.dlframeworks.tensorflow.models.unets import resnet50v2_unet
+from niceml.dlframeworks.keras.models.layerfactory import DownscaleConvBlockFactory
+from niceml.dlframeworks.keras.models.unets import resnet50v2_unet
 from niceml.utilities.imagesize import ImageSize, ImageSizeDivisionError
 
 
