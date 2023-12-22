@@ -4,6 +4,20 @@ import pytest
 from hydra.utils import instantiate
 from omegaconf.dictconfig import DictConfig
 
+from niceml.config.hydra import InitConfig
+from niceml.config.ops.analysis.confopanalysis import ConfOpAnalysisClsSoftmax
+from niceml.config.ops.exptests.confexptestsdefault import (
+    ConfExpTestsDefault,
+    ConfModelsSavedExpTest,
+    ConfParqFilesNoNoneExpTest,
+    ConfExpEmptyTest,
+    ConfCheckFilesFoldersTest,
+)
+from niceml.config.shared.confdatasets import (
+    ConfDatasetClsTest,
+    ConfDatasetClsTrain,
+    ConfDatasetClsValidation,
+)
 from niceml.scripts.hydraconfreader import load_hydra_conf
 
 
@@ -26,11 +40,34 @@ def yaml_path(request):
     return join(project_dir, request.param)
 
 
-def test_load_confs(yaml_path: str):
-    load_hydra_conf(yaml_path)
+@pytest.fixture(
+    params=[
+        ConfExpTestsDefault,
+        ConfModelsSavedExpTest,
+        ConfParqFilesNoNoneExpTest,
+        ConfExpEmptyTest,
+        ConfCheckFilesFoldersTest,
+        ConfOpAnalysisClsSoftmax,
+        ConfDatasetClsTest,
+        ConfDatasetClsTrain,
+        ConfDatasetClsValidation,
+    ]
+)
+def conf_class(request):
+    return request.param
 
 
-def test_instantiate_confs(yaml_path: str):
-    conf = load_hydra_conf(yaml_path)
-    res = instantiate(conf)
-    assert isinstance(res, DictConfig)
+# def test_load_confs(yaml_path: str):
+#    load_hydra_conf(yaml_path)
+
+
+# def test_instantiate_confs(yaml_path: str):
+#    conf = load_hydra_conf(yaml_path)
+#    res = instantiate(conf)
+#    assert isinstance(res, DictConfig)
+
+
+def test_instantiate_conf_classes(conf_class):
+    cur_conf = conf_class()
+    if isinstance(cur_conf, InitConfig):
+        cur_conf.instantiate()

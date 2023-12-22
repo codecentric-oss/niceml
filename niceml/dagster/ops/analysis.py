@@ -6,7 +6,7 @@ from hydra.utils import ConvertMode, instantiate
 from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
-from niceml.config.hydra import create_hydra_init_field
+from niceml.config.hydra import create_field, InitConfig
 from niceml.config.writeopconfig import write_op_config
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datasets.dataset import Dataset
@@ -17,9 +17,10 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class AnalysisConfig(Config):
-    result_analyzer_: dict = create_hydra_init_field(
-        target_class=ResultAnalyzer, alias="result_analyzer"
-    )
+    result_analyzer_: InitConfig = Field(alias="result_analyzer")
+    # create_hydra_init_field(
+    #    target_class=ResultAnalyzer, alias="result_analyzer"
+    # )
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",

@@ -4,13 +4,13 @@ import json
 
 from hydra.utils import ConvertMode, instantiate
 
-from niceml.config.hydra import create_hydra_init_field
+from niceml.config.hydra import create_field
 from niceml.utilities.imagegeneration import NumberDataGenerator
 from niceml.utilities.splitutils import clear_folder
 from dagster import OpExecutionContext, op
 
 
-@op(config_schema={"data_generator": create_hydra_init_field(NumberDataGenerator)})
+@op(config_schema={"data_generator": create_field(NumberDataGenerator)})
 def data_generation(
     context: OpExecutionContext,
 ):

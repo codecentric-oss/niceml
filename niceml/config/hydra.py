@@ -5,10 +5,10 @@ from tempfile import TemporaryDirectory, mkstemp
 from typing import Any, Dict, Iterable, Optional
 
 import yaml
-from dagster import config_mapping
+from dagster import config_mapping, Config
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
-from hydra.utils import instantiate
+from hydra.utils import instantiate, ConvertMode
 from pydantic import Field
 
 from niceml.scripts.hydraconfreader import load_hydra_conf
@@ -69,40 +69,6 @@ def hydra_conf_mapping_factory(drop: Iterable[str] = ("globals",)):
     return hydra_conf_mapping
 
 
-def create_hydra_init_field(
-    target_class,
-    description: Optional[str] = None,
-    default_value: Optional[dict] = None,
-    example_value: Optional[dict] = None,
-    **kwargs,
-):
-    """
-    Used to configure Dagster Ops with a target class
-
-    Args:
-        target_class: class which is instantiated from the op
-        description: description of the class or field
-        default_value: default value of the field when nothing is provided
-        example_value: example value of the field shown in the documentation
-        **kwargs: additional kwargs passed to the Field class
-    """
-    if description is None:
-        description = target_class.__doc__
-    if default_value is None:
-        default_value = {}
-    if example_value is None:
-        impl_str: str = "implementation_of_" if isabstract(target_class) else ""
-        default_value = {
-            "_target_": f"{impl_str}{target_class.__module__}.{target_class.__name__}"
-        }
-    return Field(
-        description=description,
-        default=default_value,
-        example_value=example_value,
-        **kwargs,
-    )
-
-
 def create_hydra_map_field(
     target_class,
     description: Optional[str] = None,
@@ -123,12 +89,10 @@ def create_hydra_map_field(
     if description is None:
         description = target_class.__doc__
     if default_value is None:
-        default_value = {}
-    if example_value is None:
         impl_str: str = "implementation_of_" if isabstract(target_class) else ""
         default_value = {
             "value": {
-                "_target_": f"{impl_str}{target_class.__module__}.{target_class.__name__}"
+                "_target_": f"{impl_str}{get_class_path(target_class)}",
             }
         }
     return Field(
@@ -137,3 +101,79 @@ def create_hydra_map_field(
         example_value=example_value,
         **kwargs,
     )
+
+
+def get_class_path(cls):
+    """Get the path of a class"""
+    return f"{cls.__module__}.{cls.__name__}"
+
+
+class InitConfig(Config):
+    target: str = Field(
+        ..., description="Target class which is instantiated.", alias="_target_"
+    )
+
+    def instantiate(self):
+        return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)
+
+    @staticmethod
+    def create_target_field(
+        target_class,
+        description: Optional[str] = None,
+        default_value: Optional[dict] = None,
+        example_value: Optional[dict] = None,
+        **kwargs,
+    ):
+        """
+        Used to configure Dagster Ops with a target class
+
+        Args:
+            target_class: class which is instantiated from the op
+            description: description of the class or field
+            default_value: default value of the field when nothing is provided
+            **kwargs: additional kwargs passed to the Field class
+        """
+        if description is None:
+            description = target_class.__doc__
+        if default_value is None:
+            impl_str: str = "implementation_of_" if isabstract(target_class) else ""
+            default_value = f"{impl_str}{get_class_path(target_class)}"
+
+        return Field(
+            description=description,
+            default=default_value,
+            example_value=example_value,
+            alias="_target_",
+            **kwargs,
+        )
+
+    @staticmethod
+    def create_config_field(
+        target_class,
+        description: Optional[str] = None,
+        **kwargs,
+    ):
+        """
+        Used to configure Dagster Ops with a InitConfig
+
+        Args:
+            target_class: class which is instantiated from the op
+            **kwargs: additional kwargs passed to the Field class
+        """
+        if description is None:
+            description = (
+                f"Implementation of class: {target_class.__name__}"
+                + target_class.__doc__
+            )
+
+        return Field(
+            description=description,
+            **kwargs,
+        )
+
+
+class MapInitConfig(Config):
+    """Hydra Map Config"""
+
+    def instantiate(self):
+        return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)

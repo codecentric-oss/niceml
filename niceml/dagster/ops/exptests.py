@@ -6,7 +6,7 @@ from hydra.utils import ConvertMode, instantiate
 from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
-from niceml.config.hydra import create_hydra_init_field
+from niceml.config.hydra import create_field, InitConfig
 from niceml.config.writeopconfig import write_op_config
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.experimenttests.testinitializer import ExpTestProcess
@@ -15,7 +15,7 @@ from niceml.utilities.fsspec.locationutils import open_location
 
 
 class ExpTestsConfig(Config):
-    tests_: List[dict] = Field(description="Exp tests", alias="tests")
+    tests_: List[InitConfig] = Field(description="Exp tests", alias="tests")
     remove_key_list: List[str] = Field(
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",
@@ -23,7 +23,9 @@ class ExpTestsConfig(Config):
 
     @property
     def tests(self) -> ExpTestProcess:
-        return instantiate(self.tests_, _convert_=ConvertMode.ALL)
+        return ExpTestProcess(
+            test_list=instantiate(self.tests_, _convert_=ConvertMode.ALL)
+        )
 
 
 # pylint: disable=use-dict-literal

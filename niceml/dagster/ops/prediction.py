@@ -12,7 +12,7 @@ from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
 from niceml.config.hydra import (
-    create_hydra_init_field,
+    create_field,
     create_hydra_map_field,
     instantiate_from_yaml,
 )
@@ -34,7 +34,7 @@ from niceml.utilities.readwritelock import FileLock
 
 
 class PredictionConfig(Config):
-    prediction_handler_: dict = create_hydra_init_field(
+    prediction_handler_: dict = create_field(
         target_class=PredictionHandler, alias="prediction_handler"
     )
     datasets_: dict = create_hydra_map_field(target_class=Dataset, alias="datasets")
@@ -43,10 +43,8 @@ class PredictionConfig(Config):
         description="If None the whole datasets are processed. "
         "Otherwise only `prediction_steps` are evaluated.",
     )
-    model_loader_: dict = create_hydra_init_field(
-        target_class=ModelLoader, alias="model_loader"
-    )
-    prediction_function_: dict = create_hydra_init_field(
+    model_loader_: dict = create_field(target_class=ModelLoader, alias="model_loader")
+    prediction_function_: dict = create_field(
         target_class=PredictionFunction, alias="prediction_function"
     )
     remove_key_list: List[str] = Field(

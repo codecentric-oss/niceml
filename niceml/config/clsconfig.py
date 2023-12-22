@@ -1,17 +1,26 @@
 import os
 
 from dagster import Config, RunConfig
-from dagster_mlflow import mlflow_tracking
 
+from niceml.config.hydra import InitConfig
+from niceml.config.ops.analysis.confopanalysis import ConfOpAnalysisClsSoftmax
+from niceml.config.ops.exptests.confexptestsdefault import ConfExpTestsDefault
 from niceml.dagster.ops.analysis import AnalysisConfig
 from niceml.dagster.ops.experiment import ExperimentConfig
-from niceml.dagster.ops.exptests import ExpTestsConfig
 from niceml.dagster.ops.filelockops import LocksConfig
 from niceml.dagster.ops.prediction import PredictionConfig
 from niceml.dagster.ops.train import TrainConfig
-from niceml.scripts.hydraconfreader import load_hydra_conf
+from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DataframeAnalyzer
 from niceml.utilities.ioutils import read_yaml
 from niceml.utilities.omegaconfutils import register_niceml_resolvers
+
+
+class ConfResultAnalyzer(InitConfig):
+    target: str = InitConfig.create_target_field(DataframeAnalyzer)
+
+
+class ConfOpAnalysis(AnalysisConfig):
+    result_analyzer_ = dict()
 
 
 class CLSOpConfig(Config):
@@ -20,32 +29,18 @@ class CLSOpConfig(Config):
     train: TrainConfig
     prediction: PredictionConfig
     analysis: AnalysisConfig
-    exptests: ExpTestsConfig
+    exptests: ConfExpTestsDefault
 
 
-# class CLSJobConfig(Config):
-#     ops: str = Field(
-#         description="bla"
-#     )
 register_niceml_resolvers()
 cls_run_config = RunConfig(
     ops={
         "acquire_locks": LocksConfig(file_lock_dict={}),
         "experiment": ExperimentConfig(),
-        "train": TrainConfig(
-            # **load_hydra_conf(
-            #     conf_path="configs/ops/train/op_train_cls_binary_save.yaml"
-            # )
-        ),
+        "train": TrainConfig(),
         "prediction": PredictionConfig(),
-        "analysis": AnalysisConfig(
-            **read_yaml(filepath="configs/ops/analysis/op_analysis_cls_softmax.yaml")
-        ),
-        "exptests": ExpTestsConfig(
-            tests=read_yaml(filepath="configs/ops/exptests/exptests_default.yaml")[
-                "test_list"
-            ]
-        ),
+        "analysis": ConfOpAnalysisClsSoftmax(),
+        "exptests": ConfExpTestsDefault(),
     },
     resources={
         "mlflow": {
