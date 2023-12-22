@@ -13,6 +13,12 @@ from niceml.config.ops.exptests.confexptestsdefault import (
     ConfExpEmptyTest,
     ConfCheckFilesFoldersTest,
 )
+from niceml.config.ops.train.confoptraincls import (
+    ConfDataDescriptionCls,
+    ConfClsKerasLearner,
+    ConfDefaultModelCompiler,
+    ConfOpTrainCls,
+)
 from niceml.config.shared.confdatasets import (
     ConfDatasetClsTest,
     ConfDatasetClsTrain,
@@ -51,6 +57,10 @@ def yaml_path(request):
         ConfDatasetClsTest,
         ConfDatasetClsTrain,
         ConfDatasetClsValidation,
+        ConfDataDescriptionCls,
+        ConfClsKerasLearner,
+        ConfDefaultModelCompiler,
+        ConfOpTrainCls,
     ]
 )
 def conf_class(request):

@@ -137,6 +137,11 @@ class InitConfig(Config):
             **kwargs,
         )
 
+    @classmethod
+    def create_config(cls, target_class):
+        """Create a config class from a target class"""
+        return cls(_target_=get_class_path(target_class))
+
 
 class MapInitConfig(Config):
     """Hydra Map Config"""

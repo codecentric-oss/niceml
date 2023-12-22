@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
-from attrs import define
+from pydantic import BaseModel, Field
 
 IDENTITY_SCALE = 1.0
 
@@ -13,12 +13,11 @@ class ImageSizeDivisionError(Exception):
     """Error for if two ImageSizes have different aspect ratios"""
 
 
-@define
-class ImageSize:
+class ImageSize(BaseModel):
     """Class to represent the size of images"""
 
-    width: int
-    height: int
+    width: int = Field(..., description="width of the image")
+    height: int = Field(..., description="height of the image")
 
     def to_numpy_shape(self) -> Tuple[int, int]:
         """tuple with height, width"""
