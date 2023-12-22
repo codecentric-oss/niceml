@@ -1,4 +1,5 @@
 """Module for learner"""
+import logging
 from abc import ABC, abstractmethod
 
 from niceml.config.trainparams import TrainParams
@@ -21,5 +22,6 @@ class Learner(ABC):  # pylint: disable=too-few-public-methods
         validation_set: Dataset,
         train_params: TrainParams,
         data_description: DataDescription,
+        logger=logging.getLogger(__name__),
     ):
         """Runs the training"""

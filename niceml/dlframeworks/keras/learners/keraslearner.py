@@ -1,4 +1,6 @@
 """Module for default learner"""
+import logging
+
 import mlflow.keras
 import tensorflow as tf
 
@@ -50,6 +52,7 @@ class KerasLearner(Learner):
         validation_set: Dataset,
         train_params: TrainParams,
         data_description: DataDescription,
+        logger=logging.getLogger(__name__),
     ):
         """runs the training"""
         mlflow.keras.autolog()

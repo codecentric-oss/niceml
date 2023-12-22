@@ -1,4 +1,6 @@
 """Module for fit generator"""
+import logging
+
 from niceml.config.trainparams import TrainParams
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.experiments.experimentcontext import ExperimentContext
@@ -14,6 +16,7 @@ def fit_generator(  # noqa: PLR0913
     validation_set,
     train_params: TrainParams,
     data_description: DataDescription,
+    logger=logging.getLogger(__name__),
 ):
     """Function to fit the generator with the learner"""
     if train_params.validation_steps is not None:
@@ -28,4 +31,5 @@ def fit_generator(  # noqa: PLR0913
         validation_set,
         train_params,
         data_description,
+        logger=logger,
     )
