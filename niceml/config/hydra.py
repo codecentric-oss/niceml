@@ -9,7 +9,7 @@ from dagster import config_mapping, Config
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 from hydra.utils import instantiate, ConvertMode
-from pydantic import Field
+from pydantic import Field, create_model
 
 from niceml.scripts.hydraconfreader import load_hydra_conf
 from niceml.utilities.omegaconfutils import register_niceml_resolvers
@@ -81,6 +81,29 @@ class InitConfig(Config):
 
     def instantiate(self):
         return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)
+
+    @classmethod
+    def create(cls, target_class, **kwargs):
+        """Creates an instance of a pydantic BaseModel which have the same fields as given in kwargs"""
+        # TODO: infer arguments from target_class
+        conf_class = create_model(
+            f"Conf{target_class.__name__}",
+            _target_=get_class_path(target_class),
+            **kwargs,
+            __base__=cls,
+        )
+        return conf_class(_target_=get_class_path(target_class), **kwargs)
+
+    @classmethod
+    def create_conf(cls, target_class, **kwargs):
+        """Creates an instance of a pydantic BaseModel which have the same fields as given in kwargs"""
+        conf_class = create_model(
+            f"Conf{target_class.__name__}",
+            target=(str, Field(default=get_class_path(target_class), alias="_target_")),
+            **kwargs,
+            __base__=cls,
+        )
+        return conf_class
 
     @staticmethod
     def create_target_field(

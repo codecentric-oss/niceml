@@ -1,8 +1,11 @@
 from typing import List, Dict
 
-from niceml.config.hydra import InitConfig, MapInitConfig, get_class_path, InitConfig.create_field
+from niceml.config.hydra import InitConfig, MapInitConfig, get_class_path
 from niceml.mlcomponents.resultanalyzers.dataframes.clsmetric import ClsMetric
-from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DataframeAnalyzer, DfMetric
+from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import (
+    DataframeAnalyzer,
+    DfMetric,
+)
 
 
 class InitClsMetric(InitConfig):
@@ -12,7 +15,9 @@ class InitClsMetric(InitConfig):
     target_cols_prefix: str = "pred_"
 
 
-dfanalyzer_class = "niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer"
+dfanalyzer_class = (
+    "niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer"
+)
 clsmetrics_class = "niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric"
 
 
@@ -74,9 +79,14 @@ class Engine:
         return self.power == other.power
 
 
-class Wheel:
+def configure(cls):
+    cls.conf = InitConfig.create_conf(cls, radius=(int, 10))
+    return cls
 
-    def __init__(self, radius: int):
+
+@configure
+class Wheel:
+    def __init__(self, radius: int = 10):
         self.radius = radius
 
     def __eq__(self, other):
@@ -90,9 +100,11 @@ class Car:
         self.wheels = wheels
 
     def __eq__(self, other):
-        return self.color == other.color \
-            and self.engine == other.engine \
+        return (
+            self.color == other.color
+            and self.engine == other.engine
             and self.wheels == other.wheels
+        )
 
 
 class InitEngine(InitConfig):
@@ -104,9 +116,10 @@ class InitWheel(InitConfig):
     target: str = InitConfig.create_target_field(Wheel)
     radius: int = 10
 
+
 class InitWheelMap(MapInitConfig):
     lf_wheel: InitWheel = InitWheel()
-    rf_wheel: InitWheel = InitWheel()
+    rf_wheel: InitWheel = InitWheel(radius=20)
     lr_wheel: InitWheel = InitWheel()
     rr_wheel: InitWheel = InitWheel()
 
@@ -126,3 +139,22 @@ def test_init_complex():
     assert car_obj.engine.power == 100
     assert car_obj.wheels["lf_wheel"].radius == 10
     assert len(car_obj.wheels) == 4
+
+
+def test_init_complex_create():
+    wheel_map_dict = dict(
+        lf_wheel=dict(_target_=get_class_path(Wheel)),
+        rf_wheel=dict(_target_=get_class_path(Wheel), radius=20),
+        lr_wheel=dict(_target_=get_class_path(Wheel)),
+        rr_wheel=dict(_target_=get_class_path(Wheel)),
+    )
+    engine_dict = dict(_target_=get_class_path(Engine), power=100)
+    car_config = InitConfig.create(
+        Car, color="red", engine=engine_dict, wheels=wheel_map_dict
+    )
+    car_config.instantiate()
+
+
+def test_conf_class_method():
+    wheel_conf = Wheel.conf()
+    l = 1

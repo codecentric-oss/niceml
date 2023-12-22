@@ -5,13 +5,13 @@ from dagster import Config, RunConfig
 from niceml.config.hydra import InitConfig
 from niceml.config.ops.analysis.confopanalysis import ConfOpAnalysisClsSoftmax
 from niceml.config.ops.exptests.confexptestsdefault import ConfExpTestsDefault
+from niceml.config.ops.train.confoptraincls import ConfOpTrainCls
 from niceml.dagster.ops.analysis import AnalysisConfig
 from niceml.dagster.ops.experiment import ExperimentConfig
 from niceml.dagster.ops.filelockops import LocksConfig
 from niceml.dagster.ops.prediction import PredictionConfig
 from niceml.dagster.ops.train import TrainConfig
 from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DataframeAnalyzer
-from niceml.utilities.ioutils import read_yaml
 from niceml.utilities.omegaconfutils import register_niceml_resolvers
 
 
@@ -37,7 +37,7 @@ cls_run_config = RunConfig(
     ops={
         "acquire_locks": LocksConfig(file_lock_dict={}),
         "experiment": ExperimentConfig(),
-        "train": TrainConfig(),
+        "train": ConfOpTrainCls(),
         "prediction": PredictionConfig(),
         "analysis": ConfOpAnalysisClsSoftmax(),
         "exptests": ConfExpTestsDefault(),

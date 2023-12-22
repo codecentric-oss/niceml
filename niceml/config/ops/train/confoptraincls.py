@@ -2,7 +2,7 @@ from typing import List
 
 from keras.optimizers import Adam
 
-from niceml.config.hydra import InitConfig, MapInitConfig
+from niceml.config.hydra import InitConfig, MapInitConfig, get_class_path
 from niceml.config.shared.confdatasets import (
     ConfDatasetClsTrain,
     ConfDatasetClsValidation,
@@ -86,6 +86,25 @@ class ConfClsKerasLearner(InitConfig):
     )
 
 
+model_compiler = InitConfig.create(
+    DefaultModelCompiler,
+    optimizer=ConfOptimizerCls(),
+    loss="binary_crossentropy",
+    metrics=["accuracy"],
+)
+
+keras_learner = InitConfig.create(
+    KerasLearner,
+    model_compiler=dict(
+        _target_=get_class_path(DefaultModelCompiler),
+        optimizer=ConfOptimizerCls(),
+        loss="binary_crossentropy",
+        metrics=["accuracy"],
+    ),
+    model_load_custom_objects=dict(_target_=get_class_path(ModelCustomLoadObjects)),
+)
+
+
 class ConfDataDescriptionCls(InitConfig):
     """This class configures the data description for classification"""
 
@@ -99,7 +118,7 @@ class ConfOpTrainCls(TrainConfig):
     """This class configures the training op for classification"""
 
     train_params: TrainParams = TrainParams(epochs=CURRENT_EPOCHS)
-    model_factory: InitConfig = ConfModelCls()
+    model_factory: InitConfig = ConfModelCls(final_activation="softmax")
     data_description: InitConfig = ConfDataDescriptionCls()
     data_train: InitConfig = ConfDatasetClsTrain()
     data_validation: InitConfig = ConfDatasetClsValidation()
