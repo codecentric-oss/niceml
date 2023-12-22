@@ -18,7 +18,7 @@ data_description:
     _target_: niceml.data.datadescriptions.semsegdatadescritption.create_number_semseg_datadescription
     max_number: 3
 
-model:
+model_factory:
   _target_: niceml.dlframeworks.keras.models.unets.mobilenetv2_unet
   use_input_scale: true
   allow_preconvolution: true

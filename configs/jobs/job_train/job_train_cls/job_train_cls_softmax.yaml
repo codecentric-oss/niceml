@@ -37,7 +37,7 @@ ops:
           - "2"
           - "3"
         use_binary: false
-      model:
+      model_factory:
         final_activation: softmax
       learner:
         model_compiler:

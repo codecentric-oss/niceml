@@ -24,7 +24,7 @@ data_validation:
   datainfo_listing:
     sub_dir: validation
   set_name: validation
-model:
+model_factory:
   _target_: niceml.dlframeworks.keras.models.mobilenet.OwnMobileNetModel
   final_activation: sigmoid
 learner:

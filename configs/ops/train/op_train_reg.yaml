@@ -22,7 +22,7 @@ data_train:
 data_validation:
   subset_name: validation
   df_filename: numbers_tabular_data_validation.parq
-model:
+model_factory:
   _target_: niceml.dlframeworks.keras.models.mlp.OwnMLP
   activation: tanh
   final_activation: tanh

@@ -27,7 +27,7 @@ data_validation:
   datainfo_listing:
     sub_dir: validation
   set_name: validation
-model:
+model_factory:
   _target_: niceml.dlframeworks.tensorflow.models.mobilenet.OwnMobileNetModel
   final_activation: sigmoid
 model_load_custom_objects:

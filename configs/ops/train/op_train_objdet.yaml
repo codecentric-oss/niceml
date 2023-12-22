@@ -17,7 +17,7 @@ data_description:
     width: 1024
     height: 1024
 
-model:
+model_factory:
   _target_: niceml.dlframeworks.keras.models.retinanet.RetinaNetFactory
 
 learner:
