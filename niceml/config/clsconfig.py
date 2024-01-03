@@ -61,6 +61,11 @@ from niceml.utilities.imagesize import ImageSize
 
 load_env()
 
+data_description = ClsDataDescription(
+    classes=["0", "1", "2", "3"],
+    target_size=ImageSize(width=1024, height=1024),
+)
+
 dataset_train = KerasGenericDataset(
     batch_size=16,
     set_name="train",
@@ -69,14 +74,12 @@ dataset_train = KerasGenericDataset(
         location=dict(uri=join(os.getenv("DATA_URI"), "number_data_split")),
         sub_dir="train",
     ),
-    data_loader=ClsDataLoader(
-        data_description=ClsDataDescription(
-            classes=["0", "1", "2", "3"],
-            target_size=ImageSize(width=1024, height=1024),
-        ),
+    data_loader=ClsDataLoader(data_description=data_description),
+    target_transformer=TargetTransformerClassification(
+        data_description=data_description
     ),
-    target_transformer=TargetTransformerClassification(),
-    input_transformer=ImageInputTransformer(),
+    input_transformer=ImageInputTransformer(data_description=data_description),
+    net_data_logger=None,
 )
 
 dataset_validation = dataset_train
@@ -96,46 +99,11 @@ cls_run_config = RunConfig(
             exp_folder_pattern="CLS-$RUN_ID-id_$SHORT_ID",
         ),
         "train": TrainConfig.create(
-            train_params=TrainParams(steps_per_epoch=2, validation_steps=2),
+            train_params=TrainParams(),
             model_factory=OwnMobileNetModel(),
-            data_description=ClsDataDescription(
-                classes=["0", "1", "2", "3"],
-                target_size=ImageSize(width=1024, height=1024),
-            ),
-            data_train=KerasGenericDataset(
-                batch_size=16,
-                set_name="train",
-                shuffle=True,
-                datainfo_listing=DirClsDataInfoListing(
-                    location=dict(uri=join(os.getenv("DATA_URI"), "number_data_split")),
-                    sub_dir="train",
-                ),
-                data_loader=ClsDataLoader(
-                    data_description=ClsDataDescription(
-                        classes=["0", "1", "2", "3"],
-                        target_size=ImageSize(width=1024, height=1024),
-                    ),
-                ),
-                target_transformer=TargetTransformerClassification(),
-                input_transformer=ImageInputTransformer(),
-            ),
-            dataset_validation=KerasGenericDataset(
-                batch_size=16,
-                set_name="validation",
-                shuffle=True,
-                datainfo_listing=DirClsDataInfoListing(
-                    location=dict(uri=join(os.getenv("DATA_URI"), "number_data_split")),
-                    sub_dir="validation",
-                ),
-                data_loader=ClsDataLoader(
-                    data_description=ClsDataDescription(
-                        classes=["0", "1", "2", "3"],
-                        target_size=ImageSize(width=1024, height=1024),
-                    ),
-                ),
-                target_transformer=TargetTransformerClassification(),
-                input_transformer=ImageInputTransformer(),
-            ),
+            data_description=data_description,
+            data_train=dataset_train,
+            dataset_validation=dataset_validation,
             learner=KerasLearner(
                 model_compiler=DefaultModelCompiler(
                     loss="categorical_crossentropy",
@@ -163,73 +131,9 @@ cls_run_config = RunConfig(
         "prediction": PredictionConfig.create(
             prediction_handler=VectorPredictionHandler(),
             datasets=dict(
-                test=KerasGenericDataset(
-                    batch_size=16,
-                    set_name="test",
-                    shuffle=True,
-                    datainfo_listing=DirClsDataInfoListing(
-                        location=dict(
-                            uri=join(os.getenv("DATA_URI"), "number_data_split")
-                        ),
-                        sub_dir="test",
-                    ),
-                    data_loader=ClsDataLoader(
-                        data_description=ClsDataDescription(
-                            classes=["0", "1", "2", "3"],
-                            target_size=ImageSize(width=1024, height=1024),
-                        ),
-                    ),
-                    target_transformer=TargetTransformerClassification(),
-                    input_transformer=ImageInputTransformer(),
-                ),
-                validation=KerasGenericDataset(
-                    batch_size=16,
-                    set_name="validation",
-                    shuffle=True,
-                    datainfo_listing=DirClsDataInfoListing(
-                        location=dict(
-                            uri=join(os.getenv("DATA_URI"), "number_data_split")
-                        ),
-                        sub_dir="validation",
-                    ),
-                    data_loader=ClsDataLoader(
-                        data_description=ClsDataDescription(
-                            classes=["0", "1", "2", "3"],
-                            target_size=ImageSize(width=1024, height=1024),
-                        ),
-                    ),
-                    target_transformer=TargetTransformerClassification(),
-                    input_transformer=ImageInputTransformer(),
-                ),
-                train_eval=KerasGenericDataset(
-                    batch_size=16,
-                    set_name="train",
-                    shuffle=True,
-                    datainfo_listing=DirClsDataInfoListing(
-                        location=dict(
-                            uri=join(os.getenv("DATA_URI"), "number_data_split")
-                        ),
-                        sub_dir="train",
-                    ),
-                    data_loader=ClsDataLoader(
-                        data_description=ClsDataDescription(
-                            classes=["0", "1", "2", "3"],
-                            target_size=ImageSize(width=1024, height=1024),
-                        ),
-                    ),
-                    target_transformer=TargetTransformerClassification(
-                        data_description=ClsDataDescription(
-                            classes=["0", "1", "2", "3"],
-                            target_size=ImageSize(width=1024, height=1024),
-                        ),
-                    ),
-                    input_transformer=ImageInputTransformer(
-                        data_description=ClsDataDescription(
-                            classes=["0", "1", "2", "3"],
-                            target_size=ImageSize(width=1024, height=1024),
-                        ),
-                    ),
-                ),
+                test=dataset_test,
+                validation=dataset_validation,
+                train_eval=dataset_train,
             ),
             model_loader=KerasModelLoader(),
             prediction_function=KerasPredictionFunction(),

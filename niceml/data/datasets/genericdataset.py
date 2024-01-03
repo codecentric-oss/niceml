@@ -56,7 +56,7 @@ class GenericDataset(Dataset, ABC):
             net_data_logger: Stores the in the way it is presented to the model
         """
         super().__init__()
-        self.net_data_logger = net_data_logger
+        self.net_data_logger: NetDataLogger = net_data_logger
         self.set_name = set_name
         self.datainfo_listing: DataInfoListing = datainfo_listing
         self.data_loader: DataLoader = data_loader

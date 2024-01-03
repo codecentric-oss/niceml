@@ -9,7 +9,7 @@ from fsspec import AbstractFileSystem
 from PIL import Image
 
 from niceml.config.envconfig import LAST_MODIFIED_KEY
-from niceml.config.config import instantiate_from_yaml
+from niceml.config.hydra import instantiate_from_yaml
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.experiments.expfilenames import ExperimentFilenames, OpNames
 from niceml.utilities.fsspec.locationutils import LocationConfig, open_location

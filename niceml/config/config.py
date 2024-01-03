@@ -3,23 +3,21 @@
 This module defines classes and functions for working with configurations in the context of the Dagster framework
 and niceML's Hydra integration.
 """
-import json
-import logging
-from abc import ABC
-from dataclasses import asdict, dataclass
-from inspect import isabstract
-from tempfile import TemporaryDirectory, mkstemp
-from typing import Optional, Any, Dict, Iterable
+from __future__ import annotations
 
-import yaml
-from dagster import Config as DagsterConfig, config_mapping
-from fsspec import AbstractFileSystem
-from fsspec.implementations.local import LocalFileSystem
+import inspect
+from abc import ABC
+from inspect import isabstract
+from types import NoneType
+from typing import Optional, Any, Type, get_type_hints
+
+from dagster import Config as DagsterConfig
 from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model
 
-from niceml.scripts.hydraconfreader import load_hydra_conf
-from niceml.utilities.omegaconfutils import register_niceml_resolvers
+from niceml.data.datasets.genericdataset import GenericDataset
+
+from niceml.dlframeworks.keras.datasets.kerasgenericdataset import KerasGenericDataset
 
 
 class Config(DagsterConfig, ABC):
@@ -40,6 +38,7 @@ class Config(DagsterConfig, ABC):
             An instance of the Config class with parsed values.
         """
         parsed_values = {key: parse_value(value) for key, value in kwargs.items()}
+
         return cls(**parsed_values)
 
 
@@ -66,6 +65,25 @@ class InitConfig(DagsterConfig):
     @classmethod
     def create_conf(cls, target_class, **kwargs):
         """Creates an instance of a pydantic BaseModel which have the same fields as given in kwargs"""
+        if (
+            isinstance(target_class, KerasGenericDataset)
+            or "optimizer" in kwargs.keys()
+        ):
+            l = 1
+        for key, value in kwargs.items():
+            if isinstance(value, NoneType):
+                type_hints = get_type_hints(target_class)
+                if len(type_hints) == 0:
+                    type_hints = get_type_hints(target_class.__init__)
+
+                    # if len(type_hints) == 0:
+                    #     raise ValueError(
+                    #         f"Get the types of the attributes of {target_class} is not possible"
+                    #     )
+                try:
+                    kwargs[key] = (type_hints[key], None)
+                except KeyError:
+                    l = 1
         conf_class = create_model(
             f"Conf{target_class.__name__}",
             target=(str, Field(default=get_class_path(target_class), alias="_target_")),
@@ -143,9 +161,19 @@ def create_init_config(instance) -> InitConfig:
     """
     try:
         values = vars(instance)
+        attributes = inspect.getmembers(
+            instance,
+            lambda attribute: not (inspect.isroutine(attribute)),
+        )
+        values = {}
+        for attribute in attributes:
+            key = attribute[0]
+            value = attribute[1]
+            if not key.startswith("_") and key != "Config":
+                values[key] = value
+
     except TypeError:
         raise TypeError(type(instance))
-
     parsed_values = {key: parse_value(value) for key, value in values.items()}
     return InitConfig.create_conf(target_class=type(instance), **parsed_values)()
 
@@ -159,70 +187,14 @@ def parse_value(value):
     Returns:
         The parsed value.
     """
-    if isinstance(value, (int, str, float, bool)):
+    if isinstance(value, (int, str, float, bool)) or value is None:
         return value
-    elif value is None:
-        return None
     elif isinstance(value, (list, tuple)):
         return [parse_value(item) for item in value]
     elif isinstance(value, dict):
         return {key: parse_value(value) for key, value in value.items()}
     else:
         return create_init_config(value)
-
-
-def instantiate_from_yaml(
-    yaml_path: str, file_system: Optional[AbstractFileSystem] = None
-) -> Any:
-    """uses hydra instantiate to a yaml config"""
-    file_system = file_system or LocalFileSystem()
-    with file_system.open(yaml_path, "r", encoding="utf-8") as file:
-        data = yaml.load(file, Loader=yaml.SafeLoader)
-
-    return instantiate(data)
-
-
-def prepend_hydra_search_paths(
-    config: Dict[str, Any], searchpaths: Iterable[str]
-) -> Dict[str, Any]:
-    """Add searchpaths to config under hydra/searchpath."""
-    config_hydra = config.get("hydra", {})
-    config_hydra_searchpaths = list(searchpaths) + config_hydra.get("searchpath", [])
-    return {**config, "hydra": {**config_hydra, "searchpath": config_hydra_searchpaths}}
-
-
-def hydra_conf_mapping_factory(drop: Iterable[str] = ("globals",)):
-    """
-    Load hydra configuration from ``config``.
-
-    Args:
-        config: Configuration to be processed with hydra.
-        drop: Keys to remove from the processed configuration after processing
-               with hydra. Useful to define configuration variables that shall be used
-               for interpolation during processing but not enter the processed
-               configuration. Default: ``("globals",)``.
-    """
-
-    @config_mapping
-    def hydra_conf_mapping(config: Dict[str, Any]):
-        register_niceml_resolvers()
-        config = json.loads(json.dumps(config))
-        config_dir = TemporaryDirectory()  # pylint: disable=consider-using-with
-
-        _, config_file = mkstemp(suffix=".yaml", dir=config_dir.name, text=True)
-        with open(config_file, "wt", encoding="utf-8") as file:
-            yaml.dump(config, file, Dumper=yaml.SafeDumper)
-
-        conf = load_hydra_conf(config_file)
-        try:
-            config_dir.cleanup()
-        except (PermissionError, NotADirectoryError):
-            pass
-
-        conf = {key: value for key, value in conf.items() if key not in set(drop)}
-        return conf
-
-    return hydra_conf_mapping
 
 
 def get_class_path(cls):

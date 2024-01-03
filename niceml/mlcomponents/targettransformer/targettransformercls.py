@@ -17,10 +17,15 @@ from niceml.utilities.commonutils import check_instance
 class TargetTransformerClassification(NetTargetTransformer):
     """NetTargetTransformer for Classification"""
 
-    def __init__(self, data_description: Optional[ClsDataDescription] = None):
+    def __init__(self, data_description: Optional[OutputVectorDataDescription] = None):
         super().__init__(data_description=data_description)
+        self.data_description: OutputVectorDataDescription
         self.use_binary: bool = False
-        self.multi_label_binarizer = None
+        self.multi_label_binarizer = (
+            MultiLabelBinarizer(  # pylint: disable=attribute-defined-outside-init
+                classes=list(range(self.data_description.get_output_size()))
+            )
+        )
 
     def initialize(self, data_description: DataDescription):
         super().initialize(data_description)

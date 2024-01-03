@@ -1,7 +1,7 @@
 """Module containing all dagster jobs"""
 from dagster_mlflow import mlflow_tracking
 
-from niceml.config.config import hydra_conf_mapping_factory
+from niceml.config.hydra import hydra_conf_mapping_factory
 
 from niceml.config.clsconfig import cls_run_config, CLSOpConfig
 from niceml.dagster.jobs.graphs import graph_train

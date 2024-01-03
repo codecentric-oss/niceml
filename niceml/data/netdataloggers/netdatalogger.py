@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from os.path import join
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from PIL import Image
@@ -16,12 +16,15 @@ from niceml.experiments.expfilenames import ExperimentFilenames
 class NetDataLogger(ABC):
     """Abstract implementation of an NetDataLogger"""
 
-    def __init__(self):
+    def __init__(
+        self,
+        data_description: Optional[DataDescription] = None,
+    ):
         """Initializes the NetDataLogger with default values"""
-        self.data_description = None
-        self.exp_context = None
-        self.set_name = None
-        self.output_path = None
+        self.data_description = data_description
+        self.exp_context: Optional[ExperimentContext] = None
+        self.set_name: Optional[str] = None
+        self.output_path: Optional[str] = None
 
     def initialize(
         self,

@@ -1,23 +1,57 @@
 """module for the KerasGenericDataset class"""
-from typing import List
+from typing import List, Optional
 
 from keras.utils import Sequence
 
+from niceml.data.augmentation.augmentation import AugmentationProcessor
+from niceml.data.datainfolistings.datainfolisting import DataInfoListing
 from niceml.data.datainfos.datainfo import DataInfo
+from niceml.data.dataloaders.dataloader import DataLoader
 from niceml.data.datasets.genericdataset import GenericDataset
+from niceml.data.datashuffler.datashuffler import DataShuffler
+from niceml.data.datastatsgenerator.datastatsgenerator import DataStatsGenerator
+from niceml.data.netdataloggers.netdatalogger import NetDataLogger
+from niceml.mlcomponents.targettransformer.targettransformer import (
+    NetTargetTransformer,
+    NetInputTransformer,
+)
 
 
 class KerasGenericDataset(GenericDataset, Sequence):
     """Keras implementation of the GenericDataset"""
 
-    def __init__(self, batch_size: int, **kwargs):
+    def __init__(
+        self,
+        batch_size: int,
+        set_name: str,
+        datainfo_listing: DataInfoListing,
+        data_loader: DataLoader,
+        target_transformer: NetTargetTransformer,
+        input_transformer: NetInputTransformer,
+        shuffle: bool,
+        data_shuffler: Optional[DataShuffler] = None,
+        stats_generator: Optional[DataStatsGenerator] = None,
+        augmentator: Optional[AugmentationProcessor] = None,
+        net_data_logger: Optional[NetDataLogger] = None,
+    ):
         """
         Constructor of the KerasGenericDataset
         Args:
             batch_size: Batch size
             **kwargs: All arguments of the GenericDataset
         """
-        super().__init__(**kwargs)
+        super().__init__(
+            set_name=set_name,
+            datainfo_listing=datainfo_listing,
+            data_loader=data_loader,
+            target_transformer=target_transformer,
+            input_transformer=input_transformer,
+            shuffle=shuffle,
+            data_shuffler=data_shuffler,
+            stats_generator=stats_generator,
+            augmentator=augmentator,
+            net_data_logger=net_data_logger,
+        )
         self.batch_size = batch_size
 
     def __len__(self):
