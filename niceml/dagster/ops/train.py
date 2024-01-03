@@ -1,11 +1,11 @@
 """Module for train op"""
 from typing import Dict, Tuple, List
 
-from dagster import OpExecutionContext, op, Out, Config
+from dagster import OpExecutionContext, op, Out
 from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
-from niceml.config.hydra import InitConfig
+from niceml.config.config import InitConfig, Config
 from niceml.config.trainparams import TrainParams
 from niceml.config.writeopconfig import write_op_config
 from niceml.dagster.ops.prediction import save_exp_data_stats

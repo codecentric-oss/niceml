@@ -1,15 +1,15 @@
 """Module for NormalizationInfo"""
-from attr import define
+from attr import define, dataclass
 
 
-@define
+@dataclass
 class NormalizationInfo:
     """Class for normalization infos"""
 
     feature_key: str
 
 
-@define
+@dataclass
 class ScalarNormalizationInfo(NormalizationInfo):
     """Class for scalar normalization infos"""
 
@@ -17,14 +17,14 @@ class ScalarNormalizationInfo(NormalizationInfo):
     divisor: float
 
 
-@define
+@dataclass
 class BinaryNormalizationInfo(NormalizationInfo):
     """Class for binary normalization infos"""
 
     values: list
 
 
-@define
+@dataclass
 class CategoricalNormalizationInfo(NormalizationInfo):
     """Class for categorical normalization infos"""
 

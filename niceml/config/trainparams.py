@@ -1,8 +1,9 @@
 """module for trainparams"""
 from typing import Optional
 
-from dagster import Config
 from pydantic import Field
+
+from niceml.config.config import Config
 
 
 class TrainParams(Config):

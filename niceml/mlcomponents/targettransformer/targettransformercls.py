@@ -1,9 +1,10 @@
 """Module for TargetTransformerClassification"""
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
 
+from niceml.data.datadescriptions.clsdatadescription import ClsDataDescription
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,
@@ -16,8 +17,8 @@ from niceml.utilities.commonutils import check_instance
 class TargetTransformerClassification(NetTargetTransformer):
     """NetTargetTransformer for Classification"""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, data_description: Optional[ClsDataDescription] = None):
+        super().__init__(data_description=data_description)
         self.use_binary: bool = False
         self.multi_label_binarizer = None
 

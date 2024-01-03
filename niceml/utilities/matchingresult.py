@@ -1,14 +1,13 @@
 """Module for abstract MatchingResult class"""
 
 from abc import ABC
+from dataclasses import dataclass
 from typing import List, Optional, Set
-
-from attr import define
 
 from niceml.utilities.instancelabeling import InstanceLabel
 
 
-@define
+@dataclass
 class MatchingResult(ABC):
     """Abstract class to calculate precision (per class) and recall (per class)
     based on `true_pos`, `false_pos` and `false_neg` instance labels

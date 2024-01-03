@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from niceml.config.hydra import InitConfig, get_class_path
+from niceml.config.config import get_class_path, InitConfig
 from niceml.config.subsetnames import SubsetNames
 from niceml.data.datainfolistings.clsdatainfolisting import DirClsDataInfoListing
 from niceml.data.dataloaders.clsdataloader import ClsDataLoader

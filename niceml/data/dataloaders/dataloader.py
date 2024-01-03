@@ -1,6 +1,6 @@
 """Module for abstract DataLoader"""
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datainfos.datainfo import DataInfo
@@ -9,8 +9,8 @@ from niceml.data.datainfos.datainfo import DataInfo
 class DataLoader(ABC):
     """Abstract implementation of a data loader which is used by the GenericDataset"""
 
-    def __init__(self):
-        self.data_description = None
+    def __init__(self, data_description: Optional[DataDescription] = None):
+        self.data_description = data_description
 
     @abstractmethod
     def load_data(self, data_info: DataInfo) -> Any:

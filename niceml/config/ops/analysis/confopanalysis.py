@@ -3,7 +3,7 @@ from typing import List
 from pydantic import Field
 
 from niceml.dagster.ops.analysis import AnalysisConfig
-from niceml.config.hydra import InitConfig
+from niceml.config.config import InitConfig
 from niceml.mlcomponents.resultanalyzers.dataframes.clsmetric import ClsMetric
 from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DataframeAnalyzer
 

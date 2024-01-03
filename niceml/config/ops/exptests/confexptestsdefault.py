@@ -1,6 +1,6 @@
 from typing import List
 
-from niceml.config.hydra import InitConfig
+from niceml.config.config import InitConfig
 from niceml.dagster.ops.exptests import ExpTestsConfig
 from niceml.experiments.experimenttests.checkfilesfolderstest import (
     CheckFilesFoldersTest,

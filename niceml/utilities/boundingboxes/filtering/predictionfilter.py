@@ -1,9 +1,9 @@
 """Module for PredictionFilter"""
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, asdict, fields
 from typing import List, Optional, Type, Union
 
 import numpy as np
-from attrs import asdict, define, fields
 
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputImageDataDescription,
@@ -11,7 +11,7 @@ from niceml.data.datadescriptions.outputdatadescriptions import (
 )
 
 
-@define
+@dataclass
 class PredictionFilter(ABC):  # pylint: disable=too-few-public-methods
     """Class to filter predictions"""
 

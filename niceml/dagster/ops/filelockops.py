@@ -1,29 +1,23 @@
 """module for dagster ops regarding filelocks"""
-from typing import Dict
 
-from dagster import op, OpExecutionContext, Config
-from hydra.utils import instantiate, ConvertMode
+from dagster import op, OpExecutionContext
 
-from niceml.config.hydra import create_hydra_map_field
+from niceml.config.config import MapInitConfig, Config
 from niceml.utilities.readwritelock import FileLock
 
 
 class LocksConfig(Config):
-    file_lock_dict: dict = create_hydra_map_field(
-        target_class=FileLock, alias="file_lock_dict"
+    file_lock_dict: MapInitConfig = MapInitConfig.create_config_field(
+        target_class=FileLock
     )
-
-    @property
-    def file_locks(self) -> Dict[str, FileLock]:
-        return instantiate(self.file_lock_dict, _convert_=ConvertMode.ALL)
 
 
 @op
 def acquire_locks(context: OpExecutionContext, config: LocksConfig):
     """op for acquiring locks"""
-    for filelock in config.file_locks.values():
+    for filelock in config.file_lock_dict.instantiate().values():
         filelock.acquire()
-    return config.file_locks
+    return config.file_lock_dict
 
 
 @op
@@ -36,5 +30,5 @@ def release_locks(_: OpExecutionContext, filelock_dict: dict):
 @op
 def clear_locks(context: OpExecutionContext, config: LocksConfig):
     """op for clearing locks"""
-    for filelock in config.file_locks.values():
+    for filelock in config.file_lock_dict.instantiate().values():
         filelock.force_delete()

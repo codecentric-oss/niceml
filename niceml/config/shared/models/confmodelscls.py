@@ -1,5 +1,5 @@
 """This module contains the configuration class for classification models"""
-from niceml.config.hydra import InitConfig
+from niceml.config.config import InitConfig
 from niceml.dlframeworks.keras.models.mobilenet import OwnMobileNetModel
 
 

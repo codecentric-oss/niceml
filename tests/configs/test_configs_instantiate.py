@@ -4,7 +4,7 @@ import pytest
 from hydra.utils import instantiate
 from omegaconf.dictconfig import DictConfig
 
-from niceml.config.hydra import InitConfig
+from niceml.config.config import InitConfig
 from niceml.config.ops.analysis.confopanalysis import ConfOpAnalysisClsSoftmax
 from niceml.config.ops.exptests.confexptestsdefault import (
     ConfExpTestsDefault,

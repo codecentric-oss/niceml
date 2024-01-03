@@ -2,7 +2,9 @@
 
 from typing import List, Dict
 
-from niceml.config.hydra import InitConfig, MapInitConfig, get_class_path
+from pydantic import Field, BaseModel
+
+from niceml.config.config import Config, get_class_path, InitConfig, MapInitConfig
 from niceml.mlcomponents.resultanalyzers.dataframes.clsmetric import ClsMetric
 from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import (
     DataframeAnalyzer,
@@ -73,54 +75,6 @@ def test_init_nested():
     assert target_obj.df_metrics[0].target_cols_prefix == "pred_"
 
 
-def configure(cls):
-    """
-    Configures a class with an initialization configuration method.
-
-    This decorator enhances a class by adding a `_conf` method, which generates
-    an initialization configuration for an instance of the class. The
-    initialization configuration includes the values of attributes, recursively
-    parsing nested structures such as lists, tuples, and dictionaries.
-
-    Args:
-        cls: The class to be configured.
-
-    Returns:
-        The configured class with the added `_conf` method.
-
-    Example:
-        @configure
-        class MyClass:
-            def __init__(self, name, age, data):
-                self.name = name
-                self.age = age
-                self.data = data
-
-        # Usage
-        obj = MyClass(name="John", age=30, data={"key": [1, 2, {"nested": True}]})
-        config = obj._conf()  # Generates an initialization configuration
-    """
-
-    def create_init_config(instance) -> InitConfig:
-        def parse_value(value):
-            if isinstance(value, (int, str, float, bool)):
-                return value
-            elif isinstance(value, (list, tuple)):
-                return [parse_value(item) for item in value]
-            elif isinstance(value, dict):
-                return {key: parse_value(value) for key, value in value.items()}
-            else:
-                return create_init_config(value)
-
-        values = vars(instance)
-        parsed_values = {key: parse_value(value) for key, value in values.items()}
-        return InitConfig.create_conf(target_class=type(instance), **parsed_values)()
-
-    setattr(cls, "_conf", create_init_config)
-    return cls
-
-
-@configure
 class Engine:
     def __init__(self, power: int):
         self.power = power
@@ -129,7 +83,6 @@ class Engine:
         return self.power == other.power
 
 
-@configure
 class Wheel:
     def __init__(self, radius: int = 10):
         self.radius = radius
@@ -138,7 +91,6 @@ class Wheel:
         return self.radius == other.radius
 
 
-@configure
 class Car:
     def __init__(self, color: str, engine: Engine, wheels: Dict[str, Wheel]):
         self.color = color
@@ -151,6 +103,10 @@ class Car:
             and self.engine == other.engine
             and self.wheels == other.wheels
         )
+
+
+class Driver(BaseModel):
+    name: str
 
 
 class InitEngine(InitConfig):
@@ -201,8 +157,22 @@ def test_init_complex_create():
     car_config.instantiate()
 
 
-def test_conf_class_method():
-    car = Car(color="red", engine=Engine(power=100), wheels=dict(left=Wheel()))
-    config = car._conf()
-    car2 = config.instantiate()
-    assert car == car2
+def test_config():
+    class TestConfig(Config):
+        car: InitConfig = InitConfig.create_config_field(target_class=Car)
+        distance: float = Field(default=100)
+        driver: Driver
+
+    config = TestConfig.create(
+        car=Car(color="red", engine=Engine(power=100), wheels=dict(left=Wheel())),
+        distance=200,
+        driver=Driver(name="Horst"),
+    )
+    assert isinstance(config.car, InitConfig)
+    assert isinstance(config.distance, float)
+    assert isinstance(config.driver, BaseModel)
+
+    car = config.car.instantiate()
+    assert isinstance(car.engine, Engine)
+    assert isinstance(car.wheels["left"], Wheel)
+    assert car.color == "red"

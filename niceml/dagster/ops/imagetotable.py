@@ -13,7 +13,7 @@ from hydra.types import ConvertMode
 from hydra.utils import instantiate
 from tqdm import tqdm
 
-from niceml.config.hydra import create_field
+from niceml.config.config import InitConfig
 from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
     join_location_w_path,
@@ -46,7 +46,7 @@ from niceml.utilities.splitutils import clear_folder
             default_value=False,
             description="Flag if the output folder should be cleared before the split",
         ),
-        "target_image_size": create_field(
+        "target_image_size": InitConfig.create_target_field(
             ImageSize,
             description="Image size to which the images should be scaled",
         ),

@@ -16,8 +16,8 @@ class ImageSizeDivisionError(Exception):
 class ImageSize(BaseModel):
     """Class to represent the size of images"""
 
-    width: int = Field(..., description="width of the image")
-    height: int = Field(..., description="height of the image")
+    width: int = Field(description="width of the image")
+    height: int = Field(description="height of the image")
 
     def to_numpy_shape(self) -> Tuple[int, int]:
         """tuple with height, width"""

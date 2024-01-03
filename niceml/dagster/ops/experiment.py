@@ -3,17 +3,18 @@
 import mlflow
 from pydantic import Field
 
+from niceml.config.config import Config
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.factoryutils import subs_path_and_create_folder
 from niceml.utilities.fsspec.locationutils import join_location_w_path
 from niceml.utilities.idutils import generate_short_id
 from niceml.utilities.timeutils import generate_timestamp
-from dagster import OpExecutionContext, op, Config
+from dagster import OpExecutionContext, op
 
 
 class ExperimentConfig(Config):
     exp_out_location: dict = Field(  # TODO: add LocationConfigConfig / Location
-        default=dict(uri="experiments"),
+        default=dict(uri="./experiments"),
         description="Folder to store the experiments",
     )
     exp_folder_pattern: str = Field(
