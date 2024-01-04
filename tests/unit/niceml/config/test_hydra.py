@@ -1,13 +1,11 @@
 """Module for test for the configuration"""
-from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict, Optional, TypedDict
+from typing import List, Dict, Optional
 
-import pytest
 from pydantic import Field, BaseModel
 
-from niceml.config.config import Config, get_class_path, InitConfig, MapInitConfig
+from niceml.config.config import Config, get_class_path, InitConfig, Configurable
 from niceml.mlcomponents.resultanalyzers.dataframes.clsmetric import ClsMetric
 from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import (
     DataframeAnalyzer,
@@ -80,28 +78,16 @@ def test_init_nested():
     assert target_obj.df_metrics[0].target_cols_prefix == "pred_"
 
 
-class Configurable(ABC):
-    @classmethod
-    def create_config(cls, **kwargs) -> InitConfig:
-        return InitConfig.create_conf(cls, **kwargs)
-
-
 class Engine(Configurable):
-    def __init__(self, power: int = 100):
-        self.power = power + 10
+    def __init__(self, power: int = 50):
+        self.power = power
+        self.running = False
 
     def __eq__(self, other):
         return self.power == other.power
 
 
-class ConfigurableMeta(type):
-    def __new__(cls, name, bases, attrs):
-        instance = super().__new__(cls, name, bases, attrs)
-        instance.config = InitConfig.create_conf(cls)
-        return instance
-
-
-class Wheel(metaclass=ConfigurableMeta):
+class Wheel(Configurable):
     def __init__(self, radius: int = 10):
         self.radius = radius
 
@@ -115,12 +101,12 @@ class LightPosition(str, Enum):
 
 
 @dataclass
-class Light:
+class Light(Configurable):
     size: float
     position: LightPosition
 
 
-class Car:
+class Car(Configurable):
     def __init__(
         self,
         color: str,
@@ -163,7 +149,7 @@ class Driver(DagsterConfig):
     name: str
 
 
-class TestCarConfig(Config):
+class TestCarConfig(DagsterConfig):
     car: InitConfig = InitConfig.create_config_field(
         target_class=Car,
     )
@@ -186,29 +172,29 @@ def test_init_complex_create():
 
 
 def test_create_class_config():
-    config_car = TestCarConfig.create(
-        car=Car(
+    config_car = TestCarConfig(
+        car=Car.create_config(
             color="red",
-            engine=Engine(power=100),
-            wheels=dict(left=Wheel()),
+            engine=Engine.create_config(power=100),
+            wheels=dict(left=Wheel.create_config()),
             lights=[
-                Light(5, LightPosition.FRONT_LEFT),
-                Light(7, LightPosition.FRONT_RIGHT),
+                Light.create_config(size=5, position=LightPosition.FRONT_LEFT),
+                Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
             ],
         ),
         distance=200,
         driver=Driver(name="Horst"),
     )
 
-    config_fast_car = TestCarConfig.create(
-        car=FastCar(
+    config_fast_car = TestCarConfig(
+        car=FastCar.create_config(
             color="red",
-            engine=Engine(power=100),
-            wheels=dict(left=Wheel()),
+            engine=Engine.create_config(power=100),
+            wheels=dict(left=Wheel.create_config()),
             speed=200,
             lights=[
-                Light(1, LightPosition.FRONT_LEFT),
-                Light(1, LightPosition.FRONT_RIGHT),
+                Light.create_config(size=5, position=LightPosition.FRONT_LEFT),
+                Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
             ],
         ),
         distance=200,
@@ -228,28 +214,22 @@ def test_create_class_config():
 
 
 def test_create_class_config_with_init_config():
-    Car.Conf(
-        color="red",
-        wheel=dict(left=Wheel.Conf()),
-        engine=InitConfig.create_conf(Engine, power=100),
-    )
-
     config = TestCarConfig(
-        car=InitConfig.create_conf(
+        car=InitConfig.create(
             Car,
             color="red",
-            engine=InitConfig.create_conf(Engine, power=100),
-            wheels=dict(left=InitConfig.create_conf(Wheel)),
+            engine=InitConfig.create(Engine, power=100),
+            wheels=dict(left=InitConfig.create(Wheel)),
             horn=100,
             lights=[
-                InitConfig.create_conf(
+                InitConfig.create(
                     Light,
-                    position=InitConfig.create_conf(LightPosition, value="front left"),
+                    position=InitConfig.create(LightPosition, value="front left"),
                     size=10,
                 ),
-                InitConfig.create_conf(
+                InitConfig.create(
                     Light,
-                    position=InitConfig.create_conf(LightPosition, value="front right"),
+                    position=InitConfig.create(LightPosition, value="front right"),
                     size=5,
                 ),
             ],
@@ -261,15 +241,11 @@ def test_create_class_config_with_init_config():
     assert isinstance(config.car, InitConfig)
     assert isinstance(config.distance, float)
     assert isinstance(config.driver, BaseModel)
+    assert not hasattr(config.car.engine, "running")
 
     car = config.car.instantiate()
     assert isinstance(car.engine, Engine)
     assert isinstance(car.wheels["left"], Wheel)
-    assert car.engine.power == 110
+    assert car.engine.power == 100
     assert car.color == "red"
-
-
-def test_dinge():
-    engine_conf = Engine(power=100).create_config()
-    wheel_conf = Wheel(radius=100).config
-    l = 1
+    assert car.engine.running == False

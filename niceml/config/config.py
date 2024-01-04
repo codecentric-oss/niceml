@@ -9,16 +9,11 @@ import inspect
 from abc import ABC
 from enum import Enum
 from inspect import isabstract
-from types import NoneType
-from typing import Optional, Any, Type, get_type_hints
+from typing import Optional, get_type_hints, Any
 
 from dagster import Config as DagsterConfig
 from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model
-
-from niceml.data.datasets.genericdataset import GenericDataset
-
-from niceml.dlframeworks.keras.datasets.kerasgenericdataset import KerasGenericDataset
 
 
 class Config(DagsterConfig, ABC):
@@ -54,44 +49,38 @@ class InitConfig(DagsterConfig):
     @classmethod
     def create(cls, target_class, **kwargs):
         """Creates an instance of a pydantic BaseModel which have the same fields as given in kwargs"""
-        # TODO: infer arguments from target_class
-        conf_class = create_model(
-            f"Conf{target_class.__name__}",
-            _target_=get_class_path(target_class),
-            **kwargs,
-            __base__=cls,
-        )
-        return conf_class(_target_=get_class_path(target_class), **kwargs)
+        conf_class = cls.create_conf(target_class)
+        return conf_class(**kwargs)
 
     @classmethod
-    def create_conf(cls, target_class, **kwargs):
-        """Creates an instance of a pydantic BaseModel which have the same fields as given in kwargs"""
-        if (
-            isinstance(target_class, KerasGenericDataset)
-            or "optimizer" in kwargs.keys()
-        ):
-            l = 1
-        for key, value in kwargs.items():
-            if isinstance(value, NoneType):
-                type_hints = get_type_hints(target_class)
-                if len(type_hints) == 0:
-                    type_hints = get_type_hints(target_class.__init__)
+    def create_conf(cls, target_class):
+        if issubclass(target_class, (InitConfig, DagsterConfig)):
+            return target_class
 
-                    # if len(type_hints) == 0:
-                    #     raise ValueError(
-                    #         f"Get the types of the attributes of {target_class} is not possible"
-                    #     )
-                try:
-                    kwargs[key] = (type_hints[key], None)
-                except KeyError:
-                    l = 1
+        sig = inspect.signature(target_class.__init__)
+        type_hints = get_type_hints(target_class.__init__)
+        params = sig.parameters
+        target_kwargs = {}
+        if issubclass(target_class, Enum):
+            target_enum_type = str if issubclass(target_class, str) else int
+            target_kwargs["value"] = (target_enum_type, ...)
+        for name, param in params.items():
+            if name == "self":
+                continue
+            # current_type = type_hints.get(name, Any)
+            current_type = Any
+            if param.default is not inspect._empty:
+                target_kwargs[name] = (current_type, param.default)
+            else:
+                target_kwargs[name] = (current_type, ...)
+
         conf_class = create_model(
             f"Conf{target_class.__name__}",
             target=(str, Field(default=get_class_path(target_class), alias="_target_")),
-            **kwargs,
+            **target_kwargs,
             __base__=cls,
         )
-        return conf_class()
+        return conf_class
 
     @staticmethod
     def create_target_field(
@@ -176,11 +165,9 @@ def create_init_config(instance) -> InitConfig:
     except TypeError:
         raise TypeError(type(instance))
     if isinstance(instance, Enum):
-        return InitConfig.create_conf(
-            target_class=type(instance), value=instance.value
-        )()
+        return InitConfig.create(target_class=type(instance), value=instance.value)()
     parsed_values = {key: parse_value(value) for key, value in values.items()}
-    return InitConfig.create_conf(target_class=type(instance), **parsed_values)()
+    return InitConfig.create(target_class=type(instance), **parsed_values)()
 
 
 def parse_value(value):
@@ -238,3 +225,9 @@ class MapInitConfig(DagsterConfig):
             description=description,
             **kwargs,
         )
+
+
+class Configurable(ABC):
+    @classmethod
+    def create_config(cls, **kwargs) -> InitConfig:
+        return InitConfig.create(cls, **kwargs)
