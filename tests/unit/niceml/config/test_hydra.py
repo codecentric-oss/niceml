@@ -1,7 +1,8 @@
 """Module for test for the configuration"""
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, TypedDict
 
 import pytest
 from pydantic import Field, BaseModel
@@ -79,15 +80,28 @@ def test_init_nested():
     assert target_obj.df_metrics[0].target_cols_prefix == "pred_"
 
 
-class Engine:
-    def __init__(self, power: int):
-        self.power = power
+class Configurable(ABC):
+    @classmethod
+    def create_config(cls, **kwargs) -> InitConfig:
+        return InitConfig.create_conf(cls, **kwargs)
+
+
+class Engine(Configurable):
+    def __init__(self, power: int = 100):
+        self.power = power + 10
 
     def __eq__(self, other):
         return self.power == other.power
 
 
-class Wheel:
+class ConfigurableMeta(type):
+    def __new__(cls, name, bases, attrs):
+        instance = super().__new__(cls, name, bases, attrs)
+        instance.config = InitConfig.create_conf(cls)
+        return instance
+
+
+class Wheel(metaclass=ConfigurableMeta):
     def __init__(self, radius: int = 10):
         self.radius = radius
 
@@ -150,7 +164,9 @@ class Driver(DagsterConfig):
 
 
 class TestCarConfig(Config):
-    car: InitConfig = InitConfig.create_config_field(target_class=Car)
+    car: InitConfig = InitConfig.create_config_field(
+        target_class=Car,
+    )
     distance: float = Field(default=100)
     driver: Driver
 
@@ -212,11 +228,31 @@ def test_create_class_config():
 
 
 def test_create_class_config_with_init_config():
-    config = TestCarConfig.create(
-        car=Car(
+    Car.Conf(
+        color="red",
+        wheel=dict(left=Wheel.Conf()),
+        engine=InitConfig.create_conf(Engine, power=100),
+    )
+
+    config = TestCarConfig(
+        car=InitConfig.create_conf(
+            Car,
             color="red",
-            engine=ConfEngine(power=100),
-            wheels=dict(left=Wheel()),
+            engine=InitConfig.create_conf(Engine, power=100),
+            wheels=dict(left=InitConfig.create_conf(Wheel)),
+            horn=100,
+            lights=[
+                InitConfig.create_conf(
+                    Light,
+                    position=InitConfig.create_conf(LightPosition, value="front left"),
+                    size=10,
+                ),
+                InitConfig.create_conf(
+                    Light,
+                    position=InitConfig.create_conf(LightPosition, value="front right"),
+                    size=5,
+                ),
+            ],
         ),
         distance=200,
         driver=Driver(name="Horst"),
@@ -229,4 +265,11 @@ def test_create_class_config_with_init_config():
     car = config.car.instantiate()
     assert isinstance(car.engine, Engine)
     assert isinstance(car.wheels["left"], Wheel)
+    assert car.engine.power == 110
     assert car.color == "red"
+
+
+def test_dinge():
+    engine_conf = Engine(power=100).create_config()
+    wheel_conf = Wheel(radius=100).config
+    l = 1

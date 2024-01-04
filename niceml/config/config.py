@@ -91,7 +91,7 @@ class InitConfig(DagsterConfig):
             **kwargs,
             __base__=cls,
         )
-        return conf_class
+        return conf_class()
 
     @staticmethod
     def create_target_field(
