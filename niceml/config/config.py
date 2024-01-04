@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC
+from enum import Enum
 from inspect import isabstract
 from types import NoneType
 from typing import Optional, Any, Type, get_type_hints
@@ -174,6 +175,10 @@ def create_init_config(instance) -> InitConfig:
 
     except TypeError:
         raise TypeError(type(instance))
+    if isinstance(instance, Enum):
+        return InitConfig.create_conf(
+            target_class=type(instance), value=instance.value
+        )()
     parsed_values = {key: parse_value(value) for key, value in values.items()}
     return InitConfig.create_conf(target_class=type(instance), **parsed_values)()
 
@@ -187,7 +192,9 @@ def parse_value(value):
     Returns:
         The parsed value.
     """
-    if isinstance(value, (int, str, float, bool)) or value is None:
+    if isinstance(value, Enum):
+        return create_init_config(value)
+    elif isinstance(value, (int, str, float, bool, InitConfig)) or value is None:
         return value
     elif isinstance(value, (list, tuple)):
         return [parse_value(item) for item in value]

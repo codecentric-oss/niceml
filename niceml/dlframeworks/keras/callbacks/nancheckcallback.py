@@ -15,12 +15,9 @@ class NanInLossError(Exception):
 class LossNanCheckCallback(Callback):
     """Callback to check if nan is in loss"""
 
-    def __init__(
-        self, check_logs: Optional[List[str]] = None, model: Optional[Model] = None
-    ):
+    def __init__(self, check_logs: Optional[List[str]] = None):
         super().__init__()
         self.check_logs = check_logs or ["loss", "val_loss"]
-        self.model: Optional[Model] = None
 
     def on_batch_end(self, batch, logs: Optional[dict] = None):
         if logs is None:
