@@ -3,80 +3,13 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Dict, Optional
 
+from dagster import Config as DagsterConfig
 from pydantic import Field, BaseModel
 
-from niceml.config.config import Config, get_class_path, InitConfig, Configurable
-from niceml.mlcomponents.resultanalyzers.dataframes.clsmetric import ClsMetric
-from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import (
-    DataframeAnalyzer,
-    DfMetric,
-)
-
-from dagster import Config as DagsterConfig
+from niceml.config.config import get_class_path, InitConfig, Configurable
 
 
-class InitClsMetric(InitConfig):
-    target: str = InitConfig.create_target_field(ClsMetric)
-    function: str = "confusion_matrix"
-    source_col: str = "class_idx"
-    target_cols_prefix: str = "pred_"
-
-
-dfanalyzer_class = (
-    "niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer"
-)
-clsmetrics_class = "niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric"
-
-
-class InitResultAnalyzer(InitConfig):
-    target: str = InitConfig.create_target_field(DataframeAnalyzer)
-    metrics: List[DfMetric] = [InitClsMetric()]
-
-
-def test_init_simple():
-    init = InitClsMetric()
-    cur_dict = init.dict(by_alias=True)
-    assert cur_dict == {
-        "_target_": clsmetrics_class,
-        "function": "confusion_matrix",
-        "source_col": "class_idx",
-        "target_cols_prefix": "pred_",
-    }
-    assert init.target == clsmetrics_class
-    assert init.function == "confusion_matrix"
-    assert init.source_col == "class_idx"
-    assert init.target_cols_prefix == "pred_"
-    target_obj = init.instantiate()
-    assert type(target_obj) == ClsMetric
-
-
-def test_class_path():
-    assert get_class_path(ClsMetric) == clsmetrics_class
-
-
-def test_init_nested():
-    init = InitResultAnalyzer()
-    cur_dict = init.dict(by_alias=True)
-    assert cur_dict == {
-        "_target_": "niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer.DataframeAnalyzer",
-        "metrics": [
-            {
-                "_target_": "niceml.mlcomponents.resultanalyzers.dataframes.clsmetric.ClsMetric",
-                "function": "confusion_matrix",
-                "source_col": "class_idx",
-                "target_cols_prefix": "pred_",
-            }
-        ],
-    }
-    assert init.target == dfanalyzer_class
-    assert len(init.metrics) == 1
-    assert type(init.metrics[0]) == InitClsMetric
-    target_obj = init.instantiate()
-    assert type(target_obj) == DataframeAnalyzer
-    assert type(target_obj.df_metrics[0]) == ClsMetric
-    assert target_obj.df_metrics[0].source_col == "class_idx"
-    assert target_obj.df_metrics[0].target_cols_prefix == "pred_"
-
+# Test classes for config creation and instantiation
 
 class Engine(Configurable):
     def __init__(self, power: int = 50):
@@ -108,12 +41,12 @@ class Light(Configurable):
 
 class Car(Configurable):
     def __init__(
-        self,
-        color: str,
-        engine: Engine,
-        wheels: Dict[str, Wheel],
-        lights: List[Light],
-        horn: Optional[float] = None,
+            self,
+            color: str,
+            engine: Engine,
+            wheels: Dict[str, Wheel],
+            lights: List[Light],
+            horn: Optional[float] = None,
     ):
         self.lights = lights
         self.horn = horn
@@ -123,26 +56,28 @@ class Car(Configurable):
 
     def __eq__(self, other):
         return (
-            self.color == other.color
-            and self.engine == other.engine
-            and self.wheels == other.wheels
+                self.color == other.color
+                and self.engine == other.engine
+                and self.wheels == other.wheels
         )
 
 
 class FastCar(Car):
     def __init__(
-        self,
-        color: str,
-        engine: Engine,
-        wheels: Dict[str, Wheel],
-        lights: List[Light],
-        speed: float = 100,
-        horn: Optional[float] = None,
+            self,
+            color: str,
+            engine: Engine,
+            wheels: Dict[str, Wheel],
+            lights: List[Light],
+            speed=100,
+            horn: Optional[float] = None,
+            seats=None
     ):
         super().__init__(
             color=color, engine=engine, wheels=wheels, lights=lights, horn=horn
         )
         self.speed = speed
+        self.seats = seats
 
 
 class Driver(DagsterConfig):
@@ -157,7 +92,7 @@ class TestCarConfig(DagsterConfig):
     driver: Driver
 
 
-def test_init_complex_create():
+def test_initialize_from_dict():
     wheel_map_dict = dict(
         lf_wheel=dict(_target_=get_class_path(Wheel)),
         rf_wheel=dict(_target_=get_class_path(Wheel), radius=20),
@@ -166,9 +101,25 @@ def test_init_complex_create():
     )
     engine_dict = dict(_target_=get_class_path(Engine), power=100)
     car_config = InitConfig.create(
-        Car, color="red", engine=engine_dict, wheels=wheel_map_dict
+        Car, color="red", engine=engine_dict, wheels=wheel_map_dict, lights=[
+            dict(_target_=get_class_path(Light), size=5,
+                 position=dict(_target_=LightPosition, value="front left")),
+            dict(_target_=get_class_path(Light), size=7,
+                 position=dict(_target_=LightPosition, value="front right")),
+        ]
     )
-    car_config.instantiate()
+    car = car_config.instantiate()
+    assert isinstance(car.engine, Engine)
+    assert isinstance(car.wheels["lr_wheel"], Wheel)
+    assert isinstance(car.lights[0].position, LightPosition)
+    assert isinstance(car.lights[0], Light)
+    assert car.color == "red"
+    assert car.engine.power == 100
+    assert len(car.lights) == 2
+    assert car.lights[0].size == 5
+    assert car.lights[0].position.value == "front left"
+    assert car.wheels["lf_wheel"].radius == 10
+    assert car.wheels["rf_wheel"].radius == 20
 
 
 def test_create_class_config():
@@ -183,7 +134,7 @@ def test_create_class_config():
             ],
         ),
         distance=200,
-        driver=Driver(name="Horst"),
+        driver=Driver(name="Adam"),
     )
 
     config_fast_car = TestCarConfig(
@@ -196,12 +147,28 @@ def test_create_class_config():
                 Light.create_config(size=5, position=LightPosition.FRONT_LEFT),
                 Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
             ],
+            horn=0.1,
+            seats=1
         ),
         distance=200,
-        driver=Driver(name="Horst"),
+        driver=Driver(name="John"),
     )
 
-    for config in [config_car, config_fast_car]:
+    config_default_fast_car = TestCarConfig(
+        car=FastCar.create_config(
+            color="red",
+            engine=Engine.create_config(power=100),
+            wheels=dict(left=Wheel.create_config()),
+            lights=[
+                Light.create_config(size=5, position=LightPosition.FRONT_LEFT),
+                Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
+            ],
+        ),
+        distance=200,
+        driver=Driver(name="Eve"),
+    )
+
+    for config in [config_car, config_fast_car, config_default_fast_car]:
         assert isinstance(config.car, InitConfig)
         assert isinstance(config.distance, float)
         assert isinstance(config.driver, BaseModel)
@@ -209,6 +176,7 @@ def test_create_class_config():
         car = config.car.instantiate()
         assert isinstance(car.engine, Engine)
         assert isinstance(car.wheels["left"], Wheel)
+        assert isinstance(car.lights[0], Light)
         assert isinstance(car.lights[0].position, LightPosition)
         assert car.color == "red"
 
@@ -235,7 +203,7 @@ def test_create_class_config_with_init_config():
             ],
         ),
         distance=200,
-        driver=Driver(name="Horst"),
+        driver=Driver(name="Adam"),
     )
 
     assert isinstance(config.car, InitConfig)
@@ -248,4 +216,4 @@ def test_create_class_config_with_init_config():
     assert isinstance(car.wheels["left"], Wheel)
     assert car.engine.power == 100
     assert car.color == "red"
-    assert car.engine.running == False
+    assert not car.engine.running

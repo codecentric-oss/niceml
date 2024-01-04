@@ -9,14 +9,15 @@ import inspect
 from abc import ABC
 from enum import Enum
 from inspect import isabstract
-from typing import Optional, get_type_hints, Any
+from typing import Optional, get_type_hints, Any, Tuple, Dict, List
 
 from dagster import Config as DagsterConfig
 from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model
 
 
-class Config(DagsterConfig, ABC):
+
+class Config(DagsterConfig, ABC):  # TODO: remove class
     """Base configuration class for Dagster and NiceML.
 
     This class inherits from DagsterConfig and ABC, providing a foundation for creating configuration instances.
@@ -49,11 +50,11 @@ class InitConfig(DagsterConfig):
     @classmethod
     def create(cls, target_class, **kwargs):
         """Creates an instance of a pydantic BaseModel which have the same fields as given in kwargs"""
-        conf_class = cls.create_conf(target_class)
+        conf_class = cls.create_conf_from_class(target_class)
         return conf_class(**kwargs)
 
     @classmethod
-    def create_conf(cls, target_class):
+    def create_conf_from_class(cls, target_class):
         if issubclass(target_class, (InitConfig, DagsterConfig)):
             return target_class
 
@@ -65,10 +66,10 @@ class InitConfig(DagsterConfig):
             target_enum_type = str if issubclass(target_class, str) else int
             target_kwargs["value"] = (target_enum_type, ...)
         for name, param in params.items():
-            if name == "self":
+            if name in ["self", "args", "kwargs"]:
                 continue
-            # current_type = type_hints.get(name, Any)
-            current_type = Any
+            current_type = type_hints.get(name, Any)
+            current_type = parse_value_type(param, cls)
             if param.default is not inspect._empty:
                 target_kwargs[name] = (current_type, param.default)
             else:
@@ -189,6 +190,32 @@ def parse_value(value):
         return {key: parse_value(value) for key, value in value.items()}
     else:
         return create_init_config(value)
+
+
+def parse_value_type(value, cls):
+    if isinstance(value, Enum):
+        return create_model(
+                    f"Conf{value.__name__}",
+                    target=(
+                    str, Field(default=get_class_path(value), alias="_target_")),
+                    __base__=cls,
+                )
+    elif isinstance(value, (int, str, float, bool)):
+        return type(value)
+    elif isinstance(value, (int, str, float, bool, InitConfig)) or value is None:
+        return type(value)
+    elif isinstance(value, (list, tuple)):
+        return [parse_value_type(item, cls) for item in value]
+    elif isinstance(value, dict):
+        return {key: parse_value_type(value, cls) for key, value in value.items()}
+    else:
+        return create_model(
+                    f"Conf{value.__name__}",
+                    target=(
+                    str, Field(default=get_class_path(value), alias="_target_")),
+                    __base__=cls,
+                )
+
 
 
 def get_class_path(cls):
