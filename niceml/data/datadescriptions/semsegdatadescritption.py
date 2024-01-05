@@ -11,7 +11,6 @@ from niceml.data.datadescriptions.outputdatadescriptions import (
 from niceml.utilities.imagesize import ImageSize
 
 
-@dataclass
 class SemSegClassInfo:
     """
     Class for (target or output) class information (name and color of mask image)
@@ -26,7 +25,6 @@ class SemSegClassInfo:
     name: str
 
 
-@dataclass
 class SemSegDataDescription(InputImageDataDescription, OutputImageDataDescription):
     """
     DataDescription for SemSeg data

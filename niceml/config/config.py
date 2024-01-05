@@ -135,11 +135,6 @@ class InitConfig(DagsterConfig):
             **kwargs,
         )
 
-    @classmethod
-    def create_config(cls, target_class):
-        """Create a config class from a target class"""
-        return cls(_target_=get_class_path(target_class))
-
 
 def create_init_config(instance) -> InitConfig:
     """Create an InitConfig instance based on the provided instance's variables.

@@ -2,6 +2,7 @@
 from os.path import basename, splitext
 from typing import Callable, List, Optional, Union
 
+from niceml.config.config import Configurable
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,
@@ -81,7 +82,7 @@ def _default_class_extractor(input_str: str) -> str:
 
 
 class DirClsDataInfoListing(
-    DataInfoListing
+    DataInfoListing, Configurable
 ):  # pylint: disable=too-few-public-methods, too-many-arguments
     """Lists all images in one folder and takes the class from the filename"""
 
