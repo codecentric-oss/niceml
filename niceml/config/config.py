@@ -19,12 +19,12 @@ from typing import (
     Union,
 )
 
-from dagster import Config as DagsterConfig
+from dagster import Config
 from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model
 
 
-class InitConfig(DagsterConfig):
+class InitConfig(Config):
     """
     Class representing the type of an attribute used in a Dagster Op configuration
 
@@ -74,7 +74,7 @@ class InitConfig(DagsterConfig):
               type (str or int).
 
         """
-        if issubclass(target_class, (InitConfig, DagsterConfig)):
+        if issubclass(target_class, (InitConfig, Config)):
             return target_class
 
         sig = inspect.signature(target_class.__init__)
@@ -103,11 +103,11 @@ class InitConfig(DagsterConfig):
 
     @staticmethod
     def create_target_field(
-        target_class,
-        description: Optional[str] = None,
-        default_value: Optional[dict] = None,
-        example_value: Optional[dict] = None,
-        **kwargs,
+            target_class,
+            description: Optional[str] = None,
+            default_value: Optional[dict] = None,
+            example_value: Optional[dict] = None,
+            **kwargs,
     ):
         """
         Used to configure Dagster Ops with a target class
@@ -134,9 +134,9 @@ class InitConfig(DagsterConfig):
 
     @staticmethod
     def create_config_field(
-        target_class,
-        description: Optional[str] = None,
-        **kwargs,
+            target_class,
+            description: Optional[str] = None,
+            **kwargs,
     ):
         """
         Used to configure Dagster Ops with a InitConfig
@@ -203,7 +203,7 @@ def get_class_path(cls):
     return f"{cls.__module__}.{cls.__name__}"
 
 
-class MapInitConfig(DagsterConfig):
+class MapInitConfig(Config):
     """
     Class representing the dict like type of an attribute used in a Dagster
     Op configuration
@@ -224,9 +224,9 @@ class MapInitConfig(DagsterConfig):
 
     @staticmethod
     def create_config_field(
-        target_class,
-        description: Optional[str] = None,
-        **kwargs,
+            target_class,
+            description: Optional[str] = None,
+            **kwargs,
     ):
         """
         Used to configure Dagster Ops with a MapInitConfig
@@ -237,8 +237,8 @@ class MapInitConfig(DagsterConfig):
         """
         if description is None:
             description = (
-                f"Requires a map (Dict[str,{target_class.__name__}] "
-                + target_class.__doc__
+                    f"Requires a map (Dict[str,{target_class.__name__}] "
+                    + target_class.__doc__
             )
 
         return Field(

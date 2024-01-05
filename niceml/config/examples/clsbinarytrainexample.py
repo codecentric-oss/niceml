@@ -115,7 +115,7 @@ dataset_loader_test = dataset_loader_train.copy(
     )
 )
 
-ConfKearLearner = InitConfig.create_conf_from_class(KerasLearner)
+conf_keras_learner = InitConfig.create_conf_from_class(KerasLearner)
 ConfAdam = InitConfig.create_conf_from_class(Adam)
 ConfClsMetric = InitConfig.create_conf_from_class(ClsMetric)
 
@@ -130,7 +130,7 @@ train = TrainConfig(
     data_description=data_description,
     data_train=dataset_loader_train,
     dataset_validation=dataset_loader_validation,
-    learner=ConfKearLearner(
+    learner=conf_keras_learner(
         model_compiler=DefaultModelCompiler.create_config(
             loss="categorical_crossentropy",
             metrics=["accuracy"],
