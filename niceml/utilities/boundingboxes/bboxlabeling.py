@@ -1,9 +1,8 @@
 """Module for ObjDetInstanceLabel"""
 from typing import List, Optional, Union
 
-from attr import define, field
+from pydantic import BaseModel, Field
 
-from niceml.utilities.boundingboxes.bboxconversion import dict_to_bounding_box
 from niceml.utilities.boundingboxes.boundingbox import (
     BoundingBox,
     bounding_box_from_ullr,
@@ -12,13 +11,10 @@ from niceml.utilities.imagesize import ImageSize
 from niceml.utilities.instancelabeling import InstanceLabel
 
 
-@define
 class ObjDetInstanceLabel(InstanceLabel):  # pylint: disable=too-few-public-methods
     """Label information for one specific bounding box and its prediction score"""
 
-    bounding_box: Union[BoundingBox, None] = field(
-        converter=dict_to_bounding_box, default=None
-    )
+    bounding_box: Union[BoundingBox, None] = Field(default=None)
     score: Optional[float] = None
     rotation: int = None
 
@@ -108,10 +104,9 @@ def dict_to_objdet_instance_label(
     return converted_data
 
 
-@define()
-class ObjDetImageLabel:  # pylint: disable=too-few-public-methods
+class ObjDetImageLabel(BaseModel):  # pylint: disable=too-few-public-methods
     """Labels of all ObjDetInstanceLabels on an image file"""
 
     filename: str
     img_size: ImageSize
-    labels: List[ObjDetInstanceLabel] = field(converter=dict_to_objdet_instance_label)
+    labels: List[ObjDetInstanceLabel] = Field(converter=dict_to_objdet_instance_label)

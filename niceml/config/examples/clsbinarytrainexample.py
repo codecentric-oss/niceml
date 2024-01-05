@@ -3,18 +3,22 @@ from os.path import join
 
 from dagster import JobDefinition
 from dagster import RunConfig, Definitions
+from dagster import graph
 from keras.optimizers import Adam
 
+from niceml.cli.clicommands import train
 from niceml.config.config import InitConfig
 from niceml.config.trainparams import TrainParams
-from niceml.dagster.jobs.graphs import (
-    graph_train,
-)
 from niceml.dagster.ops.analysis import AnalysisConfig
+from niceml.dagster.ops.analysis import analysis
 from niceml.dagster.ops.experiment import ExperimentConfig
+from niceml.dagster.ops.experiment import experiment
 from niceml.dagster.ops.exptests import ExpTestsConfig
+from niceml.dagster.ops.exptests import exptests
 from niceml.dagster.ops.filelockops import LocksConfig
+from niceml.dagster.ops.filelockops import acquire_locks, release_locks
 from niceml.dagster.ops.prediction import PredictionConfig
+from niceml.dagster.ops.prediction import prediction
 from niceml.dagster.ops.train import TrainConfig
 from niceml.data.datadescriptions.clsdatadescription import ClsDataDescription
 from niceml.data.datainfolistings.clsdatainfolisting import DirClsDataInfoListing
@@ -216,7 +220,21 @@ cls_run_config = RunConfig(
     },
 )
 
+
+@graph
+def cls_binary_example_graph_train():
+    """Graph for training an experiment"""
+    filelock_dict = acquire_locks()
+    exp_context = experiment()
+    exp_context, filelock_dict = train(exp_context, filelock_dict)
+    exp_context, datasets, filelock_dict = prediction(exp_context, filelock_dict)
+    exp_context, filelock_dict = analysis(exp_context, datasets, filelock_dict)
+    release_locks(filelock_dict)
+    exptests(exp_context)
+
+
 cls_binary_train_example_job = JobDefinition(
-    graph_def=graph_train, config=cls_run_config
+    graph_def=cls_binary_example_graph_train, config=cls_run_config
 )
+
 defs = Definitions(jobs=[cls_binary_train_example_job])

@@ -3,7 +3,7 @@ from math import exp, isclose, log
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-from attr import define, fields
+from pydantic import BaseModel
 
 from niceml.utilities.imagesize import ImageSize
 
@@ -12,8 +12,7 @@ NEGATIVE_MASK_VALUE = 2.0
 POSITIVE_MASK_VALUE = 3.0
 
 
-@define
-class BoundingBox:
+class BoundingBox(BaseModel):
     """Class to represent a bounding box and its methods"""
 
     x_pos: float  # QUEST: center coordinates?
@@ -203,17 +202,6 @@ class BoundingBox:
         height = round(self.height * scale)
 
         return BoundingBox(x_pos, y_pos, width, height)
-
-
-def get_bounding_box_attributes() -> List[str]:
-    """
-    Returns a list with the names of the attributes of the bounding box class
-
-    Returns:
-        List of strings with the names of the BoundingBox attributes
-    """
-    # pylint: disable=not-an-iterable
-    return [field.name for field in fields(BoundingBox)]
 
 
 def split_bounding_boxes(

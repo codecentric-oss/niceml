@@ -5,10 +5,11 @@ from typing import Optional, Tuple
 from attr import define
 
 from niceml.utilities.colorutils import Color
+from pydantic import BaseModel, Field
 
 
-@define
-class InstanceLabel(ABC):  # pylint: disable =too-few-public-methods
+# TODO: use Fields
+class InstanceLabel(ABC, BaseModel):  # pylint: disable =too-few-public-methods
     """Abstract class representing an instance of a found object. Additionally,
     this class is used for visualization purpose"""
 
