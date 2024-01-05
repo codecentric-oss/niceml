@@ -1,7 +1,7 @@
 """Module providing configuration-related functionality.
 
-This module defines classes and functions for working with configurations in the context of the Dagster framework
-and niceML's Hydra integration.
+This module defines classes and functions for working with configurations
+in the context of the Dagster framework and niceML's Hydra integration.
 """
 from __future__ import annotations
 
@@ -9,52 +9,71 @@ import inspect
 from abc import ABC
 from enum import Enum
 from inspect import isabstract
-from typing import Optional, get_type_hints, Any, Tuple, Dict, List
+from typing import (
+    Optional,
+    get_type_hints,
+    Any,
+    Tuple,
+    Dict,
+    List,
+    Union,
+)
 
 from dagster import Config as DagsterConfig
 from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model
 
 
+class InitConfig(DagsterConfig):
+    """
+    Class representing the type of an attribute used in a Dagster Op configuration
 
-class Config(DagsterConfig, ABC):  # TODO: remove class
-    """Base configuration class for Dagster and NiceML.
-
-    This class inherits from DagsterConfig and ABC, providing a foundation for creating configuration instances.
+    Attributes:
+        target: Fully qualified class name of the class which is instantiated.
     """
 
-    @classmethod
-    def create(cls, **kwargs) -> "Config":
-        """Create a Config instance with parsed values. The parsed values could be a `BaseModel`, an `InitConfig`
-        or default python datatypes.
-
-        Args:
-            **kwargs: Key-value pairs representing configuration parameters.
-
-        Returns:
-            An instance of the Config class with parsed values.
-        """
-        parsed_values = {key: parse_value(value) for key, value in kwargs.items()}
-
-        return cls(**parsed_values)
-
-
-class InitConfig(DagsterConfig):
     target: str = Field(
         ..., description="Target class which is instantiated.", alias="_target_"
     )
 
     def instantiate(self):
+        """
+        Instantiates the target class using the configuration parameters.
+
+        Returns:
+            Any: An instance of the target class.
+
+        """
         return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)
 
     @classmethod
     def create(cls, target_class, **kwargs):
-        """Creates an instance of a pydantic BaseModel which have the same fields as given in kwargs"""
+        """Creates an instance of a pydantic BaseModel which have the same fields as
+        given in kwargs"""
         conf_class = cls.create_conf_from_class(target_class)
         return conf_class(**kwargs)
 
     @classmethod
     def create_conf_from_class(cls, target_class):
+        """
+        Creates a configuration class from a target class by introspecting its __init__ method.
+
+        Args:
+            cls: The base configuration class (`InitConfig`) to inherit from.
+            target_class: The target class from which the configuration class will be created.
+
+        Returns:
+            The dynamically created configuration class as a Pydantic model.
+
+        Examples:
+            - For classes derived from InitConfig or Config, returns the target class itself.
+            - Inspects the __init__ method of the target class and extracts parameter information.
+            - Generates default values for parameters, parses that values with `parse_value_type`
+              and creates a configuration class using 'pydantic.create_model'.
+            - Handles Enum types by specifying a default value based on their underlying
+              type (str or int).
+
+        """
         if issubclass(target_class, (InitConfig, DagsterConfig)):
             return target_class
 
@@ -68,8 +87,7 @@ class InitConfig(DagsterConfig):
         for name, param in params.items():
             if name in ["self", "args", "kwargs"]:
                 continue
-            current_type = type_hints.get(name, Any)
-            current_type = parse_value_type(param, cls)
+            current_type = parse_value_type(type_hints.get(name, Any))
             if param.default is not inspect._empty:
                 target_kwargs[name] = (current_type, param.default)
             else:
@@ -141,81 +159,48 @@ class InitConfig(DagsterConfig):
         return cls(_target_=get_class_path(target_class))
 
 
-def create_init_config(instance) -> InitConfig:
-    """Create an InitConfig instance based on the provided instance's variables.
+def parse_value_type(value_type: type):
+    """
+    Recursively parses and constructs the corresponding type with inner types and returns
+    its corresponding type or InitConfig if `value_type` is not a python basic type or
+    is not defined in the 'typing' module (Dict, Tuple, Union, List, Optional).
 
     Args:
-        instance: An object with variables to be used in creating the InitConfig.
+        value_type: The type to be parsed.
 
     Returns:
-        An instance of the InitConfig class.
+        The parsed type or InitConfig.
+
+    Examples:
+        - For basic types (int, str, float, bool, dict, list, tuple), returns the same type.
+        - For Enum type, returns InitConfig.
+        - For types defined in the 'typing' module (Dict, Tuple, Union, List, Optional),
+          recursively parses and constructs the corresponding type with inner types.
+        - In all other cases, returns InitConfig.
+
     """
-    try:
-        values = vars(instance)
-        attributes = inspect.getmembers(
-            instance,
-            lambda attribute: not (inspect.isroutine(attribute)),
-        )
-        values = {}
-        for attribute in attributes:
-            key = attribute[0]
-            value = attribute[1]
-            if not key.startswith("_") and key != "Config":
-                values[key] = value
+    parsed_type = InitConfig
 
-    except TypeError:
-        raise TypeError(type(instance))
-    if isinstance(instance, Enum):
-        return InitConfig.create(target_class=type(instance), value=instance.value)()
-    parsed_values = {key: parse_value(value) for key, value in values.items()}
-    return InitConfig.create(target_class=type(instance), **parsed_values)()
+    if value_type in (int, str, float, bool, dict, list, tuple):
+        return value_type
+    elif value_type == Enum:
+        return parsed_type
+    elif hasattr(value_type, "__name__") and hasattr(value_type, "__module__"):
+        fully_qualified_type_name = f"{value_type.__module__}.{value_type.__name__}"
+        if hasattr(value_type, "__args__"):
+            args = value_type.__args__
+            if fully_qualified_type_name == "typing.Dict":
+                parsed_type = Dict[parse_value_type(args[0]), parse_value_type(args[1])]
+            elif fully_qualified_type_name == "typing.Tuple":
+                parsed_type = Tuple[tuple([parse_value_type(arg) for arg in args])]
+            elif fully_qualified_type_name == "typing.Union":
+                parsed_type = Union[tuple([parse_value_type(arg) for arg in args])]
+            elif fully_qualified_type_name == "typing.List":
+                parsed_type = List[tuple([parse_value_type(arg) for arg in args])]
+            elif fully_qualified_type_name == "typing.Optional":
+                parsed_type = value_type
 
-
-def parse_value(value):
-    """Recursively parse a value, handling various types and creating InitConfig instances as needed.
-    The value could be a `BaseModel`, an `InitConfig` or a default python datatype.
-    Args:
-        value: The value to be parsed.
-
-    Returns:
-        The parsed value.
-    """
-    if isinstance(value, Enum):
-        return create_init_config(value)
-    elif isinstance(value, (int, str, float, bool, InitConfig)) or value is None:
-        return value
-    elif isinstance(value, (list, tuple)):
-        return [parse_value(item) for item in value]
-    elif isinstance(value, dict):
-        return {key: parse_value(value) for key, value in value.items()}
-    else:
-        return create_init_config(value)
-
-
-def parse_value_type(value, cls):
-    if isinstance(value, Enum):
-        return create_model(
-                    f"Conf{value.__name__}",
-                    target=(
-                    str, Field(default=get_class_path(value), alias="_target_")),
-                    __base__=cls,
-                )
-    elif isinstance(value, (int, str, float, bool)):
-        return type(value)
-    elif isinstance(value, (int, str, float, bool, InitConfig)) or value is None:
-        return type(value)
-    elif isinstance(value, (list, tuple)):
-        return [parse_value_type(item, cls) for item in value]
-    elif isinstance(value, dict):
-        return {key: parse_value_type(value, cls) for key, value in value.items()}
-    else:
-        return create_model(
-                    f"Conf{value.__name__}",
-                    target=(
-                    str, Field(default=get_class_path(value), alias="_target_")),
-                    __base__=cls,
-                )
-
+    return parsed_type
 
 
 def get_class_path(cls):
@@ -224,9 +209,22 @@ def get_class_path(cls):
 
 
 class MapInitConfig(DagsterConfig):
-    """Hydra Map Config"""
+    """
+    Class representing the dict like type of an attribute used in a Dagster
+    Op configuration
+
+    Attributes:
+        target: Fully qualified class name of the class which is instantiated.
+    """
 
     def instantiate(self):
+        """
+        Instantiates the target class using the configuration parameters.
+
+        Returns:
+            Any: An instance of the target class.
+
+        """
         return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)
 
     @staticmethod
@@ -255,6 +253,20 @@ class MapInitConfig(DagsterConfig):
 
 
 class Configurable(ABC):
+    """
+    Abstract class from which every class that is to be part of a
+    Dagster Op configuration must inherit.
+    """
+
     @classmethod
     def create_config(cls, **kwargs) -> InitConfig:
+        """
+        Class method to create a InitConfig representing class.
+
+        Args:
+            **kwargs: Attributes that are used later to instantiate the class.
+
+        Returns:
+            Class specific instance of InitConfig
+        """
         return InitConfig.create(cls, **kwargs)
