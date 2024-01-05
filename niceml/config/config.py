@@ -21,7 +21,7 @@ from typing import (
 
 from dagster import Config
 from hydra.utils import instantiate, ConvertMode
-from pydantic import Field, create_model
+from pydantic import Field, create_model, BaseModel
 
 
 class InitConfig(Config):
@@ -54,7 +54,7 @@ class InitConfig(Config):
         return conf_class(**kwargs)
 
     @classmethod
-    def create_conf_from_class(cls, target_class):
+    def create_conf_from_class(cls, target_class, **kwargs):
         """
         Creates a configuration class from a target class by introspecting its __init__ method.
 
@@ -80,7 +80,7 @@ class InitConfig(Config):
         sig = inspect.signature(target_class.__init__)
         type_hints = get_type_hints(target_class.__init__)
         params = sig.parameters
-        target_kwargs = {}
+        target_kwargs = kwargs or {}
         if issubclass(target_class, Enum):
             target_enum_type = str if issubclass(target_class, str) else int
             target_kwargs["value"] = (target_enum_type, ...)
@@ -103,11 +103,11 @@ class InitConfig(Config):
 
     @staticmethod
     def create_target_field(
-            target_class,
-            description: Optional[str] = None,
-            default_value: Optional[dict] = None,
-            example_value: Optional[dict] = None,
-            **kwargs,
+        target_class,
+        description: Optional[str] = None,
+        default_value: Optional[dict] = None,
+        example_value: Optional[dict] = None,
+        **kwargs,
     ):
         """
         Used to configure Dagster Ops with a target class
@@ -134,9 +134,9 @@ class InitConfig(Config):
 
     @staticmethod
     def create_config_field(
-            target_class,
-            description: Optional[str] = None,
-            **kwargs,
+        target_class,
+        description: Optional[str] = None,
+        **kwargs,
     ):
         """
         Used to configure Dagster Ops with a InitConfig
@@ -194,7 +194,10 @@ def parse_value_type(value_type: type):
                 parsed_type = List[tuple([parse_value_type(arg) for arg in args])]
             elif fully_qualified_type_name == "typing.Optional":
                 parsed_type = value_type
-
+        elif value_type.__module__ == "typing":
+            return value_type
+        elif inspect.isclass(value_type) and issubclass(value_type, BaseModel):
+            parsed_type = value_type
     return parsed_type
 
 
@@ -224,9 +227,9 @@ class MapInitConfig(Config):
 
     @staticmethod
     def create_config_field(
-            target_class,
-            description: Optional[str] = None,
-            **kwargs,
+        target_class,
+        description: Optional[str] = None,
+        **kwargs,
     ):
         """
         Used to configure Dagster Ops with a MapInitConfig
@@ -237,8 +240,8 @@ class MapInitConfig(Config):
         """
         if description is None:
             description = (
-                    f"Requires a map (Dict[str,{target_class.__name__}] "
-                    + target_class.__doc__
+                f"Requires a map (Dict[str,{target_class.__name__}] "
+                + target_class.__doc__
             )
 
         return Field(

@@ -258,6 +258,7 @@ def test_create_class_config_with_init_config():
         (List[Union[str, int, bool]], List[Union[str, int, bool]]),
         (Optional[str], Optional[str]),
         (Union[str, int, bool], Union[str, int, bool]),
+        (List, List),
     ],
 )
 def test_parse_value_type(input_value_type, result):

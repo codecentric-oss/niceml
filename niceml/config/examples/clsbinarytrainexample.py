@@ -116,17 +116,16 @@ dataset_loader_test = dataset_loader_train.copy(
 )
 
 conf_keras_learner = InitConfig.create_conf_from_class(KerasLearner)
-ConfAdam = InitConfig.create_conf_from_class(Adam)
 ConfClsMetric = InitConfig.create_conf_from_class(ClsMetric)
-
-acquire_locks = LocksConfig(file_lock_dict={})
-experiment = ExperimentConfig(
+ConfAdam = InitConfig.create_conf_from_class(Adam, learning_rate=0.0001)
+acquire_locks_config = LocksConfig(file_lock_dict={})
+experiment_config = ExperimentConfig(
     exp_out_location=dict(uri=os.getenv("EXPERIMENT_URI")),
     exp_folder_pattern="CLS-$RUN_ID-id_$SHORT_ID",
 )
-train = TrainConfig(
+train_config = TrainConfig(
     train_params=TrainParams(),
-    model_factory=OwnMobileNetModel.create_model(),
+    model_factory=OwnMobileNetModel.create_config(),
     data_description=data_description,
     data_train=dataset_loader_train,
     dataset_validation=dataset_loader_validation,
@@ -134,12 +133,15 @@ train = TrainConfig(
         model_compiler=DefaultModelCompiler.create_config(
             loss="categorical_crossentropy",
             metrics=["accuracy"],
-            optimizer=ConfAdam(learning_rate=0.0001),
+            optimizer=ConfAdam(),
         ),
         callback_initializer=CallbackInitializer(
             callback_list=[
-                InitCallbackFactory(callback=LossNanCheckCallback()),
-                LoggingOutputCallbackFactory(),
+                InitConfig.create(
+                    InitCallbackFactory,
+                    callback=InitConfig.create(LossNanCheckCallback),
+                ),
+                InitConfig.create(LoggingOutputCallbackFactory),
             ],
             callback_dict=dict(
                 save_model=ModelCallbackFactory(
@@ -154,7 +156,7 @@ train = TrainConfig(
     ),
 )
 
-prediction = PredictionConfig(
+prediction_config = PredictionConfig(
     prediction_handler=VectorPredictionHandler(),
     datasets=dict(
         test=dataset_loader_test,
@@ -166,7 +168,7 @@ prediction = PredictionConfig(
     prediction_steps=2,
 )
 
-analysis = AnalysisConfig(
+analysis_config = AnalysisConfig(
     result_analyzer=DataframeAnalyzer(
         metrics=[
             ConfClsMetric(
@@ -183,7 +185,7 @@ analysis = AnalysisConfig(
     ),
 )
 
-exptests = ExpTestsConfig(
+exptests_config = ExpTestsConfig(
     exp_test_process=ExpTestProcess(
         test_list=[
             ModelsSavedExpTest(),
@@ -203,12 +205,12 @@ exptests = ExpTestsConfig(
 
 cls_run_config = RunConfig(
     ops={
-        "acquire_locks": acquire_locks,
-        "experiment": experiment,
-        "train": train,
-        "prediction": prediction,
-        "analysis": analysis,
-        "exptests": exptests,
+        "acquire_locks": acquire_locks_config,
+        "experiment": experiment_config,
+        "train": train_config,
+        "prediction": prediction_config,
+        "analysis": analysis_config,
+        "exptests": exptests_config,
     },
     resources={
         "mlflow": {
@@ -234,7 +236,8 @@ def cls_binary_example_graph_train():
 
 
 cls_binary_train_example_job = JobDefinition(
-    graph_def=cls_binary_example_graph_train, config=cls_run_config
+    graph_def=cls_binary_example_graph_train,
+    config=cls_run_config,
 )
 
 defs = Definitions(jobs=[cls_binary_train_example_job])

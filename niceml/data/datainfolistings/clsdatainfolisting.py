@@ -94,6 +94,7 @@ class DirClsDataInfoListing(
         image_suffixes: Optional[List[str]] = None,
     ):
         """Init method of DirClsDataInfoListing"""
+        super().__init__()
         self.sub_dir = sub_dir
         self.location = location
         self.class_extractor = class_extractor or _default_class_extractor
