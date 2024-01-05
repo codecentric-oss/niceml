@@ -3,13 +3,13 @@
 import contextlib
 from os.path import join
 from typing import Dict, Optional, Tuple, List
-
+from dagster import Config
 import numpy as np
 import tqdm
 from dagster import OpExecutionContext, op, Out
 from pydantic import Field
 
-from niceml.config.config import Config, InitConfig, MapInitConfig
+from niceml.config.config import InitConfig, MapInitConfig
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
 from niceml.config.writeopconfig import write_op_config
 from niceml.data.datadescriptions.datadescription import DataDescription

@@ -7,6 +7,7 @@ import mlflow
 import pandas as pd
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
+from pydantic import BaseModel, Field
 
 from niceml.experiments.experimenttests.exptests import (
     ExperimentTest,
@@ -20,21 +21,13 @@ class ExperimentTestFailedError(Exception):
     """Exception for when an experiment test fails"""
 
 
-class ExpTestProcess:  # pylint: disable=too-few-public-methods
+class ExpTestProcess(BaseModel):  # pylint: disable=too-few-public-methods
     """Class to execute a list of ExperimentTests"""
 
-    def __init__(
-        self,
-        test_list: List[ExperimentTest],
-        csv_out_name: str = "exp_tests.csv",
-        raise_exception: bool = True,
-        store_results: bool = True,
-    ):
-        """Initialize the ExpTestProcess"""
-        self.test_list = test_list
-        self.csv_out_name = csv_out_name
-        self.raise_exception = raise_exception
-        self.store_results = store_results
+    test_list: List[ExperimentTest] = Field(default_factory=list)
+    csv_out_name: str = Field(default="exp_tests.csv")
+    raise_exception: bool = Field(default=True)
+    store_results: bool = Field(default=True)
 
     def __call__(
         self,

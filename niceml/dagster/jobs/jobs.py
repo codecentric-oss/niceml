@@ -1,8 +1,8 @@
 """Module containing all dagster jobs"""
-from dagster_mlflow import mlflow_tracking
+
+from dagster import JobDefinition
 
 from niceml.config.hydra import hydra_conf_mapping_factory
-
 from niceml.dagster.jobs.graphs import (
     graph_train,
     graph_data_generation,
@@ -10,7 +10,6 @@ from niceml.dagster.jobs.graphs import (
     graph_copy_exp,
     graph_clearlocks,
 )
-from dagster import JobDefinition
 
 # TODO: remove hydra_conf_mapping_factory
 job_data_generation = JobDefinition(

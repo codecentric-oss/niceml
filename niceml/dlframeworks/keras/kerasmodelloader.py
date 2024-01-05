@@ -5,6 +5,7 @@ from typing import Any, Optional
 
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
+from pydantic import Field
 
 # pylint: disable=import-error
 from tensorflow.keras.models import load_model
@@ -18,22 +19,13 @@ from niceml.mlcomponents.modelloader.modelloader import ModelLoader
 class KerasModelLoader(ModelLoader):  # pylint: disable=too-few-public-methods
     """Interface implementation to load a keras model"""
 
-    def __init__(
-        self,
-        model_custom_objects: Optional[ModelCustomLoadObjects] = None,
-        compile_model: bool = False,
-    ):
-        """
-        Constructor for KerasModelLoader
-
-        :param model_custom_objects: Optional custom objects to load the model.
-        In Keras it is possible to pass custom objects during model loading.
-        :param compile_model: Flag if the model should be compiled after loading
-        """
-        self.compile_model = compile_model
-        self.model_custom_objects: ModelCustomLoadObjects = (
-            model_custom_objects or ModelCustomLoadObjects()
-        )
+    model_custom_objects: ModelCustomLoadObjects = Field(
+        default_factory=ModelCustomLoadObjects,
+        description="custom objects to load the model. In Keras it is possible to pass custom objects during model loading.",
+    )
+    compile_model: bool = Field(
+        default=True, description="Flag if the model should be compiled after loading"
+    )
 
     def __call__(
         self,
