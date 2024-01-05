@@ -53,7 +53,7 @@ def graph_eval():
 
 
 @graph
-def job_copy_exp():
+def graph_copy_exp():
     """Graph for copy an experiment from one location to another"""
     copy_exp()
 
