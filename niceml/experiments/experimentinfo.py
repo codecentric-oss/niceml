@@ -5,6 +5,7 @@ from typing import Optional
 
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
+from pydantic import BaseModel
 
 from niceml.config.envconfig import (
     DESCRIPTION_KEY,
@@ -22,8 +23,7 @@ from niceml.utilities.ioutils import read_yaml
 
 
 # pylint: disable = too-many-instance-attributes
-@dataclass
-class ExperimentInfo:
+class ExperimentInfo(BaseModel):
     """Dataclass which holds information about an experiment but not the data"""
 
     experiment_name: str
@@ -37,6 +37,7 @@ class ExperimentInfo:
     exp_filepath: Optional[str] = None
     last_modified: Optional[str] = None
 
+    # TODO: Use pydantic's json encoder
     def as_save_dict(self) -> dict:
         """Returns a dictionary which can be saved to a yaml file"""
         return {

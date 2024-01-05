@@ -5,6 +5,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.models import Model
 
+from niceml.config.config import Configurable
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
 from niceml.data.datadescriptions.outputdatadescriptions import (
@@ -14,7 +15,7 @@ from niceml.mlcomponents.models.modelfactory import ModelFactory
 from niceml.utilities.commonutils import check_instance
 
 
-class OwnMobileNetModel(ModelFactory):
+class OwnMobileNetModel(ModelFactory, Configurable):
     def __init__(
         self,
         final_activation: str = "softmax",

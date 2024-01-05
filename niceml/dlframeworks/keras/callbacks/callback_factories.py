@@ -4,6 +4,9 @@ from os.path import join
 from pathlib import Path
 from typing import Any, List
 
+from dagster import Config
+from pydantic import BaseModel, Field
+
 from niceml.dlframeworks.keras.callbacks.csvlogger import CSVLogger
 from niceml.dlframeworks.keras.callbacks.modelcheckpoint import ModelCheckpoint
 from niceml.experiments.experimentcontext import ExperimentContext
@@ -20,12 +23,11 @@ class CallbackFactory(ABC):  # pylint: disable=too-few-public-methods
 
 
 # pylint: disable=too-few-public-methods
-class InitCallbackFactory(CallbackFactory):
+class InitCallbackFactory(CallbackFactory, BaseModel):
     """Creates a callback which doesn't need
     any experiment specific parameters"""
 
-    def __init__(self, callback: Any):
-        self.callback = callback
+    callback: Any = Field(..., description="The callback to be created")
 
     def create_callback(self, exp_context: ExperimentContext):
         return self.callback
@@ -35,9 +37,12 @@ class InitCallbackFactory(CallbackFactory):
 class ModelCallbackFactory(CallbackFactory):
     """Creates the model checkpoint callback"""
 
-    def __init__(self, model_subfolder: str, **kwargs):
-        self.kwargs = kwargs
-        self.model_subfolder = model_subfolder
+    model_subfolder: str = Field(
+        default="models", description="The subfolder where the model will be saved"
+    )
+    init_kwargs: dict = Field(
+        default_factory=dict, description="The kwargs for the model checkpoint callback"
+    )
 
     def create_callback(self, exp_context: ExperimentContext):
         target_model_fs = join_location_w_path(
@@ -45,16 +50,17 @@ class ModelCallbackFactory(CallbackFactory):
         )
         file_formats = {"run_id": exp_context.run_id, "short_id": exp_context.short_id}
         return ModelCheckpoint(
-            target_model_fs, file_formats=file_formats, **self.kwargs
+            target_model_fs, file_formats=file_formats, **self.init_kwargs
         )
 
 
 # pylint: disable=too-few-public-methods
-class LoggingOutputCallbackFactory(CallbackFactory):
+class LoggingOutputCallbackFactory(CallbackFactory, BaseModel):
     """Creates a callback that logs the metrics to a csv file"""
 
-    def __init__(self, filename: str = "train_logs.csv"):
-        self.filename = filename
+    filename: str = Field(
+        default="train_logs.csv", description="The filename of the csv file"
+    )
 
     def create_callback(self, exp_context: ExperimentContext):
         return CSVLogger(experiment_context=exp_context, filename=self.filename)

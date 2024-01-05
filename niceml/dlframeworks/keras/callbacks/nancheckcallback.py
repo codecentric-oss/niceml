@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import numpy as np
 from keras import Model
+from pydantic import BaseModel, Field
 from tensorflow.python.keras.callbacks import (  # pylint: disable=no-name-in-module
     Callback,
 )
@@ -12,12 +13,12 @@ class NanInLossError(Exception):
     """Error when loss is NaN"""
 
 
-class LossNanCheckCallback(Callback):
+class LossNanCheckCallback(Callback, BaseModel):
     """Callback to check if nan is in loss"""
 
-    def __init__(self, check_logs: Optional[List[str]] = None):
-        super().__init__()
-        self.check_logs = check_logs or ["loss", "val_loss"]
+    check_logs: List[str] = Field(
+        default=["loss", "val_loss"], description="Logs to check for nan"
+    )
 
     def on_batch_end(self, batch, logs: Optional[dict] = None):
         if logs is None:
