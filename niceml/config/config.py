@@ -16,28 +16,6 @@ from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model
 
 
-class Config(DagsterConfig, ABC):  # TODO: remove class
-    """Base configuration class for Dagster and NiceML.
-
-    This class inherits from DagsterConfig and ABC, providing a foundation for creating configuration instances.
-    """
-
-    @classmethod
-    def create(cls, **kwargs) -> "Config":
-        """Create a Config instance with parsed values. The parsed values could be a `BaseModel`, an `InitConfig`
-        or default python datatypes.
-
-        Args:
-            **kwargs: Key-value pairs representing configuration parameters.
-
-        Returns:
-            An instance of the Config class with parsed values.
-        """
-        parsed_values = {key: parse_value(value) for key, value in kwargs.items()}
-
-        return cls(**parsed_values)
-
-
 class InitConfig(DagsterConfig):
     target: str = Field(
         ..., description="Target class which is instantiated.", alias="_target_"
