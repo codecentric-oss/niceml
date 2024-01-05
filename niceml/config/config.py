@@ -16,7 +16,6 @@ from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model
 
 
-
 class Config(DagsterConfig, ABC):  # TODO: remove class
     """Base configuration class for Dagster and NiceML.
 
@@ -190,11 +189,10 @@ def parse_value(value):
 def parse_value_type(value, cls):
     if isinstance(value, Enum):
         return create_model(
-                    f"Conf{value.__name__}",
-                    target=(
-                    str, Field(default=get_class_path(value), alias="_target_")),
-                    __base__=cls,
-                )
+            f"Conf{value.__name__}",
+            target=(str, Field(default=get_class_path(value), alias="_target_")),
+            __base__=cls,
+        )
     elif isinstance(value, (int, str, float, bool)):
         return type(value)
     elif isinstance(value, (int, str, float, bool, InitConfig)) or value is None:
@@ -205,12 +203,10 @@ def parse_value_type(value, cls):
         return {key: parse_value_type(value, cls) for key, value in value.items()}
     else:
         return create_model(
-                    f"Conf{value.__name__}",
-                    target=(
-                    str, Field(default=get_class_path(value), alias="_target_")),
-                    __base__=cls,
-                )
-
+            f"Conf{value.__name__}",
+            target=(str, Field(default=get_class_path(value), alias="_target_")),
+            __base__=cls,
+        )
 
 
 def get_class_path(cls):
