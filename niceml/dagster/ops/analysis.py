@@ -5,7 +5,7 @@ from dagster import OpExecutionContext, op, Out
 from pydantic import Field
 
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
-from niceml.config.config import InitConfig, Config
+from niceml.config.config import InitConfig
 from niceml.config.writeopconfig import write_op_config
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datasets.dataset import Dataset
@@ -13,6 +13,7 @@ from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import OpNames
 from niceml.mlcomponents.resultanalyzers.analyzer import ResultAnalyzer
 from niceml.utilities.readwritelock import FileLock
+from dagster import Config
 
 
 class AnalysisConfig(Config):

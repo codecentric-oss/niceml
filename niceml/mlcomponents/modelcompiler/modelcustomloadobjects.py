@@ -1,13 +1,16 @@
 """Module for ModelCustomLoadObjects"""
-from dataclasses import dataclass, field
 from importlib import import_module
 
+from pydantic import BaseModel, Field
 
-@dataclass
-class ModelCustomLoadObjects:
+
+class ModelCustomLoadObjects(BaseModel):
     """Only used to import modules required for the model (e.g. tensorflow)"""
 
-    objects: dict = field(default_factory=dict)
+    objects: dict = Field(
+        default_factory=dict,
+        description="Dict of objects to import while loading the model",
+    )
 
     def __call__(self) -> dict:
         ret_dict = dict()

@@ -51,7 +51,6 @@ def get_feature_size(features: List[dict]) -> int:
     return count
 
 
-@dataclass
 class RegDataDescription(InputVectorDataDescription, OutputVectorDataDescription):
     """DataDescription for Regression data. Uses vectors as input and output"""
 

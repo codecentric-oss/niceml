@@ -1,12 +1,11 @@
-from os import listdir
 from os.path import join, splitext
 from typing import List, Optional
 
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
+from pydantic import Field
 
 from niceml.data.storages.fsfilesystemstorage import FsFileSystemStorage
-from niceml.data.storages.fsspecstorage import FSSpecStorage
 from niceml.experiments.expdatalocalstorageloader import (
     create_expdata_from_local_storage,
 )
@@ -20,9 +19,8 @@ from niceml.utilities.ioutils import list_dir, read_parquet
 
 
 class ModelsSavedExpTest(ExperimentTest):
-    def __init__(self, model_subfolder: str = "models", model_exts: List[str] = None):
-        self.model_subfolder = model_subfolder
-        self.model_exts = [".pkl", ".hdf5"] if model_exts is None else model_exts
+    model_subfolder: str = Field(default="models")
+    model_exts: List[str] = Field(default=[".pkl", ".hdf5"])
 
     def __call__(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None

@@ -4,6 +4,7 @@ from os.path import basename, dirname
 from typing import List, Union
 
 from fsspec import AbstractFileSystem
+from pydantic import BaseModel, Field
 from tqdm import tqdm
 
 from niceml.utilities.checksums import md5_from_file
@@ -14,12 +15,15 @@ from niceml.utilities.fsspec.locationutils import (
 )
 
 
-@dataclass
-class CopyInfo:
+class CopyInfo(BaseModel):
     """This class contains the information for copying files between filesystems"""
 
-    location: Union[LocationConfig, dict]
-    copy_filelist: List[str]
+    location: Union[LocationConfig, dict] = Field(
+        default_factory=dict, description="Location of the files to copy"
+    )
+    copy_filelist: List[str] = Field(
+        default_factory=list, description="List of files to copy"
+    )
 
     def copy_to_filesystem(
         self, target_filesystem: AbstractFileSystem, target_path: str
@@ -37,13 +41,12 @@ class CopyInfo:
                     ftgt.write(fsrc.read())
 
 
-@dataclass
-class CopyFileInfo:
+class CopyFileInfo(BaseModel):
     """Dataclass which is used to compare an input file with an output file"""
 
-    input_location: Union[LocationConfig, dict]
-    output_location: Union[LocationConfig, dict]
-    checksum: str = ""
+    input_location: Union[LocationConfig, dict] = Field(default_factory=dict)
+    output_location: Union[LocationConfig, dict] = Field(default_factory=dict)
+    checksum: str = Field(default_factory=str, description="Checksum of the input file")
 
     def copy_file(self):
         """Copies the input file to the output location"""

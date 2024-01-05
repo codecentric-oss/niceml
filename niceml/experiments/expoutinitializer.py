@@ -2,6 +2,8 @@
 from os.path import basename, dirname, join
 from typing import List, Optional
 
+from pydantic import BaseModel, Field
+
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.experimentinfo import ExperimentInfo
 from niceml.experiments.expfilenames import ExperimentFilenames
@@ -10,29 +12,41 @@ from niceml.utilities.fsspec.locationutils import open_location
 from niceml.utilities.gitutils import produce_git_version_yaml
 
 
-class ExpOutInitializer:
+class ExpOutInitializer(BaseModel):
     """This class creates the first folder and files for an experiment"""
 
-    # pylint: disable=too-many-instance-attributes, too-many-arguments, too-few-public-methods
-    def __init__(
-        self,
-        git_dirs: List[str] = None,
-        git_modules: List[str] = None,
-        copy_info: Optional[CopyInfo] = None,
-        environment: Optional[dict] = None,
-        exp_name: Optional[str] = None,
-        exp_prefix: Optional[str] = None,
-        description: Optional[str] = None,
-        exp_type: Optional[str] = None,
-    ):
-        self.copy_info = copy_info
-        self.git_dirs: List[str] = git_dirs or []
-        self.git_modules: List[str] = git_modules or []
-        self.environment = environment or {}
-        self.description = description or ""
-        self.exp_name: str = exp_name or ""
-        self.exp_prefix: str = exp_prefix or ""
-        self.exp_type: str = exp_type or ""
+    git_dirs: List[str] = Field(
+        default_factory=list,
+        description="List of git directories of which the commit hash should be stored",
+    )
+    git_modules: List[str] = Field(
+        default_factory=list,
+        description="List of git modules of which the commit hash should be stored",
+    )
+    copy_info: Optional[CopyInfo] = Field(
+        default=None,
+        description="CopyInfo object which copies files to the experiment folder",
+    )
+    environment: dict = Field(
+        default_factory=dict,
+        description="Environment dictionary which is stored in the experiment info file",
+    )
+    exp_name: str = Field(
+        default="",
+        description="Experiment name which is stored in the experiment info file",
+    )
+    exp_prefix: str = Field(
+        default="",
+        description="Experiment prefix which is stored in the experiment info file",
+    )
+    description: str = Field(
+        default="",
+        description="Experiment description which is stored in the experiment info file",
+    )
+    exp_type: str = Field(
+        default="",
+        description="Experiment type which is stored in the experiment info file",
+    )
 
     def __call__(self, exp_context: ExperimentContext):
         produce_git_version_yaml(

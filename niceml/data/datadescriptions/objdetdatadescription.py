@@ -9,7 +9,6 @@ from niceml.data.datadescriptions.outputdatadescriptions import (
 from niceml.utilities.imagesize import ImageSize
 
 
-@dataclass
 class ObjDetDataDescription(  # pylint: disable=too-many-instance-attributes
     OutputObjDetDataDescription, InputImageDataDescription
 ):

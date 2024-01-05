@@ -1,13 +1,16 @@
 """Module for model compilers in keras"""
 from typing import Any, List, Union
 
+from niceml.config.config import Configurable
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.mlcomponents.modelcompiler.modelcompiler import ModelCompiler
 from niceml.mlcomponents.models.modelbundle import ModelBundle
 from niceml.mlcomponents.models.modelfactory import ModelFactory
 
 
-class DefaultModelCompiler(ModelCompiler):  # pylint: disable=too-few-public-methods
+class DefaultModelCompiler(
+    ModelCompiler, Configurable
+):  # pylint: disable=too-few-public-methods
     """Simplest model compiler for keras"""
 
     def __init__(

@@ -1,5 +1,4 @@
 """Module for ClsDataDescription"""
-from dataclasses import dataclass
 from typing import List, Optional, Union
 
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
@@ -9,7 +8,6 @@ from niceml.data.datadescriptions.outputdatadescriptions import (
 from niceml.utilities.imagesize import ImageSize
 
 
-@dataclass
 class ClsDataDescription(OutputVectorDataDescription, InputImageDataDescription):
     """DataDescription for Classification data"""
 

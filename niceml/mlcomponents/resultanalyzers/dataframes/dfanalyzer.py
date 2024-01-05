@@ -6,6 +6,7 @@ from typing import List
 
 import mlflow
 import pandas as pd
+from pydantic import Field
 
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.experiments.experimentcontext import ExperimentContext
@@ -31,16 +32,8 @@ class DfMetric(ABC):
 class DataframeAnalyzer(ResultAnalyzer):
     """Result analyzer for dataframes"""
 
-    def __init__(
-        self,
-        metrics: List[DfMetric],
-        parq_file_prefix: str = "",
-    ):
-        """Initialize a result analyzer for dataframes"""
-
-        super().__init__()
-        self.parq_file_prefix = parq_file_prefix
-        self.df_metrics: List[DfMetric] = metrics
+    metrics: List[DfMetric] = Field(defaul_factory=list)
+    parq_file_prefix: str = Field(defaul_factory=str)
 
     def initialize(self, data_description: DataDescription):
         """
