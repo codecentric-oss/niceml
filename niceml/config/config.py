@@ -24,12 +24,14 @@ from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model, BaseModel
 
 
+class InitConfig(Config):
     """
     Class representing the type of an attribute used in a Dagster Op configuration
 
     Attributes:
         target: Fully qualified class name of the class which is instantiated.
     """
+
     target: Optional[str] = Field(
         default=None,
         description="Target class which is instantiated.",
@@ -44,6 +46,8 @@ from pydantic import Field, create_model, BaseModel
             Any: An instance of the target class.
 
         """
+        if self.target is None:
+            return self
         return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)
 
     @classmethod
