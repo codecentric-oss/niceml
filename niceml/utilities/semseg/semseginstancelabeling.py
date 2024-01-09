@@ -4,12 +4,10 @@ from typing import Optional
 
 import cv2
 import numpy as np
-from attr import define
 
 from niceml.utilities.instancelabeling import InstanceLabel
 
 
-@define
 class SemSegInstanceLabel(InstanceLabel):  # pylint: disable = too-few-public-methods
 
     """`InstanceLabel` for one SemSeg error mask instance (prediction or ground truth)."""

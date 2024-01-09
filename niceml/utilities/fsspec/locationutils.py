@@ -8,26 +8,22 @@ import cattr
 from attr import asdict
 from fsspec import AbstractFileSystem
 from fsspec.core import url_to_fs
-
-from niceml.config.configschemas import define, field
+from pydantic import BaseModel, Field
 
 FSPath = Tuple[AbstractFileSystem, str]
 
 
-@define
-class LocationConfig:  # pylint: disable=too-few-public-methods
+class LocationConfig(BaseModel):
     """Access description for a remote storage location. The description is targeted at fsspec_."""
 
-    uri: str = field(description="""URL to remote storage as expected by fsspec_.""")
-    fs_args: Dict[str, Any] = field(
-        description="""Optional filesystem arguments to be passed to fsspec_, see e.g.
-  https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations""",
-        factory=dict,
+    uri: str = Field(description="URL to remote storage as expected by fsspec_")
+    fs_args: Dict[str, Any] = Field(
+        description="Filesystem arguments to be passed to fsspec_, see e.g. https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations",
+        default_factory=dict,
     )
-    credentials: Dict[str, Any] = field(
-        description="""Optional credentials to be passed as filesystem
-        arguments to fsspec_.""",
-        factory=dict,
+    credentials: Dict[str, Any] = Field(
+        description="Credentials to be passed as filesystem arguments to fsspec_.",
+        default_factory=dict,
     )
 
     def __str__(self) -> str:

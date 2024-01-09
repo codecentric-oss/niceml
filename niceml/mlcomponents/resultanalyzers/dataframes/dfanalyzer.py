@@ -6,7 +6,10 @@ from typing import List
 
 import mlflow
 import pandas as pd
+from dagster import Config
+from pydantic import Field, BaseModel
 
+from niceml.config.config import InitConfig
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames
@@ -14,7 +17,7 @@ from niceml.mlcomponents.resultanalyzers.analyzer import ResultAnalyzer
 from niceml.utilities.logutils import get_logstr_from_dict
 
 
-class DfMetric(ABC):
+class DfMetric(ABC, InitConfig):
     """metric of a dataframe"""
 
     def initialize(self, data_description: DataDescription):
@@ -31,16 +34,8 @@ class DfMetric(ABC):
 class DataframeAnalyzer(ResultAnalyzer):
     """Result analyzer for dataframes"""
 
-    def __init__(
-        self,
-        metrics: List[DfMetric],
-        parq_file_prefix: str = "",
-    ):
-        """Initialize a result analyzer for dataframes"""
-
-        super().__init__()
-        self.parq_file_prefix = parq_file_prefix
-        self.df_metrics: List[DfMetric] = metrics
+    metrics: List[DfMetric] = Field(defaul_factory=list)
+    parq_file_prefix: str = Field(defaul_factory=str)
 
     def initialize(self, data_description: DataDescription):
         """

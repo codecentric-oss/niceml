@@ -1,8 +1,9 @@
 """module for dagster ops regarding filelocks"""
 
+from dagster import Config
 from dagster import op, OpExecutionContext
 
-from niceml.config.config import MapInitConfig, Config
+from niceml.config.config import MapInitConfig
 from niceml.utilities.readwritelock import FileLock
 
 

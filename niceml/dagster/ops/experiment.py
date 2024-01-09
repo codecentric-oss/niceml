@@ -2,8 +2,7 @@
 
 import mlflow
 from pydantic import Field
-
-from niceml.config.config import Config
+from dagster import Config
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.factoryutils import subs_path_and_create_folder
 from niceml.utilities.fsspec.locationutils import join_location_w_path

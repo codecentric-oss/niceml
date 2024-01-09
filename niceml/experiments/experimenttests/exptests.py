@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Optional
 
 from fsspec import AbstractFileSystem
+from pydantic import BaseModel
 
 
 class TestStatus(str, Enum):
@@ -27,7 +28,7 @@ class ExpTestResult(object):
         return f"{self.status} - {self.name} - {self.message}"
 
 
-class ExperimentTest(ABC):
+class ExperimentTest(ABC, BaseModel):
     """Abstract class for an experiment test"""
 
     def get_test_name(self) -> str:

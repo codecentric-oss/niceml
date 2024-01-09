@@ -1,15 +1,23 @@
 """Module for test for the configuration"""
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple, Union
 
+import numpy as np
+import pytest
 from dagster import Config as DagsterConfig
 from pydantic import Field, BaseModel
 
-from niceml.config.config import get_class_path, InitConfig, Configurable
+from niceml.config.config import (
+    get_class_path,
+    InitConfig,
+    Configurable,
+    parse_value_type,
+)
 
 
 # Test classes for config creation and instantiation
+
 
 class Engine(Configurable):
     def __init__(self, power: int = 50):
@@ -41,12 +49,12 @@ class Light(Configurable):
 
 class Car(Configurable):
     def __init__(
-            self,
-            color: str,
-            engine: Engine,
-            wheels: Dict[str, Wheel],
-            lights: List[Light],
-            horn: Optional[float] = None,
+        self,
+        color: str,
+        engine: Engine,
+        wheels: Dict[str, Wheel],
+        lights: List[Light],
+        horn: Optional[float] = None,
     ):
         self.lights = lights
         self.horn = horn
@@ -56,22 +64,22 @@ class Car(Configurable):
 
     def __eq__(self, other):
         return (
-                self.color == other.color
-                and self.engine == other.engine
-                and self.wheels == other.wheels
+            self.color == other.color
+            and self.engine == other.engine
+            and self.wheels == other.wheels
         )
 
 
 class FastCar(Car):
     def __init__(
-            self,
-            color: str,
-            engine: Engine,
-            wheels: Dict[str, Wheel],
-            lights: List[Light],
-            speed=100,
-            horn: Optional[float] = None,
-            seats=None
+        self,
+        color: str,
+        engine: Engine,
+        wheels: Dict[str, Wheel],
+        lights: List[Light],
+        speed=100,
+        horn: Optional[float] = None,
+        seats=None,
     ):
         super().__init__(
             color=color, engine=engine, wheels=wheels, lights=lights, horn=horn
@@ -101,12 +109,22 @@ def test_initialize_from_dict():
     )
     engine_dict = dict(_target_=get_class_path(Engine), power=100)
     car_config = InitConfig.create(
-        Car, color="red", engine=engine_dict, wheels=wheel_map_dict, lights=[
-            dict(_target_=get_class_path(Light), size=5,
-                 position=dict(_target_=LightPosition, value="front left")),
-            dict(_target_=get_class_path(Light), size=7,
-                 position=dict(_target_=LightPosition, value="front right")),
-        ]
+        Car,
+        color="red",
+        engine=engine_dict,
+        wheels=wheel_map_dict,
+        lights=[
+            dict(
+                _target_=get_class_path(Light),
+                size=5,
+                position=dict(_target_=LightPosition, value="front left"),
+            ),
+            dict(
+                _target_=get_class_path(Light),
+                size=7,
+                position=dict(_target_=LightPosition, value="front right"),
+            ),
+        ],
     )
     car = car_config.instantiate()
     assert isinstance(car.engine, Engine)
@@ -148,7 +166,7 @@ def test_create_class_config():
                 Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
             ],
             horn=0.1,
-            seats=1
+            seats=1,
         ),
         distance=200,
         driver=Driver(name="John"),
@@ -214,6 +232,35 @@ def test_create_class_config_with_init_config():
     car = config.car.instantiate()
     assert isinstance(car.engine, Engine)
     assert isinstance(car.wheels["left"], Wheel)
+    assert isinstance(car.lights[0], Light)
+    assert isinstance(car.lights[0].position, LightPosition)
     assert car.engine.power == 100
     assert car.color == "red"
     assert not car.engine.running
+
+
+@pytest.mark.parametrize(
+    "input_value_type,result",
+    [
+        (int, int),
+        (str, str),
+        (float, float),
+        (bool, bool),
+        (Enum, InitConfig),
+        (dict, dict),
+        (Dict[str, str], Dict[str, str]),
+        (Dict[str, int], Dict[str, int]),
+        (Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]),
+        (Dict[str, Dict[str, int]], Dict[str, Dict[str, int]]),
+        (Tuple[str], Tuple[str]),
+        (Tuple[str, Engine], Tuple[str, InitConfig]),
+        (Tuple[str, Car], Tuple[str, InitConfig]),
+        (List[Union[str, int, bool]], List[Union[str, int, bool]]),
+        (Optional[str], Optional[str]),
+        (Union[str, int, bool], Union[str, int, bool]),
+        (List, List),
+    ],
+)
+def test_parse_value_type(input_value_type, result):
+    output_value_type = parse_value_type(input_value_type)
+    assert output_value_type == result

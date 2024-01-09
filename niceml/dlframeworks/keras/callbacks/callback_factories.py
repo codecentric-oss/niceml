@@ -14,7 +14,7 @@ from niceml.utilities.factoryutils import subs_path_and_create_folder
 from niceml.utilities.fsspec.locationutils import join_location_w_path
 
 
-class CallbackFactory(ABC):  # pylint: disable=too-few-public-methods
+class CallbackFactory(ABC, BaseModel):  # pylint: disable=too-few-public-methods
     """ABC for creating callbacks"""
 
     @abstractmethod

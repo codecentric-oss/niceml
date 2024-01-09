@@ -5,21 +5,16 @@ from typing import List, Union
 
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel, Field
 
 from niceml.data.datainfos.datainfo import DataInfo
 from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
 
 
-class VectorPredictionHandler(PredictionHandler):
-    def __init__(
-        self,
-        use_output_names: bool = False,
-        prediction_prefix: str = "pred",
-    ):
-        super().__init__()
-        self.use_output_names = use_output_names
-        self.prediction_prefix = prediction_prefix
+class VectorPredictionHandler(PredictionHandler, BaseModel):
+    use_output_names: bool = Field(default=False)
+    prediction_prefix: str = Field(default="pred")
 
     def __enter__(self):
         self.data = defaultdict(list)

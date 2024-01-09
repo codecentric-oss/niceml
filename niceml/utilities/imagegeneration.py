@@ -1,7 +1,6 @@
 """Module for functions to generate test image dataset"""
 import random
 from copy import copy
-from dataclasses import dataclass
 from hashlib import sha256
 from os.path import join
 from pathlib import Path
@@ -13,6 +12,7 @@ from PIL import Image, ImageDraw, ImageOps
 from PIL.Image import Image as ImageType
 from PIL.ImageFont import FreeTypeFont
 from attrs import asdict
+from pydantic import BaseModel, Field
 from tqdm import tqdm
 
 from niceml.utilities.boundingboxes.bboxlabeling import (
@@ -33,8 +33,9 @@ from niceml.utilities.ioutils import read_json, write_image, write_json, read_pa
 
 # pylint: disable=too-many-instance-attributes
 # Ten is reasonable in this case.
-@dataclass
-class NumberDataGenerator:
+
+
+class NumberDataGenerator(BaseModel):
     """Generator of images with numbers for an object detection test dataset"""
 
     location: Union[dict, LocationConfig]
@@ -46,8 +47,8 @@ class NumberDataGenerator:
     detection_labels: bool
     max_amount: int
     rotate: bool
-    sub_dir: str = ""
-    seed: Optional[int] = None
+    sub_dir: str = Field(default_factory=str)
+    seed: Optional[int] = Field(default=None)
 
     def generate_images(self) -> dict:
         """Generate images based on a configuration (self).
