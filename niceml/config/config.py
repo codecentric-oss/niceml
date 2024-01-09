@@ -17,8 +17,10 @@ from pydantic import Field, create_model
 
 
 class InitConfig(DagsterConfig):
-    target: str = Field(
-        ..., description="Target class which is instantiated.", alias="_target_"
+    target: Optional[str] = Field(
+        default=None,
+        description="Target class which is instantiated.",
+        alias="_target_",
     )
 
     def instantiate(self):
