@@ -5966,4 +5966,4 @@ visu = ["altair", "streamlit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9.7 || >3.9.7,<3.12"
-content-hash = "74b63ea8b1c87a2494d70f504f600942b448467bf0a5f3f66d00bfe4c957f194"
+content-hash = "acbad1b470b970af0b261bc85a84375888f14523b4705d9b6299212e1add8375"
