@@ -55,7 +55,7 @@ scikit-learn = "^1.2.2"
 pandera = "^0.14.5"
 schema = "^0.7.5"
 copier = "^7.2.0"
-dagster = "~1.5.14"
+dagster = "~1.6.0"
 tornado = "^6.3.2"
 networkx = "^3.1"
 mkdocs-gen-files = "^0.5.0"
@@ -70,11 +70,11 @@ protobuf = "^3.0.0"
 altair = {version = "^4.2.2", optional = true}
 tensorflow-macos = {version = "~2.15.0", optional = true}
 streamlit = {version = "^1.28.0", optional = true}
-tensorflow = {version = "~2.15.0", optional = true}
-tensorflow-metal = {version = "~1.1.0", optional = true}
+tensorflow = {version = ">=2.13,<=2.15", optional = true}
+tensorflow-metal = {version = "^1.0.0", optional = true}
 requests = "^2.31.0"
 cryptography = "^41.0.0"
-dagster-mlflow = "~0.21.14"
+dagster-mlflow = "~0.22.0"
 grpcio = "1.55.3"
 pendulum = "^2.0"
 tensorflow-io-gcs-filesystem = {version = "~0.33.0", optional = true}

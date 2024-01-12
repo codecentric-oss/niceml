@@ -904,31 +904,31 @@ files = [
 
 [[package]]
 name = "dagit"
-version = "1.5.14"
+version = "1.6.0"
 description = "Web UI for dagster."
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagit-1.5.14-py3-none-any.whl", hash = "sha256:2353eb039c99409adc2935593cbdf23cc10d0436ac68e54c548e7203b9412528"},
-    {file = "dagit-1.5.14.tar.gz", hash = "sha256:7ce254bdee417e8e63730258f4de2551894dba3fa86b58a4236a26561d92d560"},
+    {file = "dagit-1.6.0-py3-none-any.whl", hash = "sha256:760ad797c3310fc87361fc3620482e635b0a26d63b96850285727a78f8452ef0"},
+    {file = "dagit-1.6.0.tar.gz", hash = "sha256:e14c0fe58e1d6199639f29fc655fe006ef9fc0c5f7d1bb49dbc8dceecb277d22"},
 ]
 
 [package.dependencies]
-dagster-webserver = "1.5.14"
+dagster-webserver = "1.6.0"
 
 [package.extras]
-notebook = ["dagster-webserver[notebook] (==1.5.14)"]
-test = ["dagster-webserver[test] (==1.5.14)"]
+notebook = ["dagster-webserver[notebook] (==1.6.0)"]
+test = ["dagster-webserver[test] (==1.6.0)"]
 
 [[package]]
 name = "dagster"
-version = "1.5.14"
+version = "1.6.0"
 description = "Dagster is an orchestration platform for the development, production, and observation of data assets."
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagster-1.5.14-py3-none-any.whl", hash = "sha256:951df17927a4dd5d594ccd349c9f3b82f1c671b28ac47b4ec8bf5e3ee57ad254"},
-    {file = "dagster-1.5.14.tar.gz", hash = "sha256:511ecbdbbab794853791badec77580162022cc2362a2e2b5f70661ec1ac1ce79"},
+    {file = "dagster-1.6.0-py3-none-any.whl", hash = "sha256:3a027adc7a24680bb8f6c8a6ec7694233e35e48d6330736319e4f59142b70d59"},
+    {file = "dagster-1.6.0.tar.gz", hash = "sha256:9ecb53455a2c73b2f79ae251416b548dfcae5ebae30892dac666617ae460a3de"},
 ]
 
 [package.dependencies]
@@ -936,7 +936,7 @@ alembic = ">=1.2.1,<1.6.3 || >1.6.3,<1.7.0 || >1.7.0,<1.11.0 || >1.11.0"
 click = ">=5.0"
 coloredlogs = ">=6.1,<=14.0"
 croniter = ">=0.3.34"
-dagster-pipes = "1.5.14"
+dagster-pipes = "1.6.0"
 docstring-parser = "*"
 grpcio = ">=1.44.0"
 grpcio-health-checking = ">=1.44.0"
@@ -952,8 +952,10 @@ pytz = "*"
 pywin32 = {version = "!=226", markers = "platform_system == \"Windows\""}
 PyYAML = ">=5.1"
 requests = "*"
+rich = "*"
 setuptools = "*"
 sqlalchemy = ">=1.0,<3"
+structlog = "*"
 tabulate = "*"
 tomli = "<3"
 toposort = ">=1.0"
@@ -971,17 +973,17 @@ test = ["buildkite-test-collector", "docker", "grpcio-tools (>=1.44.0)", "mock (
 
 [[package]]
 name = "dagster-graphql"
-version = "1.5.14"
+version = "1.6.0"
 description = "The GraphQL frontend to python dagster."
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagster-graphql-1.5.14.tar.gz", hash = "sha256:208c66bfd68021c1606b97f830e87d8f1c16051cbaaa9a1570682344a2c60999"},
-    {file = "dagster_graphql-1.5.14-py3-none-any.whl", hash = "sha256:991b9f3342a6dc139b84e9f836acec4f47c925993b2208685c6518e4620e7015"},
+    {file = "dagster-graphql-1.6.0.tar.gz", hash = "sha256:c5aee8c43245a60096a36d886fac318ae34115dd39b30775ab92a3bd952771f9"},
+    {file = "dagster_graphql-1.6.0-py3-none-any.whl", hash = "sha256:36922ae1b183062a37d34aba49aa1fca20a283ac4286ece4b5d1f794c816ee70"},
 ]
 
 [package.dependencies]
-dagster = "1.5.14"
+dagster = "1.6.0"
 gql = {version = ">=3,<4", extras = ["requests"]}
 graphene = ">=3,<4"
 requests = "*"
@@ -989,46 +991,46 @@ starlette = "*"
 
 [[package]]
 name = "dagster-mlflow"
-version = "0.21.14"
+version = "0.22.0"
 description = "Package for mlflow Dagster framework components."
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagster-mlflow-0.21.14.tar.gz", hash = "sha256:c1a64c49dd86a92ba68ada1399c2f4747e6c41a86ac418481523c09b13d8d2e8"},
-    {file = "dagster_mlflow-0.21.14-py3-none-any.whl", hash = "sha256:04c9d2b5722fedeccb5190dca30b0e141e987dc534beca57077aefd1533c26dd"},
+    {file = "dagster-mlflow-0.22.0.tar.gz", hash = "sha256:67433960dcb0ece1a648a124309d8d20e7255239253323138a5aaea0b32e642f"},
+    {file = "dagster_mlflow-0.22.0-py3-none-any.whl", hash = "sha256:5f1bd7ca55e553c3c1823b58646576a0ad769864d8d9acaeb23b6450def1fbc1"},
 ]
 
 [package.dependencies]
-dagster = "1.5.14"
+dagster = "1.6.0"
 mlflow = "*"
 pandas = "*"
 
 [[package]]
 name = "dagster-pipes"
-version = "1.5.14"
+version = "1.6.0"
 description = "Toolkit for Dagster integrations with transform logic outside of Dagster"
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagster-pipes-1.5.14.tar.gz", hash = "sha256:a3302565cfcdb7d7e697f813a6950f96259c4190cb19b76f256932b937d3a80d"},
-    {file = "dagster_pipes-1.5.14-py3-none-any.whl", hash = "sha256:f65883a618595f49c84172b4e93d4fcba9e29e5d102f8dc064af5c56f51ab1a6"},
+    {file = "dagster-pipes-1.6.0.tar.gz", hash = "sha256:b3561c4606da1220b2718e38c68fa724f01f72f82262b20614d183a0e78d8bff"},
+    {file = "dagster_pipes-1.6.0-py3-none-any.whl", hash = "sha256:c6f77cc170038822a0312aa6701eb566aa52c02345584174806024431d9c3f3b"},
 ]
 
 [[package]]
 name = "dagster-webserver"
-version = "1.5.14"
+version = "1.6.0"
 description = "Web UI for dagster."
 optional = false
 python-versions = "*"
 files = [
-    {file = "dagster-webserver-1.5.14.tar.gz", hash = "sha256:33f692f382bced3e05d8a78bc15fc086aa15de542c455efa2675fd9ca1f3e7b1"},
-    {file = "dagster_webserver-1.5.14-py3-none-any.whl", hash = "sha256:d75a3e64ea6b5ea77e738905bf662e9fb1302789661421826c15cd4fe00685bd"},
+    {file = "dagster-webserver-1.6.0.tar.gz", hash = "sha256:70ee48c3cfd9600936cfdb6823f5fa2273d10068a328b25394ae49057fc289cf"},
+    {file = "dagster_webserver-1.6.0-py3-none-any.whl", hash = "sha256:5221a527f7b37e04c8686e8f3f0c020663ce39eb1f7f49a798111666473009dd"},
 ]
 
 [package.dependencies]
 click = ">=7.0,<9.0"
-dagster = "1.5.14"
-dagster-graphql = "1.5.14"
+dagster = "1.6.0"
+dagster-graphql = "1.6.0"
 starlette = "*"
 uvicorn = {version = "*", extras = ["standard"]}
 
@@ -1930,13 +1932,13 @@ tifffile = ["tifffile"]
 
 [[package]]
 name = "importlib-metadata"
-version = "6.11.0"
+version = "7.0.1"
 description = "Read metadata from Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "importlib_metadata-6.11.0-py3-none-any.whl", hash = "sha256:f0afba6205ad8f8947c7d338b5342d5db2afbfd82f9cbef7879a9539cc12eb9b"},
-    {file = "importlib_metadata-6.11.0.tar.gz", hash = "sha256:1231cf92d825c9e03cfc4da076a16de6422c863558229ea0b22b675657463443"},
+    {file = "importlib_metadata-7.0.1-py3-none-any.whl", hash = "sha256:4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e"},
+    {file = "importlib_metadata-7.0.1.tar.gz", hash = "sha256:f238736bb06590ae52ac1fab06a3a9ef1d8dce2b7a35b5ab329371d6c8f5d2cc"},
 ]
 
 [package.dependencies]
@@ -2349,7 +2351,7 @@ testing = ["coverage", "pyyaml"]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "markdown-it-py-3.0.0.tar.gz", hash = "sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb"},
@@ -2491,7 +2493,7 @@ python-dateutil = ">=2.7"
 name = "mdurl"
 version = "0.1.2"
 description = "Markdown URL utilities"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
@@ -4353,7 +4355,7 @@ idna2008 = ["idna"]
 name = "rich"
 version = "13.7.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
-optional = true
+optional = false
 python-versions = ">=3.7.0"
 files = [
     {file = "rich-13.7.0-py3-none-any.whl", hash = "sha256:6da14c108c4866ee9520bbffa71f6fe3962e193b7da68720583850cd4548e235"},
@@ -4820,13 +4822,13 @@ test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "starlette"
-version = "0.34.0"
+version = "0.35.1"
 description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "starlette-0.34.0-py3-none-any.whl", hash = "sha256:2e14ee943f2df59eb8c141326240ce601643f1a97b577db44634f6d05d368c37"},
-    {file = "starlette-0.34.0.tar.gz", hash = "sha256:ed050aaf3896945bfaae93bdf337e53ef3f29115a9d9c153e402985115cd9c8e"},
+    {file = "starlette-0.35.1-py3-none-any.whl", hash = "sha256:50bbbda9baa098e361f398fda0928062abbaf1f54f4fadcbe17c092a01eb9a25"},
+    {file = "starlette-0.35.1.tar.gz", hash = "sha256:3e2639dac3520e4f58734ed22553f950d3f3cb1001cd2eaac4d57e8cdc5f66bc"},
 ]
 
 [package.dependencies]
@@ -4838,13 +4840,13 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyam
 
 [[package]]
 name = "streamlit"
-version = "1.29.0"
+version = "1.30.0"
 description = "A faster way to build and share data apps"
 optional = true
 python-versions = ">=3.8, !=3.9.7"
 files = [
-    {file = "streamlit-1.29.0-py2.py3-none-any.whl", hash = "sha256:753510edb5bb831af0e3bdacd353c879ad5b4f0211e7efa0ec378809464868b4"},
-    {file = "streamlit-1.29.0.tar.gz", hash = "sha256:b6dfff9c5e132e5518c92150efcd452980db492a45fafeac3d4688d2334efa07"},
+    {file = "streamlit-1.30.0-py2.py3-none-any.whl", hash = "sha256:536494a4edfe9b66ed70c437176cfd6c7e36b1d99d0587b0be64245fa89c241b"},
+    {file = "streamlit-1.30.0.tar.gz", hash = "sha256:90333915d9df8ce3b06de31b8a5bbab51e8cf0982dc6c32da9d6b1f2b4a9fa78"},
 ]
 
 [package.dependencies]
@@ -4853,7 +4855,7 @@ blinker = ">=1.0.0,<2"
 cachetools = ">=4.0,<6"
 click = ">=7.0,<9"
 gitpython = ">=3.0.7,<3.1.19 || >3.1.19,<4"
-importlib-metadata = ">=1.4,<7"
+importlib-metadata = ">=1.4,<8"
 numpy = ">=1.19.3,<2"
 packaging = ">=16.8,<24"
 pandas = ">=1.3.0,<3"
@@ -4874,6 +4876,23 @@ watchdog = {version = ">=2.1.5", markers = "platform_system != \"Darwin\""}
 
 [package.extras]
 snowflake = ["snowflake-connector-python (>=2.8.0)", "snowflake-snowpark-python (>=0.9.0)"]
+
+[[package]]
+name = "structlog"
+version = "24.1.0"
+description = "Structured Logging for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "structlog-24.1.0-py3-none-any.whl", hash = "sha256:3f6efe7d25fab6e86f277713c218044669906537bb717c1807a09d46bca0714d"},
+    {file = "structlog-24.1.0.tar.gz", hash = "sha256:41a09886e4d55df25bdcb9b5c9674bccfab723ff43e0a86a1b7b236be8e57b16"},
+]
+
+[package.extras]
+dev = ["structlog[tests,typing]"]
+docs = ["furo", "myst-parser", "sphinx", "sphinx-notfound-page", "sphinxcontrib-mermaid", "sphinxext-opengraph", "twisted"]
+tests = ["freezegun (>=0.2.8)", "pretend", "pytest (>=6.0)", "pytest-asyncio (>=0.17)", "simplejson"]
+typing = ["mypy (>=1.4)", "rich", "twisted"]
 
 [[package]]
 name = "tabulate"
@@ -5924,4 +5943,4 @@ visu = ["altair", "streamlit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.9.7 || >3.9.7,<3.12"
-content-hash = "00d5795d629f6bebe4db152e9878979d45a91bb33b07c5ddbc38310df91a0233"
+content-hash = "64eaee9af19f3c57b60f7c470383742b9a06331dfe0238d5f5e835ae9ec7e970"
