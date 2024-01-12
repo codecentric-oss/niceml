@@ -6,7 +6,7 @@ from typing import Optional, Union
 
 from fsspec import AbstractFileSystem
 from keras.callbacks import ModelCheckpoint as ModelCheckpointKeras
-from keras.utils import io_utils, tf_utils
+from keras.src.utils import io_utils, tf_utils
 
 from niceml.utilities.fsspec.locationutils import LocationConfig, open_location
 
