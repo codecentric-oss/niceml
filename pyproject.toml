@@ -68,16 +68,16 @@ protobuf = "^3.0.0"
 
 
 altair = {version = "^4.2.2", optional = true}
-tensorflow-macos = {version = ">=2.13,<=2.15", optional = true}
+tensorflow-macos = {version = ">=2.13,<=2.14", optional = true}
 streamlit = {version = "^1.28.0", optional = true}
 tensorflow = {version = ">=2.13,<=2.15", optional = true}
 tensorflow-metal = {version = "^1.0.0", optional = true}
 requests = "^2.31.0"
 cryptography = "^41.0.0"
 dagster-mlflow = "~0.22.0"
-grpcio = "1.55.3"
+grpcio = "^1.60.0"
 pendulum = "^2.0"
-tensorflow-io-gcs-filesystem = {version = "~0.33.0", optional = true}
+tensorflow-io-gcs-filesystem = { version="0.34.0", optional = true}
 
 
 [tool.poetry.extras]
