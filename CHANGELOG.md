@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.13.0 (2024-01-16)
+
+### Feature
+
+* Update tensorflow (`>=2.13,<=2.15`) and dagster (`~1.6.0`). Remove support for python `3.8` ([#106](https://github.com/codecentric-oss/niceml/issues/106)) ([`71d82cc`](https://github.com/codecentric-oss/niceml/commit/71d82cce48042271d49eecf54813ffdbe53b4dc6))
+
+### Fix
+
+* **ci:** Set Python version to 3.11 due to an interpretation error of the Github actions ([`29bafbf`](https://github.com/codecentric-oss/niceml/commit/29bafbfb5c939292958a4428f7bf5d22e1382ae8))
+* Changed tf-macos version to <=2.14 ([`a84c6c4`](https://github.com/codecentric-oss/niceml/commit/a84c6c48d2626983f4ed934fa23d596c14c18127))
+
 ## v0.12.0 (2024-01-04)
 
 ### Feature
