@@ -66,7 +66,7 @@ scipy = ">=1.8"
 protobuf = "^3.0.0"
 
 
-altair = {version = "^4.2.2", optional = true}
+altair = {version = "^5.2.0", optional = true}
 tensorflow-macos = {version = ">=2.13,<=2.14", optional = true}
 streamlit = {version = "^1.28.0", optional = true}
 tensorflow = {version = ">=2.13,<=2.15", optional = true}
