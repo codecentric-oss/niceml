@@ -2,14 +2,14 @@
 import logging
 from abc import ABC, abstractmethod
 from os.path import basename, join
-from typing import List
+from typing import List, Optional
 
 import mlflow
 import pandas as pd
 from dagster import Config
 from pydantic import Field, BaseModel
 
-from niceml.config.config import InitConfig
+from niceml.config.config import InitConfig, Configurable
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames
@@ -17,7 +17,7 @@ from niceml.mlcomponents.resultanalyzers.analyzer import ResultAnalyzer
 from niceml.utilities.logutils import get_logstr_from_dict
 
 
-class DfMetric(ABC, InitConfig):
+class DfMetric(ABC):
     """metric of a dataframe"""
 
     def initialize(self, data_description: DataDescription):
@@ -31,11 +31,18 @@ class DfMetric(ABC, InitConfig):
         """Calculates the metric for the given data and returns a dict with the results"""
 
 
-class DataframeAnalyzer(ResultAnalyzer):
+class DataframeAnalyzer(ResultAnalyzer, Configurable):
     """Result analyzer for dataframes"""
 
-    metrics: List[DfMetric] = Field(defaul_factory=list)
-    parq_file_prefix: str = Field(defaul_factory=str)
+    def __init__(
+        self,
+        data_description: Optional[DataDescription] = None,
+        metrics: Optional[List[DfMetric]] = None,
+        parq_file_prefix: Optional[str] = None,
+    ):
+        super().__init__(data_description=data_description)
+        self.parq_file_prefix = parq_file_prefix
+        self.metrics = metrics
 
     def initialize(self, data_description: DataDescription):
         """

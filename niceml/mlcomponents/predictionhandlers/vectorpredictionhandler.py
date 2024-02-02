@@ -1,21 +1,36 @@
 import logging
 from collections import defaultdict
 from os.path import join
-from typing import List, Union
+from typing import List, Union, Optional
 
 import numpy as np
 import pandas as pd
 from pydantic import Field
-from niceml.config.config import InitConfig
+from niceml.config.config import InitConfig, Configurable
+from niceml.data.datadescriptions.datadescription import DataDescription
 
 from niceml.data.datainfos.datainfo import DataInfo
+from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.mlcomponents.predictionhandlers.predictionhandler import PredictionHandler
 
 
-class VectorPredictionHandler(PredictionHandler, InitConfig):
-    use_output_names: bool = Field(default=False)
-    prediction_prefix: str = Field(default="pred")
+class VectorPredictionHandler(PredictionHandler, Configurable):
+    def __init__(
+        self,
+        exp_context: Optional[ExperimentContext] = None,
+        filename: Optional[str] = None,
+        data_description: Optional[DataDescription] = None,
+        use_output_names: bool = False,
+        prediction_prefix="pred",
+    ):
+        super().__init__(
+            exp_context=exp_context,
+            filename=filename,
+            data_description=data_description,
+        )
+        self.prediction_prefix = prediction_prefix
+        self.use_output_names = use_output_names
 
     def __enter__(self):
         self.data = defaultdict(list)

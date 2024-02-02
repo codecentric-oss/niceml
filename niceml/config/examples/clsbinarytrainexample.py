@@ -7,7 +7,7 @@ from dagster import graph
 from keras.optimizers import Adam
 
 from niceml.cli.clicommands import train
-from niceml.config.config import InitConfig
+from niceml.config.config import InitConfig, MapInitConfig
 from niceml.config.trainparams import TrainParams
 from niceml.dagster.ops.analysis import AnalysisConfig
 from niceml.dagster.ops.analysis import analysis
@@ -128,23 +128,22 @@ train_config = TrainConfig(
     model_factory=OwnMobileNetModel.create_config(),
     data_description=data_description,
     data_train=dataset_loader_train,
-    dataset_validation=dataset_loader_validation,
+    data_validation=dataset_loader_validation,
     learner=conf_keras_learner(
         model_compiler=DefaultModelCompiler.create_config(
             loss="categorical_crossentropy",
             metrics=["accuracy"],
             optimizer=ConfAdam(),
         ),
-        callback_initializer=CallbackInitializer(
+        callback_initializer=CallbackInitializer.create_config(
             callback_list=[
-                InitConfig.create(
-                    InitCallbackFactory,
+                InitCallbackFactory.create_config(
                     callback=InitConfig.create(LossNanCheckCallback),
                 ),
                 InitConfig.create(LoggingOutputCallbackFactory),
             ],
             callback_dict=dict(
-                save_model=ModelCallbackFactory(
+                save_model=ModelCallbackFactory.create_config(
                     model_subfolder="models/model-id_{short_id}-ep{epoch:03d}.hdf5"
                 )
             ),
@@ -155,9 +154,10 @@ train_config = TrainConfig(
         exp_name="SampleCls", exp_prefix="CLS", git_modules=["niceml"]
     ),
 )
+train_config.learner.instantiate()
 
 prediction_config = PredictionConfig(
-    prediction_handler=VectorPredictionHandler(),
+    prediction_handler=VectorPredictionHandler.create_config(),
     datasets=dict(
         test=dataset_loader_test,
         validation=dataset_loader_validation,
@@ -167,16 +167,18 @@ prediction_config = PredictionConfig(
     prediction_function=KerasPredictionFunction(),
     prediction_steps=2,
 )
-
+prediction_config.datasets.instantiate()
 analysis_config = AnalysisConfig(
-    result_analyzer=DataframeAnalyzer(
+    result_analyzer=DataframeAnalyzer.create_config(
         metrics=[
-            ConfClsMetric(
+            InitConfig.create(
+                ConfClsMetric,
                 function="accuracy",
                 source_col="class_idx",
                 target_cols_prefix="pred_",
             ),
-            ConfClsMetric(
+            InitConfig.create(
+                ConfClsMetric,
                 function="confusion_matrix",
                 source_col="class_idx",
                 target_cols_prefix="pred_",

@@ -1,7 +1,7 @@
 """Module for the abstract PredictionHandler"""
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datainfos.datainfo import DataInfo
@@ -11,10 +11,15 @@ from niceml.experiments.experimentcontext import ExperimentContext
 class PredictionHandler(ABC):
     """Abstract PredictionHandler class to implement your own prediction handler"""
 
-    def __init__(self):
-        self.exp_context = None
-        self.filename = None
-        self.data_description = None
+    def __init__(
+        self,
+        exp_context: Optional[ExperimentContext] = None,
+        filename: Optional[str] = None,
+        data_description: Optional[DataDescription] = None,
+    ):
+        self.data_description = data_description
+        self.filename = filename
+        self.exp_context = exp_context
 
     def set_params(
         self,

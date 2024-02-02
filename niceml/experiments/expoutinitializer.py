@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from niceml.config.config import InitConfig
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.experimentinfo import ExperimentInfo
 from niceml.experiments.expfilenames import ExperimentFilenames
@@ -12,7 +13,7 @@ from niceml.utilities.fsspec.locationutils import open_location
 from niceml.utilities.gitutils import produce_git_version_yaml
 
 
-class ExpOutInitializer(BaseModel):
+class ExpOutInitializer(InitConfig):
     """This class creates the first folder and files for an experiment"""
 
     git_dirs: List[str] = Field(

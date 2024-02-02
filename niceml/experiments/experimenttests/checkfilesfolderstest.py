@@ -6,6 +6,7 @@ from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
 
+from niceml.config.config import InitConfig
 from niceml.experiments.experimenttests.exptests import (
     ExperimentTest,
     ExpTestResult,
@@ -13,7 +14,7 @@ from niceml.experiments.experimenttests.exptests import (
 )
 
 
-class CheckFilesFoldersTest(ExperimentTest):
+class CheckFilesFoldersTest(ExperimentTest, InitConfig):
     """
     ExperimentTest if files and folders are located in the experiment
     Parameters

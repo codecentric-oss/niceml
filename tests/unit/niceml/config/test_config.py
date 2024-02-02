@@ -6,6 +6,7 @@ from typing import List, Dict, Optional, Tuple, Union
 import numpy as np
 import pytest
 from dagster import Config as DagsterConfig
+from keras.optimizers import Adam
 from pydantic import Field, BaseModel
 
 from niceml.config.config import (
@@ -13,7 +14,9 @@ from niceml.config.config import (
     InitConfig,
     Configurable,
     parse_value_type,
+    MapInitConfig,
 )
+from niceml.dlframeworks.keras.callbacks.nancheckcallback import LossNanCheckCallback
 
 
 # Test classes for config creation and instantiation
@@ -252,15 +255,42 @@ def test_create_class_config_with_init_config():
         (Dict[str, int], Dict[str, int]),
         (Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]),
         (Dict[str, Dict[str, int]], Dict[str, Dict[str, int]]),
+        (Dict[str, Engine], MapInitConfig),
         (Tuple[str], Tuple[str]),
         (Tuple[str, Engine], Tuple[str, InitConfig]),
         (Tuple[str, Car], Tuple[str, InitConfig]),
         (List[Union[str, int, bool]], List[Union[str, int, bool]]),
         (Optional[str], Optional[str]),
         (Union[str, int, bool], Union[str, int, bool]),
+        (Union[str, int, Dict[str, str]], Union[str, int, Dict[str, str]]),
         (List, List),
+        (Optional[List[Engine]], Optional[List[InitConfig]]),
+        (Optional[Union[str, str]], Optional[Union[str, str]]),
+        (Optional[Union[str, Dict[str, int]]], Optional[Union[str, Dict[str, int]]]),
+        (
+            Optional[Union[str, Dict[str, Engine]]],
+            Optional[Union[str, Dict[str, InitConfig]]],
+        ),
     ],
 )
 def test_parse_value_type(input_value_type, result):
     output_value_type = parse_value_type(input_value_type)
     assert output_value_type == result
+
+
+@pytest.mark.parametrize(
+    "implementation_reference,kwargs",
+    [
+        (LossNanCheckCallback, {}),
+        (LossNanCheckCallback, {"check_logs": ["test_loss"]}),
+        (Adam, {"learning_rate": 1e5}),
+    ],
+)
+def test_foreign_implementation_config_creation(implementation_reference, kwargs):
+    conf_model = InitConfig.create_conf_from_class(implementation_reference)
+    config = conf_model(**kwargs)
+    config.instantiate()
+    config_attributes = config.dict(by_alias=True)
+    kwargs.update({"_target_": "test_target "})
+    for kwarg in kwargs:
+        assert kwarg in config_attributes.keys()

@@ -4,12 +4,13 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 
+from niceml.config.config import Configurable
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.mlcomponents.resultanalyzers.dataframes.clsmetric import cl_metric_dict
 from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DfMetric
 
 
-class MultilabelBinaryMetric(DfMetric):
+class MultilabelBinaryMetric(DfMetric, Configurable):
     def __init__(
         self,
         source_col: str,

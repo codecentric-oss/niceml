@@ -1,7 +1,7 @@
 """Module for model compilers in keras"""
 from typing import Any, List, Union
 
-from niceml.config.config import Configurable
+from niceml.config.config import Configurable, InitConfig
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.mlcomponents.modelcompiler.modelcompiler import ModelCompiler
 from niceml.mlcomponents.models.modelbundle import ModelBundle
@@ -16,6 +16,7 @@ class DefaultModelCompiler(
     def __init__(
         self, loss: Union[str, dict], metrics: List, optimizer: dict, **kwargs
     ):
+        super().__init__()
         self.loss = loss
         self.metrics = metrics
         self.optimizer = optimizer

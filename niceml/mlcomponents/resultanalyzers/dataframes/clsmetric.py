@@ -13,6 +13,7 @@ from sklearn.metrics import (
 )
 from sklearn.preprocessing import MultiLabelBinarizer
 
+from niceml.config.config import Configurable
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DfMetric
 
@@ -26,7 +27,7 @@ cl_metric_dict = dict(
 )
 
 
-class ClsMetric(DfMetric):
+class ClsMetric(DfMetric, Configurable):
     def __init__(
         self,
         source_col: str,

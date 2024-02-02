@@ -9,6 +9,7 @@ from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import BaseModel, Field
 
+from niceml.config.config import InitConfig
 from niceml.experiments.experimenttests.exptests import (
     ExperimentTest,
     ExpTestResult,
@@ -21,7 +22,7 @@ class ExperimentTestFailedError(Exception):
     """Exception for when an experiment test fails"""
 
 
-class ExpTestProcess(BaseModel):  # pylint: disable=too-few-public-methods
+class ExpTestProcess(InitConfig):  # pylint: disable=too-few-public-methods
     """Class to execute a list of ExperimentTests"""
 
     test_list: List[ExperimentTest] = Field(default_factory=list)

@@ -9,11 +9,12 @@ from niceml.data.datasets.dataset import Dataset
 from niceml.experiments.experimentcontext import ExperimentContext
 
 
-class ResultAnalyzer(ABC, BaseModel):
+class ResultAnalyzer(ABC):
     """After the prediction is done all data can be analyzed with a specific
     implementation of the ResultAnalyzer"""
 
-    data_description: Optional[DataDescription] = Field(default=None)
+    def __init__(self, data_description: Optional[DataDescription] = None):
+        self.data_description = data_description
 
     def initialize(self, data_description: DataDescription):
         """Initializes the resultanalyzer and adds the data description"""

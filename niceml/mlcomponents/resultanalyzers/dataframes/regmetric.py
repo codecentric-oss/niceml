@@ -10,6 +10,7 @@ from sklearn.metrics import (
     r2_score,
 )
 
+from niceml.config.config import Configurable
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.mlcomponents.resultanalyzers.dataframes.dfanalyzer import DfMetric
 
@@ -22,7 +23,7 @@ metric_dict = dict(
 )
 
 
-class RegMetric(DfMetric):  # pylint: disable = too-many-arguments
+class RegMetric(DfMetric, Configurable):  # pylint: disable = too-many-arguments
     """Regression metric for dataframes"""
 
     def __init__(  # pylint: disable = too-many-arguments

@@ -9,6 +9,7 @@ import inspect
 from abc import ABC
 from enum import Enum
 from inspect import isabstract
+from types import NoneType
 from typing import (
     Optional,
     get_type_hints,
@@ -17,6 +18,8 @@ from typing import (
     Dict,
     List,
     Union,
+    Generic,
+    TypeVar,
 )
 
 from dagster import Config
@@ -46,9 +49,18 @@ class InitConfig(Config):
             Any: An instance of the target class.
 
         """
+        instantiate_dict = self.dict(by_alias=True)
         if self.target is None:
-            return self
-        return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)
+            instantiate_dict["_target_"] = get_class_path(type(self))
+        return instantiate(instantiate_dict, _convert_=ConvertMode.ALL)
+
+    def dict(self, *args, **kwargs):
+        cur_dict = super().dict(*args, **kwargs)
+        if self.target is None:
+            cur_dict[
+                "_target_" if kwargs.get("by_alias", False) is True else "target"
+            ] = get_class_path(type(self))
+        return cur_dict
 
     @classmethod
     def create(cls, target_class, **kwargs):
@@ -197,10 +209,12 @@ def parse_value_type(value_type: type):
             elif fully_qualified_type_name == "typing.List":
                 parsed_type = List[tuple([parse_value_type(arg) for arg in args])]
             elif fully_qualified_type_name == "typing.Optional":
-                parsed_type = value_type
+                parsed_type = Optional[parse_value_type(args[0])]
         elif value_type.__module__ == "typing":
             return value_type
         elif inspect.isclass(value_type) and issubclass(value_type, BaseModel):
+            parsed_type = value_type
+        elif value_type is None or value_type == NoneType:
             parsed_type = value_type
     return parsed_type
 
@@ -208,6 +222,9 @@ def parse_value_type(value_type: type):
 def get_class_path(cls):
     """Get the path of a class"""
     return f"{cls.__module__}.{cls.__name__}"
+
+
+T = TypeVar("T")
 
 
 class MapInitConfig(Config):

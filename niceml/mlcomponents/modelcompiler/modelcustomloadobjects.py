@@ -3,8 +3,10 @@ from importlib import import_module
 
 from pydantic import BaseModel, Field
 
+from niceml.config.config import InitConfig, get_class_path
 
-class ModelCustomLoadObjects(BaseModel):
+
+class ModelCustomLoadObjects(InitConfig):
     """Only used to import modules required for the model (e.g. tensorflow)"""
 
     objects: dict = Field(

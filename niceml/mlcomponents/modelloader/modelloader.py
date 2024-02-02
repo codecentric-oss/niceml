@@ -6,7 +6,7 @@ from fsspec import AbstractFileSystem
 from pydantic import BaseModel
 
 
-class ModelLoader(ABC, BaseModel):  # pylint: disable=too-few-public-methods
+class ModelLoader(ABC):  # pylint: disable=too-few-public-methods
     """Callable that loads models"""
 
     @abstractmethod

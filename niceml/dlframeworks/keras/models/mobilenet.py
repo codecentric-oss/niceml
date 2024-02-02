@@ -5,7 +5,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.models import Model
 
-from niceml.config.config import Configurable
+from niceml.config.config import Configurable, InitConfig
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
 from niceml.data.datadescriptions.outputdatadescriptions import (
@@ -22,6 +22,7 @@ class OwnMobileNetModel(ModelFactory, Configurable):
         alpha: float = 0.5,
         use_scale_lambda: bool = True,
     ):
+        super().__init__()
         self.alpha = alpha
         self.use_scale_lambda = use_scale_lambda
         self.final_activation = final_activation

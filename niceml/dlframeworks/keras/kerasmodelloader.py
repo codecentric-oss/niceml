@@ -10,13 +10,16 @@ from pydantic import Field
 # pylint: disable=import-error
 from tensorflow.keras.models import load_model
 
+from niceml.config.config import InitConfig
 from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
     ModelCustomLoadObjects,
 )
 from niceml.mlcomponents.modelloader.modelloader import ModelLoader
 
 
-class KerasModelLoader(ModelLoader):  # pylint: disable=too-few-public-methods
+class KerasModelLoader(
+    ModelLoader, InitConfig
+):  # pylint: disable=too-few-public-methods
     """Interface implementation to load a keras model"""
 
     model_custom_objects: ModelCustomLoadObjects = Field(

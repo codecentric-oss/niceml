@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class PredictionFunction(ABC, BaseModel):
+class PredictionFunction(ABC):
     """Abstract class for prediction functions"""
 
     @abstractmethod

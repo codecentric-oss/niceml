@@ -28,7 +28,7 @@ class ExpTestResult(object):
         return f"{self.status} - {self.name} - {self.message}"
 
 
-class ExperimentTest(ABC, BaseModel):
+class ExperimentTest(ABC):
     """Abstract class for an experiment test"""
 
     def get_test_name(self) -> str:
