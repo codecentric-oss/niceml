@@ -100,12 +100,12 @@ class ExperimentManager(object):
 
         return sorted(list(metric_set))
 
-    def is_exp_modified(self, exp_id: str, new_time_str: str) -> bool:
+    def is_exp_modified(self, exp_info: ExperimentInfo) -> bool:
         """Checks if the experiment has been modified"""
-        if exp_id not in self.exp_dict:
+        if exp_info.short_id not in self.exp_dict:
             return True
-        exp = self.get_exp_by_id(exp_id)
-        return exp.exp_info.is_modified(new_time_str)
+        exp = self.get_exp_by_id(exp_info.short_id)
+        return exp.exp_info.is_modified(exp_info)
 
     def get_datasets(self) -> List[str]:
         """Returns a list of all datasets used in the experiments"""
