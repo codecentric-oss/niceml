@@ -22,7 +22,9 @@ def exp_manager_factory(*args):  # pylint: disable=unused-argument
     return ExperimentManager([])
 
 
-def query_experiments(storage: StorageInterface) -> List[ExperimentInfo]:
+def query_experiments(
+    storage: StorageInterface, storage_identifier: str
+) -> List[ExperimentInfo]:
     """Query the experiments from the cloud storage"""
 
     @st.cache_data(ttl=3600)
@@ -30,7 +32,7 @@ def query_experiments(storage: StorageInterface) -> List[ExperimentInfo]:
         exp_info_list: List[ExperimentInfo] = storage.list_experiments()
         return exp_info_list
 
-    return _local_query_exps(id(storage))
+    return _local_query_exps(storage_identifier)
 
 
 def select_to_load_exps(
@@ -40,7 +42,7 @@ def select_to_load_exps(
     That means which are not in the experiment manager"""
     experiments_to_load = []
     for exp_info in exp_info_list:
-        if exp_manager.is_exp_modified(exp_info.short_id, exp_info.last_modified):
+        if exp_manager.is_exp_modified(exp_info):
             experiments_to_load.append(exp_info)
     return experiments_to_load
 
