@@ -2,7 +2,7 @@
 from contextlib import contextmanager
 from copy import deepcopy
 from os.path import join
-from typing import Any, Dict, Iterator, Tuple, Union, List
+from typing import Any, Dict, Iterator, Tuple, Union, List, Optional
 
 import cattr
 from attr import asdict
@@ -10,25 +10,35 @@ from fsspec import AbstractFileSystem
 from fsspec.core import url_to_fs
 from pydantic import BaseModel, Field
 
+from niceml.config.configschemas import define
+
 FSPath = Tuple[AbstractFileSystem, str]
 
 
-class LocationConfig(BaseModel):
+class LocationConfig:
     """Access description for a remote storage location. The description is targeted at fsspec_."""
 
-    uri: str = Field(description="URL to remote storage as expected by fsspec_")
-    fs_args: Dict[str, Any] = Field(
-        description="Filesystem arguments to be passed to fsspec_, see e.g. https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations",
-        default_factory=dict,
-    )
-    credentials: Dict[str, Any] = Field(
-        description="Credentials to be passed as filesystem arguments to fsspec_.",
-        default_factory=dict,
-    )
+    def __init__(
+        self,
+        uri: str,
+        fs_args: Optional[Dict[str, Any]] = None,
+        credentials: Optional[Dict[str, Any]] = None,
+    ):
+        """
+        Access description for a remote storage location. The description is targeted at fsspec_
+        Args:
+            uri: URL to remote storage as expected by fsspec_
+            fs_args: Filesystem arguments to be passed to fsspec_,
+                    see e.g. https://filesystem-spec.readthedocs.io/en/latest/api.html#built-in-implementations
+            credentials:Credentials to be passed as filesystem arguments to fsspec_.
+        """
+        self.credentials = credentials or {}
+        self.fs_args = fs_args or {}
+        self.uri = uri
 
     def __str__(self) -> str:
         """Returns string representation without credential values"""
-        info = asdict(self)
+        info = {"uri": self.uri, "fs_args": self.fs_args}
         info["credentials"] = list(info["credentials"])
         return str(info)
 
@@ -38,9 +48,7 @@ def join_location_w_path(
 ) -> LocationConfig:
     """Returns joined LocationConfig with one or more path objects"""
     parsed_config = (
-        location
-        if isinstance(location, LocationConfig)
-        else cattr.structure(location, LocationConfig)
+        location if isinstance(location, LocationConfig) else LocationConfig(**location)
     )
     copied_config = deepcopy(parsed_config)
     # TODO: check how to get the correct separator from the filesystem

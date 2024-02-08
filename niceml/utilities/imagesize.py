@@ -6,6 +6,8 @@ import numpy as np
 from PIL import Image
 from pydantic import BaseModel, Field
 
+from niceml.config.config import Configurable
+
 IDENTITY_SCALE = 1.0
 
 
@@ -13,11 +15,18 @@ class ImageSizeDivisionError(Exception):
     """Error for if two ImageSizes have different aspect ratios"""
 
 
-class ImageSize(BaseModel):
+class ImageSize(Configurable):
     """Class to represent the size of images"""
 
-    width: int = Field(description="width of the image")
-    height: int = Field(description="height of the image")
+    def __init__(self, width: int, height: int):
+        """
+        Class to represent the size of images
+        Args:
+            width: width of the image
+            height: height of the image
+        """
+        self.height = height
+        self.width = width
 
     def to_numpy_shape(self) -> Tuple[int, int]:
         """tuple with height, width"""

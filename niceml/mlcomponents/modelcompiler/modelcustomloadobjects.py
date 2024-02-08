@@ -1,20 +1,26 @@
 """Module for ModelCustomLoadObjects"""
+import json
 from importlib import import_module
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from niceml.config.config import InitConfig, get_class_path
+from niceml.config.config import InitConfig, get_class_path, Configurable
 
 
-class ModelCustomLoadObjects(InitConfig):
+class ModelCustomLoadObjects(Configurable):
     """Only used to import modules required for the model (e.g. tensorflow)"""
 
-    objects: dict = Field(
-        default_factory=dict,
-        description="Dict of objects to import while loading the model",
-    )
+    def __init__(self, objects: Optional[dict] = None):
+        """
+        Only used to import modules required for the model (e.g. tensorflow)
+        Args:
+            objects: Dict of objects to import while loading the model
+        """
 
-    def __call__(self) -> dict:
+        self.objects = objects or {}
+
+    def load(self) -> dict:
         ret_dict = dict()
         for key, value in self.objects.items():
             if type(value) is str:

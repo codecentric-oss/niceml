@@ -7,6 +7,7 @@ import tensorflow as tf
 # pylint: disable=import-error, no-name-in-module
 from tensorflow.keras.models import Model
 
+from niceml.config.config import Configurable
 from niceml.config.trainparams import TrainParams
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datasets.dataset import Dataset
@@ -22,7 +23,7 @@ from niceml.mlcomponents.models.modelfactory import ModelFactory
 
 
 # pylint: disable=too-few-public-methods
-class KerasLearner(Learner):
+class KerasLearner(Learner, Configurable):
     """default learner for keras/keras models"""
 
     def __init__(
@@ -68,7 +69,7 @@ class KerasLearner(Learner):
         steps_per_epoch = None
         if train_params.steps_per_epoch is not None:
             steps_per_epoch = min(train_params.steps_per_epoch, len(train_set))
-        with tf.keras.utils.custom_object_scope(self.model_load_custom_objects()):
+        with tf.keras.utils.custom_object_scope(self.model_load_custom_objects.load()):
             history = initialized_model.fit(
                 train_set,
                 epochs=train_params.epochs,

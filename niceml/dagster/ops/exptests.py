@@ -4,6 +4,7 @@ from typing import List
 from dagster import OpExecutionContext, op
 from pydantic import Field
 from dagster import Config
+from typing_extensions import Annotated
 
 from niceml.config.config import InitConfig
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
@@ -36,7 +37,7 @@ def exptests(
     write_op_config(
         config, exp_context, OpNames.OP_EXPTESTS.value, config.remove_key_list
     )
-    exp_test_process = config.tests
+    exp_test_process = config.exp_test_process.instantiate()
     with open_location(exp_context.fs_config) as (file_system, root_path):
         exp_test_process(root_path, file_system=file_system)
     return exp_context

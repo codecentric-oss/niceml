@@ -32,7 +32,7 @@ class MetricCheck(ExperimentTest):
         self.value = value
         self.value_key = value_key if type(value_key) == list else [value_key]
 
-    def __call__(
+    def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:
         file_system = file_system or LocalFileSystem()

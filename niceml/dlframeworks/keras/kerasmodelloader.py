@@ -10,7 +10,7 @@ from pydantic import Field
 # pylint: disable=import-error
 from tensorflow.keras.models import load_model
 
-from niceml.config.config import InitConfig
+from niceml.config.config import InitConfig, Configurable
 from niceml.mlcomponents.modelcompiler.modelcustomloadobjects import (
     ModelCustomLoadObjects,
 )
@@ -18,17 +18,24 @@ from niceml.mlcomponents.modelloader.modelloader import ModelLoader
 
 
 class KerasModelLoader(
-    ModelLoader, InitConfig
+    ModelLoader, Configurable
 ):  # pylint: disable=too-few-public-methods
     """Interface implementation to load a keras model"""
 
-    model_custom_objects: ModelCustomLoadObjects = Field(
-        default_factory=ModelCustomLoadObjects,
-        description="custom objects to load the model. In Keras it is possible to pass custom objects during model loading.",
-    )
-    compile_model: bool = Field(
-        default=True, description="Flag if the model should be compiled after loading"
-    )
+    def __init__(
+        self,
+        model_custom_objects: Optional[ModelCustomLoadObjects] = None,
+        compile_model: bool = True,
+    ):
+        """
+        Interface implementation to load a keras model
+        Args:
+            compile_model: Flag if the model should be compiled after loading
+            model_custom_objects: custom objects to load the model. In Keras it is possible to
+                                    pass custom objects during model loading
+        """
+        self.compile_model = compile_model
+        self.model_custom_objects = model_custom_objects or ModelCustomLoadObjects()
 
     def __call__(
         self,
@@ -45,6 +52,8 @@ class KerasModelLoader(
                 tmp_model_file.write(model_file.read())
 
             model = load_model(
-                tmp_model_path, self.model_custom_objects(), compile=self.compile_model
+                tmp_model_path,
+                self.model_custom_objects.load(),
+                compile=self.compile_model,
             )
         return model

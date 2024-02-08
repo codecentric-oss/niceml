@@ -5,7 +5,7 @@ from typing import List, Dict, Optional, Tuple, Union
 
 import numpy as np
 import pytest
-from dagster import Config as DagsterConfig
+from dagster import Config
 from keras.optimizers import Adam
 from pydantic import Field, BaseModel
 
@@ -91,11 +91,11 @@ class FastCar(Car):
         self.seats = seats
 
 
-class Driver(DagsterConfig):
+class Driver(Config):
     name: str
 
 
-class TestCarConfig(DagsterConfig):
+class TestCarConfig(Config):
     car: InitConfig = InitConfig.create_config_field(
         target_class=Car,
     )

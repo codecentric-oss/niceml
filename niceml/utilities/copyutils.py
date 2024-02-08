@@ -15,15 +15,18 @@ from niceml.utilities.fsspec.locationutils import (
 )
 
 
-class CopyInfo(BaseModel):
+class CopyInfo:
     """This class contains the information for copying files between filesystems"""
 
-    location: Union[LocationConfig, dict] = Field(
-        default_factory=dict, description="Location of the files to copy"
-    )
-    copy_filelist: List[str] = Field(
-        default_factory=list, description="List of files to copy"
-    )
+    def __init__(self, location: Union[LocationConfig, dict], copy_filelist: List[str]):
+        """
+        This class contains the information for copying files between filesystems
+        Args:
+            location: Location of the files to copy
+            copy_filelist: List of files to copy
+        """
+        self.copy_filelist = copy_filelist
+        self.location = location
 
     def copy_to_filesystem(
         self, target_filesystem: AbstractFileSystem, target_path: str
@@ -41,12 +44,18 @@ class CopyInfo(BaseModel):
                     ftgt.write(fsrc.read())
 
 
-class CopyFileInfo(BaseModel):
+class CopyFileInfo:
     """Dataclass which is used to compare an input file with an output file"""
 
-    input_location: Union[LocationConfig, dict] = Field(default_factory=dict)
-    output_location: Union[LocationConfig, dict] = Field(default_factory=dict)
-    checksum: str = Field(default_factory=str, description="Checksum of the input file")
+    def __init__(
+        self,
+        input_location: Union[LocationConfig, dict],
+        output_location: Union[LocationConfig, dict],
+        checksum: str,
+    ):
+        self.checksum = checksum
+        self.output_location = output_location
+        self.input_location = input_location
 
     def copy_file(self):
         """Copies the input file to the output location"""

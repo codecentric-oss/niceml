@@ -22,12 +22,12 @@ from typing import (
     TypeVar,
 )
 
-from dagster import Config
+from dagster import Config, PermissiveConfig
 from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model, BaseModel
 
 
-class InitConfig(Config):
+class InitConfig(PermissiveConfig):
     """
     Class representing the type of an attribute used in a Dagster Op configuration
 
@@ -224,10 +224,7 @@ def get_class_path(cls):
     return f"{cls.__module__}.{cls.__name__}"
 
 
-T = TypeVar("T")
-
-
-class MapInitConfig(Config):
+class MapInitConfig(PermissiveConfig):
     """
     Class representing the dict like type of an attribute used in a Dagster
     Op configuration
@@ -246,6 +243,20 @@ class MapInitConfig(Config):
         """
         return instantiate(self.dict(by_alias=True), _convert_=ConvertMode.ALL)
 
+    @classmethod
+    def create(cls, map_target_class, **kwargs):
+        conf_class = cls.create_conf_from_values(map_target_class, **kwargs)
+        return conf_class(**kwargs)
+
+    @classmethod
+    def create_conf_from_values(cls, map_target_class, **kwargs):
+        conf_class = create_model(
+            f"ConfMap{map_target_class.__name__}",
+            **kwargs,
+            __base__=cls,
+        )
+        return conf_class
+
     @staticmethod
     def create_config_field(
         target_class,
@@ -256,7 +267,6 @@ class MapInitConfig(Config):
         Used to configure Dagster Ops with a MapInitConfig
 
         Args:
-            target_class: class which is instantiated from the op
             **kwargs: additional kwargs passed to the Field class
         """
         if description is None:

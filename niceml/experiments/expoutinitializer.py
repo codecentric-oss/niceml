@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from niceml.config.config import InitConfig
+from niceml.config.config import InitConfig, Configurable
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.experimentinfo import ExperimentInfo
 from niceml.experiments.expfilenames import ExperimentFilenames
@@ -13,41 +13,40 @@ from niceml.utilities.fsspec.locationutils import open_location
 from niceml.utilities.gitutils import produce_git_version_yaml
 
 
-class ExpOutInitializer(InitConfig):
+class ExpOutInitializer(Configurable):
     """This class creates the first folder and files for an experiment"""
 
-    git_dirs: List[str] = Field(
-        default_factory=list,
-        description="List of git directories of which the commit hash should be stored",
-    )
-    git_modules: List[str] = Field(
-        default_factory=list,
-        description="List of git modules of which the commit hash should be stored",
-    )
-    copy_info: Optional[CopyInfo] = Field(
-        default=None,
-        description="CopyInfo object which copies files to the experiment folder",
-    )
-    environment: dict = Field(
-        default_factory=dict,
-        description="Environment dictionary which is stored in the experiment info file",
-    )
-    exp_name: str = Field(
-        default="",
-        description="Experiment name which is stored in the experiment info file",
-    )
-    exp_prefix: str = Field(
-        default="",
-        description="Experiment prefix which is stored in the experiment info file",
-    )
-    description: str = Field(
-        default="",
-        description="Experiment description which is stored in the experiment info file",
-    )
-    exp_type: str = Field(
-        default="",
-        description="Experiment type which is stored in the experiment info file",
-    )
+    def __init__(
+        self,
+        git_dirs: Optional[List[str]] = None,
+        git_modules: Optional[List[str]] = None,
+        environment: Optional[dict] = None,
+        exp_type: str = "",
+        exp_name: str = "",
+        description: str = "",
+        exp_prefix: str = "",
+        copy_info: Optional[CopyInfo] = None,
+    ):
+        """
+        This class creates the first folder and files for an experiment
+        Args:
+            exp_prefix: Experiment prefix which is stored in the experiment info file
+            git_dirs: List of git directories of which the commit hash should be stored
+            git_modules: List of git modules of which the commit hash should be stored
+            environment: Environment dictionary which is stored in the experiment info file
+            exp_type:Experiment type which is stored in the experiment info file
+            exp_name: Experiment name which is stored in the experiment info file
+            description: Experiment description which is stored in the experiment info file
+            copy_info:CopyInfo object which copies files to the experiment folder
+        """
+        self.exp_prefix: str = exp_prefix
+        self.copy_info: CopyInfo = copy_info
+        self.description: str = description
+        self.exp_name: str = exp_name
+        self.exp_type: str = exp_type
+        self.environment: dict = environment or {}
+        self.git_modules: List[str] = git_modules or []
+        self.git_dirs: List[str] = git_dirs or []
 
     def __call__(self, exp_context: ExperimentContext):
         produce_git_version_yaml(

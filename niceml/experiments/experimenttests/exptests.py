@@ -7,6 +7,8 @@ from typing import Optional
 from fsspec import AbstractFileSystem
 from pydantic import BaseModel
 
+from niceml.config.config import Configurable
+
 
 class TestStatus(str, Enum):
     OK = "OK"
@@ -28,14 +30,19 @@ class ExpTestResult(object):
         return f"{self.status} - {self.name} - {self.message}"
 
 
-class ExperimentTest(ABC):
+class ExperimentTest(Configurable, ABC):
     """Abstract class for an experiment test"""
 
     def get_test_name(self) -> str:
         return self.__class__.__name__
 
-    @abstractmethod
     def __call__(
+        self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
+    ):
+        self.test(experiment_path=experiment_path, file_system=file_system)
+
+    @abstractmethod
+    def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:
         pass

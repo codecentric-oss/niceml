@@ -16,7 +16,9 @@ def write_op_config(
     remove_key_list: List[str],
 ):
     """Writes a dict as yamls. With one file per key"""
-    op_conf_dict = op_conf.dict() if isinstance(op_conf, BaseModel) else op_conf
+    op_conf_dict = (
+        op_conf.dict(by_alias=True) if isinstance(op_conf, BaseModel) else op_conf
+    )
     for key, values in op_conf_dict.items():
         removed_values = remove_key_recursive(values, remove_key_list)
         outfile = join(ExperimentFilenames.CONFIGS_FOLDER, op_name, f"{key}.yaml")

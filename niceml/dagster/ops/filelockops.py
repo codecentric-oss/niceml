@@ -16,9 +16,10 @@ class LocksConfig(Config):
 @op
 def acquire_locks(context: OpExecutionContext, config: LocksConfig):
     """op for acquiring locks"""
-    for filelock in config.file_lock_dict.instantiate().values():
+    filelock_dict = config.file_lock_dict.instantiate()
+    for filelock in filelock_dict.values():
         filelock.acquire()
-    return config.file_lock_dict
+    return filelock_dict
 
 
 @op

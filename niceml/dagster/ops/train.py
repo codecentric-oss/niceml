@@ -57,8 +57,9 @@ def train(
     write_op_config(config, exp_context, OpNames.OP_TRAIN.value, config.remove_key_list)
     data_train = config.data_train.instantiate()
     data_validation = config.data_validation.instantiate()
-    data_train.initialize(config.data_description, exp_context)
-    data_validation.initialize(config.data_description, exp_context)
+    data_description = config.data_description.instantiate()
+    data_train.initialize(data_description, exp_context)
+    data_validation.initialize(data_description, exp_context)
     save_exp_data_stats(data_train, exp_context, ExperimentFilenames.STATS_TRAIN)
     save_exp_data_stats(data_validation, exp_context, ExperimentFilenames.STATS_TRAIN)
 
@@ -72,6 +73,6 @@ def train(
         data_train,
         data_validation,
         config.train_params,
-        config.data_description.instantiate(),
+        data_description,
     )
     return exp_context, filelock_dict

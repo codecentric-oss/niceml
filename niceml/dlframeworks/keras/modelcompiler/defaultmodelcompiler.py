@@ -6,6 +6,7 @@ from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.mlcomponents.modelcompiler.modelcompiler import ModelCompiler
 from niceml.mlcomponents.models.modelbundle import ModelBundle
 from niceml.mlcomponents.models.modelfactory import ModelFactory
+from niceml.mlcomponents.optimizers import Optimizer
 
 
 class DefaultModelCompiler(
@@ -14,7 +15,7 @@ class DefaultModelCompiler(
     """Simplest model compiler for keras"""
 
     def __init__(
-        self, loss: Union[str, dict], metrics: List, optimizer: dict, **kwargs
+        self, loss: Union[str, dict], metrics: List, optimizer: Optimizer, **kwargs
     ):
         super().__init__()
         self.loss = loss

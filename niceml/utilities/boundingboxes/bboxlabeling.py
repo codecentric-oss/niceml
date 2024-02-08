@@ -104,9 +104,15 @@ def dict_to_objdet_instance_label(
     return converted_data
 
 
-class ObjDetImageLabel(BaseModel):  # pylint: disable=too-few-public-methods
+class ObjDetImageLabel:  # pylint: disable=too-few-public-methods
     """Labels of all ObjDetInstanceLabels on an image file"""
 
-    filename: str
-    img_size: ImageSize
-    labels: List[ObjDetInstanceLabel] = Field(converter=dict_to_objdet_instance_label)
+    def __init__(
+        self,
+        filename: str,
+        img_size: ImageSize,
+        labels: List[Union[dict, ObjDetInstanceLabel]],
+    ):
+        self.labels = dict_to_objdet_instance_label(labels)
+        self.img_size = img_size
+        self.filename = filename

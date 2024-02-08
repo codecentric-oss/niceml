@@ -23,7 +23,7 @@ class ModelsSavedExpTest(ExperimentTest, InitConfig):
     model_subfolder: str = Field(default="models")
     model_exts: List[str] = Field(default=[".pkl", ".hdf5"])
 
-    def __call__(
+    def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:
         file_system = file_system or LocalFileSystem()
@@ -49,7 +49,7 @@ class ModelsSavedExpTest(ExperimentTest, InitConfig):
 
 
 class ParqFilesNoNoneExpTest(ExperimentTest):
-    def __call__(
+    def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:
         file_system = file_system or LocalFileSystem()
@@ -77,7 +77,7 @@ class ParqFilesNoNoneExpTest(ExperimentTest):
 
 
 class ExpEmptyTest(ExperimentTest):
-    def __call__(
+    def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:
         file_system = file_system or LocalFileSystem()

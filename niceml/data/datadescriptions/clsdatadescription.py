@@ -1,6 +1,7 @@
 """Module for ClsDataDescription"""
 from typing import List, Optional, Union
 
+from niceml.config.config import Configurable
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,
@@ -8,14 +9,25 @@ from niceml.data.datadescriptions.outputdatadescriptions import (
 from niceml.utilities.imagesize import ImageSize
 
 
-class ClsDataDescription(OutputVectorDataDescription, InputImageDataDescription):
+class ClsDataDescription(
+    OutputVectorDataDescription, InputImageDataDescription, Configurable
+):
     """DataDescription for Classification data"""
 
-    classes: List[Union[str, dict]]  # QUEST: better naming? Explanation needed?
-    target_size: ImageSize
-    use_binary: bool = False
-    use_multitargets: bool = False
-    channel_count: int = 3
+    # QUEST: better naming? Explanation needed?
+    def __init__(
+        self,
+        classes: List[Union[str, dict]],
+        target_size: ImageSize,
+        use_binary: bool = False,
+        use_multitargets: bool = False,
+        channel_count: int = 3,
+    ):
+        self.channel_count = channel_count
+        self.use_multitargets = use_multitargets
+        self.use_binary = use_binary
+        self.target_size = target_size
+        self.classes = classes
 
     def get_input_image_size(self) -> ImageSize:
         return self.target_size

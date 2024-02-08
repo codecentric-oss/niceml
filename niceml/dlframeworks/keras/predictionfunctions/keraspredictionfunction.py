@@ -1,11 +1,11 @@
 """module for keras prediction function"""
 from typing import Any
 
-from niceml.config.config import InitConfig
+from niceml.config.config import InitConfig, Configurable
 from niceml.mlcomponents.predictionfunction.predictionfunction import PredictionFunction
 
 
-class KerasPredictionFunction(PredictionFunction, InitConfig):
+class KerasPredictionFunction(PredictionFunction, Configurable):
     """Prediction function for keras models"""
 
     def predict(self, model, data_x) -> Any:

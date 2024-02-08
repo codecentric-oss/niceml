@@ -41,7 +41,7 @@ class DataframeAnalyzer(ResultAnalyzer, Configurable):
         parq_file_prefix: Optional[str] = None,
     ):
         super().__init__(data_description=data_description)
-        self.parq_file_prefix = parq_file_prefix
+        self.parq_file_prefix = parq_file_prefix or ""
         self.metrics = metrics
 
     def initialize(self, data_description: DataDescription):
@@ -57,7 +57,7 @@ class DataframeAnalyzer(ResultAnalyzer, Configurable):
                                 this class and the metrics
         """
         super().initialize(data_description)
-        for cur_metric in self.df_metrics:
+        for cur_metric in self.metrics:
             cur_metric.initialize(data_description)
 
     def __call__(self, dataset, exp_context: ExperimentContext, subset_name: str):
@@ -82,7 +82,7 @@ class DataframeAnalyzer(ResultAnalyzer, Configurable):
         )
 
         out_dict = {}
-        for met in self.df_metrics:
+        for met in self.metrics:
             out_dict.update(met(data_frame, exp_context, subset_name))
 
         log_str = f"{basename(output_file)}\n" f"========================\n"

@@ -29,7 +29,7 @@ class CheckFilesFoldersTest(ExperimentTest, InitConfig):
         description="All required folders with relative path to experiment root",
     )
 
-    def __call__(
+    def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:
         file_system = file_system or LocalFileSystem()

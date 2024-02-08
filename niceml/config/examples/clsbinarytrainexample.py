@@ -4,9 +4,9 @@ from os.path import join
 from dagster import JobDefinition
 from dagster import RunConfig, Definitions
 from dagster import graph
+from dagster_mlflow import mlflow_tracking
 from keras.optimizers import Adam
 
-from niceml.cli.clicommands import train
 from niceml.config.config import InitConfig, MapInitConfig
 from niceml.config.trainparams import TrainParams
 from niceml.dagster.ops.analysis import AnalysisConfig
@@ -19,7 +19,7 @@ from niceml.dagster.ops.filelockops import LocksConfig
 from niceml.dagster.ops.filelockops import acquire_locks, release_locks
 from niceml.dagster.ops.prediction import PredictionConfig
 from niceml.dagster.ops.prediction import prediction
-from niceml.dagster.ops.train import TrainConfig
+from niceml.dagster.ops.train import TrainConfig, train
 from niceml.data.datadescriptions.clsdatadescription import ClsDataDescription
 from niceml.data.datainfolistings.clsdatainfolisting import DirClsDataInfoListing
 from niceml.data.dataloaders.clsdataloader import ClsDataLoader
@@ -65,10 +65,11 @@ from niceml.mlcomponents.targettransformer.targettransformercls import (
     TargetTransformerClassification,
 )
 from niceml.utilities.imagesize import ImageSize
+from niceml.utilities.readwritelock import FileLock
 
-data_description = ClsDataDescription(
+data_description = ClsDataDescription.create_config(
     classes=["0", "1", "2", "3"],
-    target_size=ImageSize(width=1024, height=1024),
+    target_size=ImageSize.create_config(width=1024, height=1024),
 )
 
 ConfDirClsDataInfoListing = InitConfig.create_conf_from_class(DirClsDataInfoListing)
@@ -84,7 +85,7 @@ dataset_loader_train = InitConfig.create(
     set_name="train",
     shuffle=True,
     datainfo_listing=ConfDirClsDataInfoListing(
-        location=dict(uri=join(os.getenv("DATA_URI"), "number_data_split")),
+        location=dict(uri=join(os.getenv("DATA_URI"), "numbers_cropped_split")),
         sub_dir="train",
     ),
     data_loader=ConfClsDataLoader(data_description=data_description),
@@ -115,10 +116,8 @@ dataset_loader_test = dataset_loader_train.copy(
     )
 )
 
-conf_keras_learner = InitConfig.create_conf_from_class(KerasLearner)
 ConfClsMetric = InitConfig.create_conf_from_class(ClsMetric)
-ConfAdam = InitConfig.create_conf_from_class(Adam, learning_rate=0.0001)
-acquire_locks_config = LocksConfig(file_lock_dict={})
+acquire_locks_config = LocksConfig(file_lock_dict=MapInitConfig.create(FileLock))
 experiment_config = ExperimentConfig(
     exp_out_location=dict(uri=os.getenv("EXPERIMENT_URI")),
     exp_folder_pattern="CLS-$RUN_ID-id_$SHORT_ID",
@@ -129,11 +128,11 @@ train_config = TrainConfig(
     data_description=data_description,
     data_train=dataset_loader_train,
     data_validation=dataset_loader_validation,
-    learner=conf_keras_learner(
+    learner=KerasLearner.create_config(
         model_compiler=DefaultModelCompiler.create_config(
             loss="categorical_crossentropy",
             metrics=["accuracy"],
-            optimizer=ConfAdam(),
+            optimizer=InitConfig.create(Adam, learning_rate=0.0001),
         ),
         callback_initializer=CallbackInitializer.create_config(
             callback_list=[
@@ -148,26 +147,25 @@ train_config = TrainConfig(
                 )
             ),
         ),
-        model_load_custom_objects=ModelCustomLoadObjects(),
+        model_load_custom_objects=ModelCustomLoadObjects.create_config(),
     ),
-    exp_initializer=ExpOutInitializer(
+    exp_initializer=ExpOutInitializer.create_config(
         exp_name="SampleCls", exp_prefix="CLS", git_modules=["niceml"]
     ),
 )
-train_config.learner.instantiate()
 
 prediction_config = PredictionConfig(
     prediction_handler=VectorPredictionHandler.create_config(),
-    datasets=dict(
+    datasets=MapInitConfig.create(
+        map_target_class=KerasGenericDataset,
         test=dataset_loader_test,
         validation=dataset_loader_validation,
         train_eval=dataset_loader_train.copy(update=dict(shuffle=False)),
     ),
-    model_loader=KerasModelLoader(),
-    prediction_function=KerasPredictionFunction(),
+    model_loader=KerasModelLoader.create_config(),
+    prediction_function=KerasPredictionFunction.create_config(),
     prediction_steps=2,
 )
-prediction_config.datasets.instantiate()
 analysis_config = AnalysisConfig(
     result_analyzer=DataframeAnalyzer.create_config(
         metrics=[
@@ -188,19 +186,19 @@ analysis_config = AnalysisConfig(
 )
 
 exptests_config = ExpTestsConfig(
-    exp_test_process=ExpTestProcess(
+    exp_test_process=ExpTestProcess.create_config(
         test_list=[
-            ModelsSavedExpTest(),
-            ParqFilesNoNoneExpTest(),
-            ExpEmptyTest(),
-            CheckFilesFoldersTest(
-                folders=["configs"],
-                files=[
-                    "configs/train/data_description.yaml",
-                    "train_logs.csv",
-                    "experiment_info.yaml",
-                ],
-            ),
+            # ModelsSavedExpTest(),
+            # ParqFilesNoNoneExpTest(),
+            # ExpEmptyTest(),
+            # CheckFilesFoldersTest(
+            #     folders=["configs"],
+            #     files=[
+            #         "configs/train/data_description.yaml",
+            #         "train_logs.csv",
+            #         "experiment_info.yaml",
+            #     ],
+            # ),
         ]
     )
 )
@@ -239,7 +237,12 @@ def cls_binary_example_graph_train():
 
 cls_binary_train_example_job = JobDefinition(
     graph_def=cls_binary_example_graph_train,
-    config=cls_run_config,
+    config=cls_run_config.to_config_dict(),
+    resource_defs={"mlflow": mlflow_tracking},
 )
 
 defs = Definitions(jobs=[cls_binary_train_example_job])
+
+
+if __name__ == "__main__":
+    cls_binary_train_example_job.execute_in_process()

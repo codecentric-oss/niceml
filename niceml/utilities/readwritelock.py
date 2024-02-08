@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional, Union
 from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 
+from niceml.config.config import Configurable
 from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
     join_fs_path,
