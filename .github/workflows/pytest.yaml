@@ -3,6 +3,8 @@ name: 🧪 pytest
 on:
   pull_request:
     types: [ opened, reopened, synchronize ]
+  pull_request_target:
+    types: [ opened, reopened, synchronize ]
   workflow_call:
 
 jobs:
@@ -10,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8","3.9","3.10"]
+        python-version: [ "3.9","3.10","3.11"]
         os: [ ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30

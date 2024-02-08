@@ -37,8 +37,8 @@ def run_dashboard(conf_instances):
     exp_cache = conf_instances.get("exp_cache", None)
     st.sidebar.title("Filter Experiments")
 
-    exp_manager = exp_manager_factory(id(storage))
-    exp_list: List[ExperimentInfo] = query_experiments(storage)
+    exp_manager = exp_manager_factory(handler_name)
+    exp_list: List[ExperimentInfo] = query_experiments(storage, handler_name)
     exps_to_load = select_to_load_exps(exp_list, exp_manager)
     experiments = load_experiments(
         storage,

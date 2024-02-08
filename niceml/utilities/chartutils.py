@@ -1,9 +1,10 @@
+"""Module for chart utilities."""
 from typing import List, Optional
 
 import altair
 
 
-def generate_hover_charts(  # QUEST: still in use?
+def generate_hover_charts(  # noqa: PLR0913
     source,
     x_name: str,
     text_name: str,
@@ -17,9 +18,7 @@ def generate_hover_charts(  # QUEST: still in use?
     if additional_layers is None:
         additional_layers = []
     # Create a selection that chooses the nearest point & selects based on x-value
-    nearest = altair.selection(
-        type="single", nearest=True, on="mouseover", fields=[x_name], empty="none"
-    )
+    nearest = altair.selection_point(nearest=True, on="mouseover", fields=[x_name])
 
     # Transparent selectors across the chart. This is what tells us
     # the x-value of the cursor
@@ -30,7 +29,7 @@ def generate_hover_charts(  # QUEST: still in use?
             x=x_name,
             opacity=altair.value(0),
         )
-        .add_selection(nearest)
+        .add_params(nearest)
     )
 
     # Draw points on the line, and highlight based on selection
@@ -56,7 +55,8 @@ def generate_hover_charts(  # QUEST: still in use?
     ).properties(width=width, height=height)
 
 
-def generate_chart(source, metric):  # TODO: rename function and add docstrings
+def generate_chart(source, metric):
+    """Generates Altair chart"""
     line = (
         altair.Chart(source)
         .mark_line()
@@ -68,9 +68,7 @@ def generate_chart(source, metric):  # TODO: rename function and add docstrings
     )
 
     # Create a selection that chooses the nearest point & selects based on x-value
-    nearest = altair.selection(
-        type="single", nearest=True, on="mouseover", fields=["epoch"], empty="none"
-    )
+    nearest = altair.selection_point(nearest=True, on="mouseover", fields=["epoch"])
 
     # Transparent selectors across the chart. This is what tells us
     # the x-value of the cursor
@@ -81,7 +79,7 @@ def generate_chart(source, metric):  # TODO: rename function and add docstrings
             x="epoch",
             opacity=altair.value(0),
         )
-        .add_selection(nearest)
+        .add_params(nearest)
     )
 
     # Draw points on the line, and highlight based on selection

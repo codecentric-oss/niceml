@@ -30,7 +30,7 @@ conda create --name your-env-name python=3.x
 conda activate your-env-name
 ```
 
-Replace `your-env-name` with your desired environment name and `3.x` with a Python version above 3.8 and below 3.11.
+Replace `your-env-name` with your desired environment name and `3.x` with a Python version above 3.8 and below 3.12.
 For Apple Silicon we recommend python 3.8.
 
 ## Install Poetry Dependencies
