@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.0 (2024-02-08)
+
+### Feature
+
+* Update altair to 5.2.0 ([#113](https://github.com/codecentric-oss/niceml/issues/113)) ([`fbb72d4`](https://github.com/codecentric-oss/niceml/commit/fbb72d4111d806bffb4acaebe1a6ca43d5c82c33))
+* Update tensorflow (`>=2.13,<=2.15`) and dagster (`~1.6.0`). Remove support for python `3.8` ([#106](https://github.com/codecentric-oss/niceml/issues/106)) ([`9c3f6af`](https://github.com/codecentric-oss/niceml/commit/9c3f6af92059f890c9d5f8bebe4eae55966f16c2))
+
+### Fix
+
+* Simplify ExperimentManager using exp_dict ([`9a54dc9`](https://github.com/codecentric-oss/niceml/commit/9a54dc9ed954ab1a1a80a6964c9b7462d29b4b39))
+* Query experiments based on storage handler name not mutable id ([`1e94add`](https://github.com/codecentric-oss/niceml/commit/1e94addf39393e328a566b0190fdaf7aab4aa4ac))
+* Changed tf-macos version to <=2.14 ([`5516531`](https://github.com/codecentric-oss/niceml/commit/55165313b6a5757f1e60d1dd39761bf4c6002d60))
+
 ## v0.13.0 (2024-01-16)
 
 ### Feature
