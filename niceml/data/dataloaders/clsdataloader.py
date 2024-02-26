@@ -1,4 +1,5 @@
 """Module for ClsDataLoader"""
+from niceml.config.config import Configurable
 from niceml.data.datadescriptions.clsdatadescription import ClsDataDescription
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
 from niceml.data.datainfos.clsdatainfo import ClsData, ClsDataInfo
@@ -7,7 +8,7 @@ from niceml.utilities.commonutils import check_instance
 from niceml.utilities.imageloading import load_img_uint8
 
 
-class ClsDataLoader(DataLoader):
+class ClsDataLoader(DataLoader, Configurable):
     """DataLoader for image classification data"""
 
     def __init__(self, data_description: ClsDataDescription):

@@ -4,6 +4,7 @@ from typing import List, Optional
 import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
 
+from niceml.config.config import Configurable
 from niceml.data.datadescriptions.clsdatadescription import ClsDataDescription
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.data.datadescriptions.outputdatadescriptions import (
@@ -14,7 +15,7 @@ from niceml.mlcomponents.targettransformer.targettransformer import NetTargetTra
 from niceml.utilities.commonutils import check_instance
 
 
-class TargetTransformerClassification(NetTargetTransformer):
+class TargetTransformerClassification(NetTargetTransformer, Configurable):
     """NetTargetTransformer for Classification"""
 
     def __init__(self, data_description: Optional[OutputVectorDataDescription] = None):

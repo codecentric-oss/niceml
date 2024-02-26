@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List
 
 from dagster import Config
 from dagster import OpExecutionContext, op, Out
-from pydantic import Field
+from pydantic import Field, ConfigDict, SerializeAsAny
 
 from niceml.config.config import InitConfig
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
@@ -41,6 +41,8 @@ class TrainConfig(Config):
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These keys are removed from any config recursively before it is saved.",
     )  # TODO: refactor
+
+    model_config = ConfigDict(protected_namespaces=())
 
 
 @op(

@@ -1,7 +1,7 @@
 """Module for ClsDataDescription"""
 from typing import List, Optional, Union
 
-from niceml.config.config import Configurable
+from niceml.config.config import Configurable, InitConfig
 from niceml.data.datadescriptions.inputdatadescriptions import InputImageDataDescription
 from niceml.data.datadescriptions.outputdatadescriptions import (
     OutputVectorDataDescription,

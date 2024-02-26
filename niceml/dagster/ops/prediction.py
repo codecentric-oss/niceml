@@ -7,7 +7,7 @@ from dagster import Config
 import numpy as np
 import tqdm
 from dagster import OpExecutionContext, op, Out
-from pydantic import Field
+from pydantic import Field, ConfigDict
 
 from niceml.config.config import InitConfig, MapInitConfig
 from niceml.config.defaultremoveconfigkeys import DEFAULT_REMOVE_CONFIG_KEYS
@@ -43,6 +43,7 @@ class PredictionConfig(Config):
         default=DEFAULT_REMOVE_CONFIG_KEYS,
         description="These key are removed from any config recursively before it is saved.",
     )  # TODO: refactor
+    model_config = ConfigDict(protected_namespaces=())
 
 
 # pylint: disable=use-dict-literal

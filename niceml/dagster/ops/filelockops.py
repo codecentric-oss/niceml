@@ -9,7 +9,7 @@ from niceml.utilities.readwritelock import FileLock
 
 class LocksConfig(Config):
     file_lock_dict: MapInitConfig = MapInitConfig.create_config_field(
-        target_class=FileLock
+        target_class=FileLock,
     )
 
 

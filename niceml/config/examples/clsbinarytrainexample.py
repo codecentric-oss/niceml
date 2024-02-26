@@ -7,7 +7,7 @@ from dagster import graph
 from dagster_mlflow import mlflow_tracking
 from keras.optimizers import Adam
 
-from niceml.config.config import InitConfig, MapInitConfig
+from niceml.config.config import InitConfig, MapInitConfig, get_class_path
 from niceml.config.trainparams import TrainParams
 from niceml.dagster.ops.analysis import AnalysisConfig
 from niceml.dagster.ops.analysis import analysis
@@ -72,51 +72,45 @@ data_description = ClsDataDescription.create_config(
     target_size=ImageSize.create_config(width=1024, height=1024),
 )
 
-ConfDirClsDataInfoListing = InitConfig.create_conf_from_class(DirClsDataInfoListing)
-ConfClsDataLoader = InitConfig.create_conf_from_class(ClsDataLoader)
-ConfImageInputTransformer = InitConfig.create_conf_from_class(ImageInputTransformer)
-ConfTargetTransformerClassification = InitConfig.create_conf_from_class(
-    TargetTransformerClassification
-)
-
 dataset_loader_train = InitConfig.create(
     KerasGenericDataset,
     batch_size=16,
     set_name="train",
     shuffle=True,
-    datainfo_listing=ConfDirClsDataInfoListing(
+    datainfo_listing=DirClsDataInfoListing.create_config(
         location=dict(uri=join(os.getenv("DATA_URI"), "numbers_cropped_split")),
         sub_dir="train",
     ),
-    data_loader=ConfClsDataLoader(data_description=data_description),
-    target_transformer=ConfTargetTransformerClassification(
+    data_loader=ClsDataLoader.create_config(data_description=data_description),
+    target_transformer=TargetTransformerClassification.create_config(
+        data_description=data_description,
+    ),
+    input_transformer=ImageInputTransformer.create_config(
         data_description=data_description
     ),
-    input_transformer=ConfImageInputTransformer(data_description=data_description),
     net_data_logger=None,
 )
 
-dataset_loader_validation = dataset_loader_train.copy(
+dataset_loader_validation = dataset_loader_train.model_copy(
     update=dict(
         set_name="validation",
-        datainfo_listing=dataset_loader_train.datainfo_listing.copy(
+        datainfo_listing=dataset_loader_train.datainfo_listing.model_copy(
             update=dict(sub_dir="validation")
         ),
         shuffle=False,
     )
 )
 
-dataset_loader_test = dataset_loader_train.copy(
+dataset_loader_test = dataset_loader_train.model_copy(
     update=dict(
         set_name="test",
-        datainfo_listing=dataset_loader_train.datainfo_listing.copy(
+        datainfo_listing=dataset_loader_train.datainfo_listing.model_copy(
             update=dict(sub_dir="test")
         ),
         shuffle=False,
     )
 )
 
-ConfClsMetric = InitConfig.create_conf_from_class(ClsMetric)
 acquire_locks_config = LocksConfig(file_lock_dict=MapInitConfig.create(FileLock))
 experiment_config = ExperimentConfig(
     exp_out_location=dict(uri=os.getenv("EXPERIMENT_URI")),
@@ -160,7 +154,7 @@ prediction_config = PredictionConfig(
         map_target_class=KerasGenericDataset,
         test=dataset_loader_test,
         validation=dataset_loader_validation,
-        train_eval=dataset_loader_train.copy(update=dict(shuffle=False)),
+        train_eval=dataset_loader_train.model_copy(update=dict(shuffle=False)),
     ),
     model_loader=KerasModelLoader.create_config(),
     prediction_function=KerasPredictionFunction.create_config(),
@@ -169,14 +163,12 @@ prediction_config = PredictionConfig(
 analysis_config = AnalysisConfig(
     result_analyzer=DataframeAnalyzer.create_config(
         metrics=[
-            InitConfig.create(
-                ConfClsMetric,
+            ClsMetric.create_config(
                 function="accuracy",
                 source_col="class_idx",
                 target_cols_prefix="pred_",
             ),
-            InitConfig.create(
-                ConfClsMetric,
+            ClsMetric.create_config(
                 function="confusion_matrix",
                 source_col="class_idx",
                 target_cols_prefix="pred_",
@@ -237,7 +229,7 @@ def cls_binary_example_graph_train():
 
 cls_binary_train_example_job = JobDefinition(
     graph_def=cls_binary_example_graph_train,
-    config=cls_run_config.to_config_dict(),
+    config=cls_run_config,
     resource_defs={"mlflow": mlflow_tracking},
 )
 

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC
+from collections import defaultdict
 from enum import Enum
 from inspect import isabstract
 from types import NoneType
@@ -24,7 +25,7 @@ from typing import (
 
 from dagster import Config, PermissiveConfig
 from hydra.utils import instantiate, ConvertMode
-from pydantic import Field, create_model, BaseModel
+from pydantic import Field, create_model, BaseModel, ConfigDict, SerializeAsAny
 
 
 class InitConfig(PermissiveConfig):
@@ -36,9 +37,8 @@ class InitConfig(PermissiveConfig):
     """
 
     target: Optional[str] = Field(
-        default=None,
         description="Target class which is instantiated.",
-        alias="_target_",
+        serialization_alias="_target_",
     )
 
     def instantiate(self):
@@ -49,28 +49,54 @@ class InitConfig(PermissiveConfig):
             Any: An instance of the target class.
 
         """
-        instantiate_dict = self.dict(by_alias=True)
+        instantiate_dict = self.model_dump(by_alias=True)
         if self.target is None:
             instantiate_dict["_target_"] = get_class_path(type(self))
         return instantiate(instantiate_dict, _convert_=ConvertMode.ALL)
 
-    def dict(self, *args, **kwargs):
-        cur_dict = super().dict(*args, **kwargs)
+    def model_dump(self, *args, **kwargs):
+        cur_dict = super().model_dump(
+            *args,
+            **kwargs,
+        )
+        cur_dict = self.replace_key_in_dict(cur_dict, "target", "_target_")
+
         if self.target is None:
             cur_dict[
                 "_target_" if kwargs.get("by_alias", False) is True else "target"
             ] = get_class_path(type(self))
         return cur_dict
 
+    def replace_key_in_dict(self, config, old_key, new_key):
+        """
+        Recursively replace a key in a dictionary.
+
+        :param config: The dictionary to search.
+        :param old_key: The key to replace.
+        :param new_key: The new key name.
+        :return: The modified dictionary.
+        """
+        changed_config = defaultdict(dict)
+        for key, value in config.items():
+            if key == old_key:
+                changed_config[new_key] = value
+            elif isinstance(value, dict):
+                changed_config[key] = self.replace_key_in_dict(value, old_key, new_key)
+            else:
+                changed_config[key] = value
+        return changed_config
+
     @classmethod
     def create(cls, target_class, **kwargs):
         """Creates an instance of a pydantic BaseModel which have the same fields as
         given in kwargs"""
-        conf_class = cls.create_conf_from_class(target_class)
-        return conf_class(**kwargs)
+        conf_class = cls._create_conf_from_class(target_class)
+        return conf_class(**kwargs, target=get_class_path(target_class))
 
     @classmethod
-    def create_conf_from_class(cls, target_class, **kwargs):
+    def _create_conf_from_class(
+        cls, target_class, protected_namespaces: Optional[Tuple[str]] = None, **kwargs
+    ):
         """
         Creates a configuration class from a target class by introspecting its __init__ method.
 
@@ -105,13 +131,17 @@ class InitConfig(PermissiveConfig):
                 continue
             current_type = parse_value_type(type_hints.get(name, Any))
             if param.default is not inspect._empty:
-                target_kwargs[name] = (current_type, param.default)
+                target_kwargs[name] = (SerializeAsAny[current_type], param.default)
             else:
-                target_kwargs[name] = (current_type, ...)
+                target_kwargs[name] = (SerializeAsAny[current_type], ...)
 
         conf_class = create_model(
             f"Conf{target_class.__name__}",
-            target=(str, Field(default=get_class_path(target_class), alias="_target_")),
+            # target=(
+            #     str,
+            #     ...,
+            # ),
+            model_config=ConfigDict(protected_namespaces=protected_namespaces or ()),
             **target_kwargs,
             __base__=cls,
         )
@@ -225,14 +255,6 @@ def get_class_path(cls):
 
 
 class MapInitConfig(PermissiveConfig):
-    """
-    Class representing the dict like type of an attribute used in a Dagster
-    Op configuration
-
-    Attributes:
-        target: Fully qualified class name of the class which is instantiated.
-    """
-
     def instantiate(self):
         """
         Instantiates the target class using the configuration parameters.
@@ -250,9 +272,16 @@ class MapInitConfig(PermissiveConfig):
 
     @classmethod
     def create_conf_from_values(cls, map_target_class, **kwargs):
+        field_kwargs = {}
+        for key, value in kwargs.items():
+            field_kwargs[key] = (
+                type(value),
+                value,
+            )
+
         conf_class = create_model(
             f"ConfMap{map_target_class.__name__}",
-            **kwargs,
+            **field_kwargs,
             __base__=cls,
         )
         return conf_class

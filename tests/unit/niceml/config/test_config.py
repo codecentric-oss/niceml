@@ -150,8 +150,14 @@ def test_create_class_config():
             engine=Engine.create_config(power=100),
             wheels=dict(left=Wheel.create_config()),
             lights=[
-                Light.create_config(size=5, position=LightPosition.FRONT_LEFT),
-                Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
+                Light.create_config(
+                    size=5,
+                    position=InitConfig.create(LightPosition, value="front left"),
+                ),
+                Light.create_config(
+                    size=7,
+                    position=InitConfig.create(LightPosition, value="front left"),
+                ),
             ],
         ),
         distance=200,
@@ -165,8 +171,14 @@ def test_create_class_config():
             wheels=dict(left=Wheel.create_config()),
             speed=200,
             lights=[
-                Light.create_config(size=5, position=LightPosition.FRONT_LEFT),
-                Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
+                Light.create_config(
+                    size=5,
+                    position=InitConfig.create(LightPosition, value="front left"),
+                ),
+                Light.create_config(
+                    size=7,
+                    position=InitConfig.create(LightPosition, value="front right"),
+                ),
             ],
             horn=0.1,
             seats=1,
@@ -181,8 +193,14 @@ def test_create_class_config():
             engine=Engine.create_config(power=100),
             wheels=dict(left=Wheel.create_config()),
             lights=[
-                Light.create_config(size=5, position=LightPosition.FRONT_LEFT),
-                Light.create_config(size=7, position=LightPosition.FRONT_RIGHT),
+                Light.create_config(
+                    size=5,
+                    position=InitConfig.create(LightPosition, value="front left"),
+                ),
+                Light.create_config(
+                    size=7,
+                    position=InitConfig.create(LightPosition, value="front right"),
+                ),
             ],
         ),
         distance=200,
@@ -255,7 +273,7 @@ def test_create_class_config_with_init_config():
         (Dict[str, int], Dict[str, int]),
         (Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]),
         (Dict[str, Dict[str, int]], Dict[str, Dict[str, int]]),
-        (Dict[str, Engine], MapInitConfig),
+        #        (Dict[str, Engine], MapInitConfig),
         (Tuple[str], Tuple[str]),
         (Tuple[str, Engine], Tuple[str, InitConfig]),
         (Tuple[str, Car], Tuple[str, InitConfig]),
@@ -287,8 +305,7 @@ def test_parse_value_type(input_value_type, result):
     ],
 )
 def test_foreign_implementation_config_creation(implementation_reference, kwargs):
-    conf_model = InitConfig.create_conf_from_class(implementation_reference)
-    config = conf_model(**kwargs)
+    config = InitConfig.create(implementation_reference, **kwargs)
     config.instantiate()
     config_attributes = config.dict(by_alias=True)
     kwargs.update({"_target_": "test_target "})

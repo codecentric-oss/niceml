@@ -27,13 +27,6 @@ class CallbackInitializer(Configurable):  # pylint: disable=too-few-public-metho
         self.callback_dict = callback_dict
         self.callback_list = callback_list
 
-    # callback_list: List[CallbackFactory] = Field(
-    #     default_factory=list, description="A list of callback factories"
-    # )
-    # callback_dict: Dict[str, CallbackFactory] = Field(
-    #     default_factory=dict, description="A dict of callback factories"
-    # )
-
     def __call__(self, exp_context: ExperimentContext) -> List:
         """Initializes the callbacks"""
         callback_list = self.callback_list + list(self.callback_dict.values())

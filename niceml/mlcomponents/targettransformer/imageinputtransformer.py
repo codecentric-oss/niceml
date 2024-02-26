@@ -3,11 +3,12 @@ from typing import Any, List, Optional
 
 import numpy as np
 
+from niceml.config.config import Configurable
 from niceml.data.datadescriptions.datadescription import DataDescription
 from niceml.mlcomponents.targettransformer.targettransformer import NetInputTransformer
 
 
-class ImageInputTransformer(NetInputTransformer):
+class ImageInputTransformer(NetInputTransformer, Configurable):
     """Input transformer for object detection"""
 
     def __init__(
