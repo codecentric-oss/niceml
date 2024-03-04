@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from keras.utils import Sequence
 
+from niceml.config.config import Configurable
 from niceml.data.augmentation.augmentation import AugmentationProcessor
 from niceml.data.datainfolistings.datainfolisting import DataInfoListing
 from niceml.data.datainfos.datainfo import DataInfo
@@ -17,7 +18,7 @@ from niceml.mlcomponents.targettransformer.targettransformer import (
 )
 
 
-class KerasGenericDataset(GenericDataset, Sequence):
+class KerasGenericDataset(GenericDataset, Sequence, Configurable):
     """Keras implementation of the GenericDataset"""
 
     def __init__(

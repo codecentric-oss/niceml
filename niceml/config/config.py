@@ -76,12 +76,21 @@ class InitConfig(PermissiveConfig):
         :param new_key: The new key name.
         :return: The modified dictionary.
         """
-        changed_config = defaultdict(dict)
+        changed_config = {}
         for key, value in config.items():
             if key == old_key:
                 changed_config[new_key] = value
             elif isinstance(value, dict):
                 changed_config[key] = self.replace_key_in_dict(value, old_key, new_key)
+            elif isinstance(value, list):
+                changed_config[key] = []
+                for idx, list_value in enumerate(value):
+                    if isinstance(list_value, dict):
+                        changed_config[key].append(
+                            self.replace_key_in_dict(list_value, old_key, new_key)
+                        )
+                    else:
+                        changed_config[key].append(list_value)
             else:
                 changed_config[key] = value
         return changed_config

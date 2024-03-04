@@ -5,7 +5,7 @@ from fsspec import AbstractFileSystem
 from fsspec.implementations.local import LocalFileSystem
 from pydantic import Field
 
-from niceml.config.config import InitConfig
+from niceml.config.config import InitConfig, Configurable
 from niceml.data.storages.fsfilesystemstorage import FsFileSystemStorage
 from niceml.experiments.expdatalocalstorageloader import (
     create_expdata_from_local_storage,
@@ -19,9 +19,12 @@ from niceml.experiments.experimenttests.exptests import (
 from niceml.utilities.ioutils import list_dir, read_parquet
 
 
-class ModelsSavedExpTest(ExperimentTest, InitConfig):
-    model_subfolder: str = Field(default="models")
-    model_exts: List[str] = Field(default=[".pkl", ".hdf5"])
+class ModelsSavedExpTest(ExperimentTest, Configurable):
+    def __init__(
+        self, model_subfolder: str = "models", model_exts: Optional[List[str]] = None
+    ):
+        self.model_exts = model_exts or [".pkl", ".hdf5"]
+        self.model_subfolder = model_subfolder
 
     def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
@@ -48,7 +51,7 @@ class ModelsSavedExpTest(ExperimentTest, InitConfig):
             )
 
 
-class ParqFilesNoNoneExpTest(ExperimentTest):
+class ParqFilesNoNoneExpTest(ExperimentTest, Configurable):
     def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:
@@ -76,7 +79,7 @@ class ParqFilesNoNoneExpTest(ExperimentTest):
         )
 
 
-class ExpEmptyTest(ExperimentTest):
+class ExpEmptyTest(ExperimentTest, Configurable):
     def test(
         self, experiment_path: str, file_system: Optional[AbstractFileSystem] = None
     ) -> ExpTestResult:

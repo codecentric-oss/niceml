@@ -1,7 +1,8 @@
 import os
 from os.path import join
+from typing import List, Dict
 
-from dagster import JobDefinition
+from dagster import JobDefinition, ConfigSchema, ConfigMapping
 from dagster import RunConfig, Definitions
 from dagster import graph
 from dagster_mlflow import mlflow_tracking
@@ -72,8 +73,7 @@ data_description = ClsDataDescription.create_config(
     target_size=ImageSize.create_config(width=1024, height=1024),
 )
 
-dataset_loader_train = InitConfig.create(
-    KerasGenericDataset,
+dataset_train = KerasGenericDataset.create_config(
     batch_size=16,
     set_name="train",
     shuffle=True,
@@ -91,20 +91,20 @@ dataset_loader_train = InitConfig.create(
     net_data_logger=None,
 )
 
-dataset_loader_validation = dataset_loader_train.model_copy(
+dataset_validation = dataset_train.model_copy(
     update=dict(
         set_name="validation",
-        datainfo_listing=dataset_loader_train.datainfo_listing.model_copy(
+        datainfo_listing=dataset_train.datainfo_listing.model_copy(
             update=dict(sub_dir="validation")
         ),
         shuffle=False,
     )
 )
 
-dataset_loader_test = dataset_loader_train.model_copy(
+dataset_test = dataset_train.model_copy(
     update=dict(
         set_name="test",
-        datainfo_listing=dataset_loader_train.datainfo_listing.model_copy(
+        datainfo_listing=dataset_train.datainfo_listing.model_copy(
             update=dict(sub_dir="test")
         ),
         shuffle=False,
@@ -120,8 +120,8 @@ train_config = TrainConfig(
     train_params=TrainParams(),
     model_factory=OwnMobileNetModel.create_config(),
     data_description=data_description,
-    data_train=dataset_loader_train,
-    data_validation=dataset_loader_validation,
+    data_train=dataset_train,
+    data_validation=dataset_validation,
     learner=KerasLearner.create_config(
         model_compiler=DefaultModelCompiler.create_config(
             loss="categorical_crossentropy",
@@ -152,9 +152,9 @@ prediction_config = PredictionConfig(
     prediction_handler=VectorPredictionHandler.create_config(),
     datasets=MapInitConfig.create(
         map_target_class=KerasGenericDataset,
-        test=dataset_loader_test,
-        validation=dataset_loader_validation,
-        train_eval=dataset_loader_train.model_copy(update=dict(shuffle=False)),
+        test=dataset_test,
+        validation=dataset_validation,
+        train_eval=dataset_train.model_copy(update=dict(shuffle=False)),
     ),
     model_loader=KerasModelLoader.create_config(),
     prediction_function=KerasPredictionFunction.create_config(),
@@ -180,17 +180,17 @@ analysis_config = AnalysisConfig(
 exptests_config = ExpTestsConfig(
     exp_test_process=ExpTestProcess.create_config(
         test_list=[
-            # ModelsSavedExpTest(),
-            # ParqFilesNoNoneExpTest(),
-            # ExpEmptyTest(),
-            # CheckFilesFoldersTest(
-            #     folders=["configs"],
-            #     files=[
-            #         "configs/train/data_description.yaml",
-            #         "train_logs.csv",
-            #         "experiment_info.yaml",
-            #     ],
-            # ),
+            ModelsSavedExpTest.create_config(),
+            ParqFilesNoNoneExpTest.create_config(),
+            ExpEmptyTest.create_config(),
+            CheckFilesFoldersTest.create_config(
+                folders=["configs"],
+                files=[
+                    "configs/train/data_description.yaml",
+                    "train_logs.csv",
+                    "experiment_info.yaml",
+                ],
+            ),
         ]
     )
 )
@@ -215,6 +215,55 @@ cls_run_config = RunConfig(
 )
 
 
+def build_config_schema(run_config: RunConfig, global_keys: Dict[str, str]) -> dict:
+    config_dict = run_config.to_config_dict()
+    duplicates = find_identical_entries(config_dict)
+    return {}
+
+
+import hashlib
+import json
+
+
+def calculate_checksum(data):
+    """
+    Recursively calculate checksum for a hierarchical dictionary.
+    """
+    # If data is not a dictionary, return its hash directly
+    if not isinstance(data, dict):
+        return hashlib.md5(json.dumps(data, sort_keys=True).encode()).hexdigest()
+
+    # Sort the dictionary to ensure consistent checksums
+    sorted_data = {
+        key: calculate_checksum(value) for key, value in sorted(data.items())
+    }
+
+    # Use JSON representation for hashing
+    checksum = hashlib.md5(json.dumps(sorted_data, sort_keys=True).encode()).hexdigest()
+    return checksum
+
+
+def find_identical_entries(data):
+    """
+    Find identical entries in the given hierarchical dictionary.
+    """
+    checksum_dict = {}
+    identical_entries = {}
+
+    for key, value in data.items():
+        checksum = calculate_checksum(value)
+        if checksum in checksum_dict:
+            identical_entries.setdefault(checksum, []).append(key)
+        else:
+            checksum_dict[checksum] = key
+
+    return identical_entries
+
+
+def build_config(*args, **kwargs) -> RunConfig:
+    return RunConfig()
+
+
 @graph
 def cls_binary_example_graph_train():
     """Graph for training an experiment"""
@@ -229,7 +278,12 @@ def cls_binary_example_graph_train():
 
 cls_binary_train_example_job = JobDefinition(
     graph_def=cls_binary_example_graph_train,
-    config=cls_run_config,
+    config=ConfigMapping(
+        config_schema=build_config_schema(
+            run_config=cls_run_config, global_keys=["data_description"]
+        ),
+        config_fn=build_config,
+    ),
     resource_defs={"mlflow": mlflow_tracking},
 )
 
