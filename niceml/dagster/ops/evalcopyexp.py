@@ -7,7 +7,13 @@ import yaml
 from fsspec import AbstractFileSystem
 from tqdm import tqdm
 
-from niceml.config.envconfig import DESCRIPTION_KEY, RUN_ID_KEY, SHORT_ID_KEY
+from niceml.config.envconfig import (
+    DESCRIPTION_KEY,
+    RUN_ID_KEY,
+    SHORT_ID_KEY,
+    PRETRAINED_MODEL_KEY,
+    ENVIRONMENT_KEY,
+)
 from niceml.dagster.ops.experiment import create_exp_settings
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.experiments.expfilenames import ExperimentFilenames, ExpEvalCopyNames
@@ -84,6 +90,7 @@ def change_ids_from_expinfo(
     with file_system.open(exp_info_path, "r") as cur_file:
         data = yaml.load(cur_file, Loader=yaml.SafeLoader)
 
+    data[ENVIRONMENT_KEY][PRETRAINED_MODEL_KEY] = data[SHORT_ID_KEY]
     data[RUN_ID_KEY] = run_id
     data[SHORT_ID_KEY] = short_id
     data[DESCRIPTION_KEY] = (
