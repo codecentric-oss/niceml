@@ -9,7 +9,6 @@ from niceml.utilities.fsspec.locationutils import (
     LocationConfig,
     join_fs_path,
     open_location,
-    join_location_w_path,
 )
 from niceml.utilities.readwritelock import (
     ReadLock,

@@ -47,6 +47,7 @@ class PrefixVisComponent(ExpVisComponent):
             subset_name: Optional[str]: Render the experiment data to a subset
 
         """
+        # select components for prefix
         exp_data_list: List[ExperimentData] = [
             exp_manager.get_exp_by_id(exp_id) for exp_id in exp_ids
         ]
@@ -74,11 +75,14 @@ class PrefixVisComponent(ExpVisComponent):
                         comp.get_component_name() or f"Component {comp_index}"
                     )
 
+        # arrange tabs
         comp_index = 0
         if self.use_tabs:
             st_comp_list = list(st.tabs(comp_names))
         else:
             st_comp_list = [st.expander(label) for label in comp_names]
+
+        # render components
         for comp_key, cur_comps in self.components.items():
             if comp_key in exp_dict:
                 for comp in cur_comps:
