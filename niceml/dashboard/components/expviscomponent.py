@@ -25,8 +25,8 @@ class ExpVisComponent(ABC):
         target_value_list: Optional[List[Any]] = None,
         assert_on_error: bool = False,
     ):
-        # Create empty list for chart images
         self.component_name: Optional[str] = component_name
+        # Create empty list for chart images
         self.chart_images_list: List[Image.Image] = []
         self.meta_function = meta_function
         self.target_value_list = [] if target_value_list is None else target_value_list
