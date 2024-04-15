@@ -7,7 +7,7 @@ import pytest
 
 from niceml.data.dataloaders.dfloaders import RemoteDiskCachedDfLoader, SimpleDfLoader
 from niceml.data.storages.localstorage import LocalStorage
-from niceml.utilities.ioutils import write_parquet
+from niceml.utilities.ioutils import write_parquet, write_csv
 
 
 @pytest.fixture()
@@ -34,14 +34,14 @@ def tmp_cache_dir() -> str:
         yield tmpdir
 
 
-def test_simple_df_loader(tmp_folder_with_parquet: str, example_df: pd.DataFrame):
+def test_simple_df_loader_parq(tmp_folder_with_parquet: str, example_df: pd.DataFrame):
     df_loader = SimpleDfLoader()
     df_test = df_loader.load_df(join(tmp_folder_with_parquet, "test.parquet"))
     assert isinstance(df_test, pd.DataFrame)
     assert df_test.equals(example_df)
 
 
-def test_remote_disk_cached_df_loader(
+def test_remote_disk_cached_df_loader_parq(
     tmp_folder_with_parquet: str, example_df: pd.DataFrame, tmp_cache_dir: str
 ):
     storage = LocalStorage(tmp_folder_with_parquet)
@@ -55,5 +55,37 @@ def test_remote_disk_cached_df_loader(
     os.remove(join(tmp_folder_with_parquet, "test.parquet"))
 
     df_test = df_loader.load_df("test.parquet")
+    assert isinstance(df_test, pd.DataFrame)
+    assert df_test.equals(example_df)
+
+
+@pytest.fixture()
+def tmp_folder_with_csv(example_df):
+    with TemporaryDirectory() as tmpdir:
+        write_csv(example_df, join(tmpdir, "test.csv"), sep=";")
+        yield tmpdir
+
+
+def test_simple_df_loader_csv(tmp_folder_with_csv: str, example_df: pd.DataFrame):
+    df_loader = SimpleDfLoader()
+    df_test = df_loader.load_df(join(tmp_folder_with_csv, "test.csv"), sep=";")
+    assert isinstance(df_test, pd.DataFrame)
+    assert df_test.equals(example_df)
+
+
+def test_remote_disk_cached_df_loader_csv(
+    tmp_folder_with_csv: str, example_df: pd.DataFrame, tmp_cache_dir: str
+):
+    storage = LocalStorage(tmp_folder_with_csv)
+    df_loader = RemoteDiskCachedDfLoader(storage, tmp_cache_dir)
+    df_test = df_loader.load_df("test.csv", sep=";")
+    assert isinstance(df_test, pd.DataFrame)
+    assert df_test.equals(example_df)
+    assert isfile(join(tmp_cache_dir, "test.csv"))
+
+    # remove file from orig folder to test if it is loaded from cache
+    os.remove(join(tmp_folder_with_csv, "test.csv"))
+
+    df_test = df_loader.load_df("test.csv", sep=";")
     assert isinstance(df_test, pd.DataFrame)
     assert df_test.equals(example_df)
