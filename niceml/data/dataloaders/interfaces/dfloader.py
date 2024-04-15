@@ -8,5 +8,5 @@ class DfLoader(ABC):  # pylint: disable=too-few-public-methods
     """Abstract class DfLoader (Dataframe Loader)"""
 
     @abstractmethod
-    def load_df(self, df_path: str) -> pd.DataFrame:
+    def load_df(self, df_path: str, **kwargs) -> pd.DataFrame:
         """Loads and returns the dataframe"""

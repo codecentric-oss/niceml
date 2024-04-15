@@ -25,6 +25,7 @@ class LoadYamlFile(LoadDataFunc):  # pylint: disable=too-few-public-methods
     """Loads yaml data from a cloud storage"""
 
     def load_data(self, file_path: str, storage: StorageInterface):
+        """Loads yaml file from cloud storage"""
         data = storage.download_as_str(file_path)
         return yaml.load(data, Loader=yaml.SafeLoader)
 
@@ -32,9 +33,12 @@ class LoadYamlFile(LoadDataFunc):  # pylint: disable=too-few-public-methods
 class LoadCsvFile(LoadDataFunc):  # pylint: disable=too-few-public-methods
     """Loads csv data from a cloud storage"""
 
-    def load_data(self, file_path: str, storage: StorageInterface):
+    def load_data(
+        self, file_path: str, storage: StorageInterface, **kwargs
+    ) -> pd.DataFrame:
+        """Loads csv file from cloud storage"""
         data = storage.download_as_str(file_path)
-        data_frame = pd.read_csv(io.BytesIO(data))
+        data_frame = pd.read_csv(io.BytesIO(data), **kwargs)
         return data_frame
 
 
@@ -42,6 +46,7 @@ class LoadParquetFile(LoadDataFunc):  # pylint: disable=too-few-public-methods
     """Loads parquet data from a cloud storage"""
 
     def load_data(self, file_path: str, storage: StorageInterface):
+        """Loads parquet file from cloud storage"""
         data = storage.download_as_str(file_path)
         if data == b"":
             raise FileNotFoundError("File empty")
@@ -54,10 +59,12 @@ class LoadImageFile(LoadDataFunc):  # pylint: disable=too-few-public-methods
     """Loads image data from a cloud storage"""
 
     def __init__(self, target_size: ImageSize, output_dtype=np.uint8):
+        """Initialize LoadImageFile object"""
         self.target_size = target_size
         self.output_dtype = output_dtype
 
     def load_data(self, file_path: str, storage: StorageInterface):
+        """Loads image file from cloud storage"""
         data = storage.download_as_str(file_path)
         image: Image.Image = Image.open(io.BytesIO(data))
         if self.target_size is not None:

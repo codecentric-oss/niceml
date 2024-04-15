@@ -8,12 +8,12 @@ from niceml.data.dataloaders.factories.dfloaderfactory import DfLoaderFactory
 from niceml.data.dataloaders.interfaces.dfloader import DfLoader
 from niceml.data.storages.localstorage import LocalStorage
 from niceml.data.storages.storageinterface import StorageInterface
-from niceml.experiments.loaddatafunctions import LoadParquetFile
-from niceml.utilities.ioutils import read_parquet, write_parquet
+from niceml.experiments.loaddatafunctions import LoadParquetFile, LoadCsvFile
+from niceml.utilities.ioutils import read_parquet, write_parquet, read_csv, write_csv
 
 
 class SimpleDfLoader(DfLoader):  # pylint: disable=too-few-public-methods
-    """SimpleLoader for parquet files"""
+    """SimpleLoader for parquet or csv files"""
 
     def __init__(
         self,
@@ -25,14 +25,21 @@ class SimpleDfLoader(DfLoader):  # pylint: disable=too-few-public-methods
         self.storage = storage or LocalStorage()
         self.working_dir = working_dir
 
-    def load_df(self, df_path: str) -> pd.DataFrame:
-        """Loads and returns a dataframe from a given parquet file path"""
-        target_path = join(self.working_dir, df_path) if self.working_dir else df_path
-        return LoadParquetFile().load_data(target_path, self.storage)
+    def load_df(self, df_path: str, **kwargs) -> pd.DataFrame:
+        """Loads and returns a dataframe from a given parquet or csv file path"""
+        target_path = (
+            self.storage.join_paths(self.working_dir, df_path)
+            if self.working_dir
+            else df_path
+        )
+        if ".parq" in target_path:
+            return LoadParquetFile().load_data(target_path, self.storage)
+        else:
+            return LoadCsvFile().load_data(target_path, self.storage, **kwargs)
 
 
 class SimpleDfLoaderFactory(DfLoaderFactory):  # pylint: disable=too-few-public-methods
-    """SimpleLoader for parquet files"""
+    """SimpleLoader for parquet or csv files"""
 
     def create_df_loader(self, storage: StorageInterface, working_dir: str) -> DfLoader:
         """Returns SimpleDfLoader"""
@@ -40,7 +47,7 @@ class SimpleDfLoaderFactory(DfLoaderFactory):  # pylint: disable=too-few-public-
 
 
 class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-methods
-    """SimpleLoader for parquet files from cache or remote storage"""
+    """SimpleLoader for parquet or csv files from cache or remote storage"""
 
     def __init__(
         self,
@@ -53,7 +60,7 @@ class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-meth
         self.cache_path = cache_dir
         self.working_dir = working_dir
 
-    def load_df(self, df_path: str) -> pd.DataFrame:
+    def load_df(self, df_path: str, **kwargs) -> pd.DataFrame:
         """Loads and returns dataframe from cache"""
         target_path = (
             self.storage.join_paths(self.working_dir, df_path)
@@ -62,14 +69,20 @@ class RemoteDiskCachedDfLoader(DfLoader):  # pylint: disable=too-few-public-meth
         )
         cached_filepath = join(self.cache_path, target_path)
         if isfile(cached_filepath):
-            dataframe = read_parquet(cached_filepath)
-        else:
+            if ".parq" in target_path:
+                dataframe = read_parquet(cached_filepath)
+            else:
+                dataframe = read_csv(cached_filepath, **kwargs)
+        elif ".parq" in target_path:
             dataframe = LoadParquetFile().load_data(target_path, self.storage)
             write_parquet(dataframe, cached_filepath)
+        else:
+            dataframe = LoadCsvFile().load_data(target_path, self.storage, **kwargs)
+            write_csv(dataframe, cached_filepath, **kwargs)
         return dataframe
 
 
-class RemoteDiskCachedDfLoaderFactory(  # QUEST: still used?
+class RemoteDiskCachedDfLoaderFactory(
     DfLoaderFactory
 ):  # pylint: disable=too-few-public-methods
     """Factory of RemoteDiskCachedDfLoader"""
