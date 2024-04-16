@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.1 (2024-04-16)
+
+### Fix
+
+* Test pipeline pendulum dependency ([`299426a`](https://github.com/codecentric-oss/niceml/commit/299426a27cfaf4f46e79958f600cdc1a8ad05466))
+* Update poetry in Github pipelines to 1.7.1 ([`2d0dd2e`](https://github.com/codecentric-oss/niceml/commit/2d0dd2e2f250fe7517c12b68f7d36802ddd73964))
+* Load non-parq files with DFLoader load_df ([`b693710`](https://github.com/codecentric-oss/niceml/commit/b693710fdf03962a543579342ba95b359b634974))
+* Add original model id to eval experiment info ([`494c101`](https://github.com/codecentric-oss/niceml/commit/494c101fcd5993971cdb1b39895494cf6de82293))
+
 ## v0.14.0 (2024-02-08)
 
 ### Feature
