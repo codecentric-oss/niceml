@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from os.path import join
 from typing import List, Dict
 
@@ -7,6 +8,7 @@ from dagster import RunConfig, Definitions
 from dagster import graph
 from dagster_mlflow import mlflow_tracking
 from keras.optimizers import Adam
+from pydantic import Field
 
 from niceml.config.config import InitConfig, MapInitConfig, get_class_path
 from niceml.config.trainparams import TrainParams
@@ -264,6 +266,30 @@ def build_config(*args, **kwargs) -> RunConfig:
     return RunConfig()
 
 
+class ConfigMapper:
+    def __init__(self, global_keys: Dict[str, List[str]]):
+        self.global_keys = global_keys
+
+    def build_config_schema(self, run_config: RunConfig):
+        schema = defaultdict(dict)
+        for op, config in run_config.ops.items():
+            schema["ops"][op] = config.to_fields_dict()
+        schema["ops"]["train"]["data_train"].default = run_config.ops[
+            "train"
+        ].data_train.model_dump(by_alias=True)
+        schema = dict(schema)
+        schema["resources"] = (dict, run_config.resources)
+        return schema
+
+    def map_schema_to_config(self, *args, **kwargs):
+        return cls_run_config
+
+
+config_mapper = ConfigMapper(
+    global_keys={"data_description": ["train.config.data_train"]}
+)
+
+
 @graph
 def cls_binary_example_graph_train():
     """Graph for training an experiment"""
@@ -279,10 +305,8 @@ def cls_binary_example_graph_train():
 cls_binary_train_example_job = JobDefinition(
     graph_def=cls_binary_example_graph_train,
     config=ConfigMapping(
-        config_schema=build_config_schema(
-            run_config=cls_run_config, global_keys=["data_description"]
-        ),
-        config_fn=build_config,
+        config_schema=config_mapper.build_config_schema(run_config=cls_run_config),
+        config_fn=config_mapper.map_schema_to_config,
     ),
     resource_defs={"mlflow": mlflow_tracking},
 )
