@@ -37,6 +37,7 @@ jobs:
             poetry install --no-interaction -E visu -E tensorflow --with dev --no-ansi
           else
             poetry install --no-interaction -E visu -E tensorflow-macos --with dev --no-ansi
+          fi
       - run: mkdir results && touch results/test-results-${{ matrix.python-version }}-${{matrix.os}}-summary.md
       - name: 🧪 Run tests
         uses: nuhrberg/pytest-summary@main
