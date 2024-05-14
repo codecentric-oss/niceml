@@ -24,6 +24,7 @@ def release_locks(_: OpExecutionContext, filelock_dict: dict):
     """op for releasing locks"""
     for filelock in filelock_dict.values():
         filelock.release()
+    return filelock_dict
 
 
 @op(config_schema=dict(filelock_dict=HydraMapField(FileLock)))
@@ -34,3 +35,4 @@ def clear_locks(context: OpExecutionContext):
     filelock_dict = instantiated_op_config["filelock_dict"]
     for filelock in filelock_dict.values():
         filelock.force_delete()
+    return filelock_dict
