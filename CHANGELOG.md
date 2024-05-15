@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.15.0 (2024-05-15)
+
+### Feature
+
+* Allow freeze of model weights in training ([`1fee972`](https://github.com/codecentric-oss/niceml/commit/1fee972cafb87af971cf851088db41e12a3fdcb8))
+
 ## v0.14.1 (2024-04-16)
 
 ### Fix
