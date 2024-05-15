@@ -1,3 +1,4 @@
+"""Module for ClsModelFactory"""
 from typing import List, Optional
 
 from tensorflow.keras import layers
@@ -15,7 +16,10 @@ from niceml.utilities.imagesize import ImageSize
 
 
 class ClsModelFactory(ModelFactory):
-    def __init__(
+    """Model factory for classification models. Used to create the model
+    before training"""
+
+    def __init__(  # noqa:PLR0913
         self,
         model: Model,
         dense_layer_list: List[int],
@@ -25,7 +29,9 @@ class ClsModelFactory(ModelFactory):
         allow_preconvolution: bool = False,
         dropout_prob_list: Optional[List[float]] = None,
         additional_conv_layers: Optional[List[int]] = None,
+        trainable_base_model: Optional[bool] = True,
     ):
+        """Initialize the CLSModelFactory"""
         self.model_params = model
         self.dense_layer_list = dense_layer_list
         self.use_scale_lambda = use_scale_lambda
@@ -36,15 +42,20 @@ class ClsModelFactory(ModelFactory):
         )
         self.dense_activation = dense_activation
         self.additional_conv_layers = additional_conv_layers
+        self.trainable_base_model = trainable_base_model
 
     def create_model(self, data_desc: DataDescription):
+        """Creates a model for training according to the data_description"""
         input_dd: InputImageDataDescription = check_instance(
             data_desc, InputImageDataDescription
         )
         output_dd: OutputVectorDataDescription = check_instance(
             data_desc, OutputVectorDataDescription
         )
-        if not self.allow_preconvolution and input_dd.get_input_channel_count() != 3:
+        if (
+            not self.allow_preconvolution
+            and input_dd.get_input_channel_count() != 3  # noqa:PLR2004
+        ):
             raise Exception(
                 f"Input channels must have the size of 3! Instead "
                 f"{input_dd.get_input_channel_count()}"
@@ -53,6 +64,7 @@ class ClsModelFactory(ModelFactory):
         input_shape = input_size.to_numpy_shape() + (3,)
         in_layer = layers.Input(shape=input_shape, name="image")
         actual_layer = in_layer
+        self.model_params.trainable = self.trainable_base_model
         model: Model = self.model_params
         actual_layer = model(actual_layer)
 
@@ -87,6 +99,7 @@ def create_dense_layers(
     dense_activation,
     dropout_prob_list: Optional[List[float]] = None,
 ):
+    """Creates dense layers for model"""
     if dropout_prob_list is None:
         dropout_prob_list = []
     actual_layer = layers.Flatten()(actual_layer)
