@@ -103,7 +103,7 @@ class ExperimentManager(object):
         if exp_info.short_id not in self.exp_dict_short_id:
             return True
         exp = self.get_exp_by_id(exp_info.short_id)
-        return exp.exp_info.is_modified(exp_info)
+        return exp_info.is_modified(exp.exp_info)
 
     def get_datasets(self) -> List[str]:
         """Returns a list of all datasets used in the experiments"""

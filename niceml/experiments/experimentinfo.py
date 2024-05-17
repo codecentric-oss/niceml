@@ -51,9 +51,16 @@ class ExperimentInfo:
             LAST_MODIFIED_KEY: self.last_modified,
         }
 
-    def is_modified(self, other: "ExperimentInfo") -> bool:
+    def is_modified(
+        self, other: "ExperimentInfo", ignore_missing_timestamp: Optional[bool] = True
+    ) -> bool:
         """Checks if the other experiment info is modified"""
-        return self.last_modified != other.last_modified
+        if self.last_modified != other.last_modified:
+            if ignore_missing_timestamp:
+                if self.last_modified is None or other.last_modified is None:
+                    return False
+            return True
+        return False
 
 
 def load_exp_info(
