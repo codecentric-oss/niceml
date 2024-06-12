@@ -1,9 +1,16 @@
 import os
+import re
 from collections import defaultdict
 from os.path import join
-from typing import List, Dict
+from typing import List, Dict, Any
 
-from dagster import JobDefinition, ConfigSchema, ConfigMapping
+from dagster import (
+    JobDefinition,
+    ConfigSchema,
+    ConfigMapping,
+    Config,
+    Field as DagsterField,
+)
 from dagster import RunConfig, Definitions
 from dagster import graph
 from dagster_mlflow import mlflow_tracking
@@ -269,24 +276,95 @@ def build_config(*args, **kwargs) -> RunConfig:
 class ConfigMapper:
     def __init__(self, global_keys: Dict[str, List[str]]):
         self.global_keys = global_keys
+        self.environment_variable_pattern = r"^\$\{env\(([A-Z_][A-Z0-9_]*)\)\}$"
 
     def build_config_schema(self, run_config: RunConfig):
         schema = defaultdict(dict)
+
         for op, config in run_config.ops.items():
-            schema["ops"][op] = config.to_fields_dict()
-        schema["ops"]["train"]["data_train"].default = run_config.ops[
-            "train"
-        ].data_train.model_dump(by_alias=True)
+            schema["ops"][op] = defaultdict(dict)
+
+            for config_field in config.model_fields_set:
+                config_value = getattr(config, config_field)
+                if isinstance(config_value, InitConfig):
+                    schema["ops"][op][config_field] = DagsterField(
+                        dict, default_value=config_value.model_dump(by_alias=True)
+                    )
+                elif isinstance(config_value, Config):
+                    schema["ops"][op][config_field] = config_value.to_fields_dict()
+                else:
+                    schema["ops"][op][config_field] = DagsterField(
+                        type(config_value), default_value=config_value
+                    )
+            schema["ops"][op] = dict(schema["ops"][op])
+        schema["globals"] = defaultdict(dict)
+        for gloabals_key, globals_links in self.global_keys.items():
+            for global_link in globals_links:
+                schema["globals"][gloabals_key] = self._get_value_from_flattened_key(
+                    schema, global_link
+                )
+
+                self._set_value_from_flattened_key(
+                    schema,
+                    key=global_link,
+                    value=DagsterField(str, default_value=f"$globals.{gloabals_key}"),
+                )
         schema = dict(schema)
-        schema["resources"] = (dict, run_config.resources)
+
+        schema["resources"] = DagsterField(dict, default_value=run_config.resources)
+
         return schema
 
-    def map_schema_to_config(self, *args, **kwargs):
-        return cls_run_config
+    def map_schema_to_config(self, run_config_dict: dict):
+        self._replace_environment_variables(run_config_dict=run_config_dict)
+        self._replace_globales(run_config_dict=run_config_dict)
+        run_config_dict = self._add_config_level(run_config_dict=run_config_dict)
+        return run_config_dict
+
+    def _add_config_level(self, run_config_dict: dict) -> dict:
+        ops_config = run_config_dict.pop("ops")
+        run_config_dict["ops"] = defaultdict(dict)
+
+        for op_config_key, op_config_value in ops_config.items():
+            run_config_dict["ops"][op_config_key] = {"config": op_config_value}
+        run_config_dict["ops"] = dict(run_config_dict["ops"])
+
+        return run_config_dict
+
+    def _get_value_from_flattened_key(self, data: dict, key: str):
+        keys = key.split(".")
+        value = data
+        for k in keys:
+            value = value[k]
+        return value
+
+    def _set_value_from_flattened_key(self, data: dict, key: str, value: Any):
+        keys = key.split(".")
+        sub_dict = data
+        for key in keys[:-1]:
+            sub_dict = sub_dict.setdefault(key, "")
+        sub_dict[keys[-1]] = value
+
+    def _replace_globales(self, run_config_dict: dict):
+        globals = run_config_dict.pop("globals")
+        for global_entry, global_value in globals.items():
+            for mapped_value in self.global_keys[global_entry]:
+                value_from_globals = globals[global_entry]
+                self._set_value_from_flattened_key(
+                    data=run_config_dict, key=mapped_value, value=value_from_globals
+                )
+
+    def _replace_environment_variables(self, run_config_dict: dict):
+        for config_entry, config_value in run_config_dict.items():
+            if isinstance(config_value, str):
+                match = re.match(self.environment_variable_pattern, config_value)
+                if match:
+                    environment_variable = match.group(1)
+                    run_config_dict[config_entry] = os.getenv(environment_variable)
 
 
 config_mapper = ConfigMapper(
-    global_keys={"data_description": ["train.config.data_train"]}
+    global_keys={"data_description": ["ops.train.data_description"]}
 )
 
 
@@ -315,4 +393,9 @@ defs = Definitions(jobs=[cls_binary_train_example_job])
 
 
 if __name__ == "__main__":
-    cls_binary_train_example_job.execute_in_process()
+    cls_binary_train_example_job.execute_in_process(
+        run_config=ConfigMapping(
+            config_schema=config_mapper.build_config_schema(run_config=cls_run_config),
+            config_fn=config_mapper.map_schema_to_config,
+        )
+    )

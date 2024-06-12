@@ -65,7 +65,6 @@ def train(
     save_exp_data_stats(data_train, exp_context, ExperimentFilenames.STATS_TRAIN)
     save_exp_data_stats(data_validation, exp_context, ExperimentFilenames.STATS_TRAIN)
 
-    test = config.learner.instantiate()
     exp_initializer: ExpOutInitializer = config.exp_initializer.instantiate()
     exp_initializer(exp_context)
 

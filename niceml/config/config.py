@@ -23,7 +23,7 @@ from typing import (
     TypeVar,
 )
 
-from dagster import Config, PermissiveConfig
+from dagster import Config, PermissiveConfig, Field as DagsterField
 from hydra.utils import instantiate, ConvertMode
 from pydantic import Field, create_model, BaseModel, ConfigDict, SerializeAsAny
 
@@ -50,9 +50,12 @@ class InitConfig(PermissiveConfig):
 
         """
         instantiate_dict = self.model_dump(by_alias=True)
-        if self.target is None:
+        print(instantiate_dict)
+        if self.target is None and "_target_" not in instantiate_dict:
             instantiate_dict["_target_"] = get_class_path(type(self))
-        return instantiate(instantiate_dict, _convert_=ConvertMode.ALL)
+        instantiate_config = instantiate(instantiate_dict, _convert_=ConvertMode.ALL)
+        print(instantiate_config)
+        return instantiate_config
 
     def model_dump(self, *args, **kwargs):
         cur_dict = super().model_dump(
@@ -61,11 +64,19 @@ class InitConfig(PermissiveConfig):
         )
         cur_dict = self.replace_key_in_dict(cur_dict, "target", "_target_")
 
-        if self.target is None:
+        if self.target is None and getattr(self, "_target_", None) is None:
             cur_dict[
                 "_target_" if kwargs.get("by_alias", False) is True else "target"
             ] = get_class_path(type(self))
         return cur_dict
+
+    # TODO: To fields dict -> recursive
+    def get_config_as_field(self, model_dump: Optional[dict] = None) -> DagsterField:
+        model_dump = model_dump or self.model_dump(by_alias=True)
+        for key, value in model_dump.items():
+            if isinstance(value, dict) and "_target_":
+                model_dump[key] = self.get_config_as_field(value)
+        return DagsterField(dict, default_value=model_dump)
 
     def replace_key_in_dict(self, config, old_key, new_key):
         """
