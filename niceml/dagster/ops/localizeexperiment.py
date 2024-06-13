@@ -7,7 +7,11 @@ from niceml.experiments.experimenterrors import EmptyExperimentError
 from niceml.experiments.experimentinfo import ExperimentInfo, load_exp_info
 from niceml.experiments.expfilenames import ExperimentFilenames
 from niceml.experiments.exppathfinder import get_exp_filepath
-from niceml.utilities.fsspec.locationutils import join_location_w_path, open_location
+from niceml.utilities.fsspec.locationutils import (
+    join_location_w_path,
+    open_location,
+    LocationConfig,
+)
 from dagster import Field, Noneable, OpExecutionContext, op
 
 
@@ -34,7 +38,7 @@ from dagster import Field, Noneable, OpExecutionContext, op
 def localize_experiment(context: OpExecutionContext) -> ExperimentContext:
     """This op localizes the experiment and returns the experiment context"""
     op_config = json.loads(json.dumps(context.op_config))
-    exp_out_location: dict = op_config["exp_out_location"]
+    exp_out_location: LocationConfig = LocationConfig(**op_config["exp_out_location"])
 
     exp_path = get_exp_filepath(exp_out_location, op_config["existing_experiment"])
     try:
