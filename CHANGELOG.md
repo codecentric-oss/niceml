@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.16.0 (2024-06-13)
+
+### Feature
+
+* Add file loader ([`ea916b7`](https://github.com/codecentric-oss/niceml/commit/ea916b7edba9fbfa4b39c46e3c283aadd187c35a))
+
+### Fix
+
+* Localizeexperiment with location config ([`5edff9f`](https://github.com/codecentric-oss/niceml/commit/5edff9ff27c42b8558fbf3d640cbc689d58330b1))
+
 ## v0.15.0 (2024-05-15)
 
 ### Feature
