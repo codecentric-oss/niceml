@@ -72,7 +72,7 @@ streamlit = {version = "^1.28.0", optional = true}
 tensorflow = {version = ">=2.13,<=2.15", optional = true}
 tensorflow-metal = {version = "^1.0.0", optional = true}
 requests = "^2.31.0"
-cryptography = "^41.0.0"
+cryptography = "^42.0.0"
 dagster-mlflow = "~0.22.0"
 grpcio = "^1.60.0"
 pendulum = "^2.0"
@@ -89,7 +89,7 @@ pytest = "^7.3.1"
 pytest-cov = "^4.0.0"
 python-semantic-release = "^7.33.3"
 pre-commit = "^3.3.1"
-black = "^23.3.0"
+black = "^24.0.0"
 mkdocs-material = "^9.1.9"
 mkdocstrings = "^0.21.2"
 mdx-include = "^1.4.2"
