@@ -15,6 +15,7 @@ from dagster import RunConfig, Definitions
 from dagster import graph
 from dagster_mlflow import mlflow_tracking
 from keras.optimizers import Adam
+from omegaconf import OmegaConf
 from pydantic import Field
 
 from niceml.config.config import InitConfig, MapInitConfig, get_class_path
@@ -78,8 +79,8 @@ from niceml.utilities.imagesize import ImageSize
 from niceml.utilities.readwritelock import FileLock
 
 data_description = ClsDataDescription.create_config(
-    classes=["0", "1", "2", "3"],
-    target_size=ImageSize.create_config(width=1024, height=1024),
+    classes=["0", "1", "2", "3", "4"],
+    target_size=ImageSize.create_config(width=64, height=64),
 )
 
 dataset_train = KerasGenericDataset.create_config(
@@ -159,12 +160,11 @@ train_config = TrainConfig(
 
 prediction_config = PredictionConfig(
     prediction_handler=VectorPredictionHandler.create_config(),
-    datasets=MapInitConfig.create(
-        map_target_class=KerasGenericDataset,
-        test=dataset_test,
-        validation=dataset_validation,
-        train_eval=dataset_train.model_copy(update=dict(shuffle=False)),
-    ),
+    datasets={
+        "test": dataset_test,
+        "validation": dataset_validation,
+        "train_eval": dataset_train.model_copy(update=dict(shuffle=False)),
+    },
     model_loader=KerasModelLoader.create_config(),
     prediction_function=KerasPredictionFunction.create_config(),
     prediction_steps=2,
@@ -292,22 +292,43 @@ class ConfigMapper:
                     )
                 elif isinstance(config_value, Config):
                     schema["ops"][op][config_field] = config_value.to_fields_dict()
+                elif isinstance(config_value, dict):
+                    schema["ops"][op][config_field] = defaultdict(dict)
+                    for key, value in config_value.items():
+                        if isinstance(value, InitConfig):
+                            schema["ops"][op][config_field][key] = DagsterField(
+                                dict,
+                                default_value=value.model_dump(by_alias=True),
+                            )
+                        elif isinstance(value, Config):
+                            schema["ops"][op][config_field][
+                                key
+                            ] = value.to_fields_dict()
+                        else:
+                            schema["ops"][op][config_field][key] = DagsterField(
+                                type(value), default_value=value
+                            )
+                    schema["ops"][op][config_field] = dict(
+                        schema["ops"][op][config_field]
+                    )
                 else:
                     schema["ops"][op][config_field] = DagsterField(
                         type(config_value), default_value=config_value
                     )
             schema["ops"][op] = dict(schema["ops"][op])
         schema["globals"] = defaultdict(dict)
-        for gloabals_key, globals_links in self.global_keys.items():
+        for globals_key, globals_links in self.global_keys.items():
             for global_link in globals_links:
-                schema["globals"][gloabals_key] = self._get_value_from_flattened_key(
+                schema["globals"][globals_key] = self._get_value_from_flattened_key(
                     schema, global_link
                 )
 
                 self._set_value_from_flattened_key(
                     schema,
                     key=global_link,
-                    value=DagsterField(str, default_value=f"$globals.{gloabals_key}"),
+                    value=DagsterField(
+                        str, default_value=f"${'{'}globals.{globals_key}{'}'}"
+                    ),
                 )
         schema = dict(schema)
 
@@ -316,9 +337,10 @@ class ConfigMapper:
         return schema
 
     def map_schema_to_config(self, run_config_dict: dict):
-        self._replace_environment_variables(run_config_dict=run_config_dict)
-        self._replace_globales(run_config_dict=run_config_dict)
+        dict_config = OmegaConf.create(run_config_dict)
+        run_config_dict = OmegaConf.to_container(dict_config, resolve=True)
         run_config_dict = self._add_config_level(run_config_dict=run_config_dict)
+        run_config_dict.pop("globals")
         return run_config_dict
 
     def _add_config_level(self, run_config_dict: dict) -> dict:
@@ -345,22 +367,22 @@ class ConfigMapper:
             sub_dict = sub_dict.setdefault(key, "")
         sub_dict[keys[-1]] = value
 
-    def _replace_globales(self, run_config_dict: dict):
-        globals = run_config_dict.pop("globals")
-        for global_entry, global_value in globals.items():
-            for mapped_value in self.global_keys[global_entry]:
-                value_from_globals = globals[global_entry]
-                self._set_value_from_flattened_key(
-                    data=run_config_dict, key=mapped_value, value=value_from_globals
-                )
-
-    def _replace_environment_variables(self, run_config_dict: dict):
-        for config_entry, config_value in run_config_dict.items():
-            if isinstance(config_value, str):
-                match = re.match(self.environment_variable_pattern, config_value)
-                if match:
-                    environment_variable = match.group(1)
-                    run_config_dict[config_entry] = os.getenv(environment_variable)
+    # def _replace_globales(self, run_config_dict: dict):
+    #     globals = run_config_dict.pop("globals")
+    #     for global_entry, global_value in globals.items():
+    #         for mapped_value in self.global_keys[global_entry]:
+    #             value_from_globals = globals[global_entry]
+    #             self._set_value_from_flattened_key(
+    #                 data=run_config_dict, key=mapped_value, value=value_from_globals
+    #             )
+    #
+    # def _replace_environment_variables(self, run_config_dict: dict):
+    #     for config_entry, config_value in run_config_dict.items():
+    #         if isinstance(config_value, str):
+    #             match = re.match(self.environment_variable_pattern, config_value)
+    #             if match:
+    #                 environment_variable = match.group(1)
+    #                 run_config_dict[config_entry] = os.getenv(environment_variable)
 
 
 config_mapper = ConfigMapper(

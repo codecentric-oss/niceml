@@ -8,6 +8,7 @@ import pytest
 from dagster import Config
 from keras.optimizers import Adam
 from pydantic import Field, BaseModel
+from pydantic.fields import FieldInfo
 
 from niceml.config.config import (
     get_class_path,
@@ -101,6 +102,12 @@ class TestCarConfig(Config):
     )
     distance: float = Field(default=100)
     driver: Driver
+
+
+class DictEngineConfig(Config):
+    engines: Dict[str, InitConfig] = InitConfig.create_dict_config_field(
+        target_class=Engine
+    )
 
 
 def test_initialize_from_dict():
@@ -311,3 +318,50 @@ def test_foreign_implementation_config_creation(implementation_reference, kwargs
     kwargs.update({"_target_": "test_target "})
     for kwarg in kwargs:
         assert kwarg in config_attributes.keys()
+
+
+def test_create_dict_config_field():
+    config_dict = InitConfig.create_dict_config_field(target_class=Engine)
+    assert isinstance(config_dict, dict)
+    for config_entry in config_dict.values():
+        assert isinstance(config_entry, FieldInfo)
+
+
+@pytest.mark.parametrize(
+    "config_input,expected_result",
+    [
+        (
+            {
+                "a": Engine.create_config(power=100),
+                "b": Engine.create_config(power=200),
+            },
+            {
+                "a": Engine(power=100),
+                "b": Engine(power=200),
+            },
+        ),
+        (
+            {
+                "a": Engine.create_config(power=100),
+                "b": Engine.create_config(power=200),
+                "c": Engine.create_config(power=300),
+            },
+            {
+                "a": Engine(power=100),
+                "b": Engine(power=200),
+                "c": Engine(power=300),
+            },
+        ),
+    ],
+)
+def test_initialize_dict_config_entry(
+    config_input: Dict[str, InitConfig], expected_result: Dict[str, Engine]
+):
+    config = DictEngineConfig(engines=config_input)
+
+    result = {
+        engine_key: engine_conf.instantiate()
+        for engine_key, engine_conf in config.engines.items()
+    }
+
+    assert result == expected_result

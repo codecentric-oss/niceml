@@ -3,6 +3,7 @@
 This module defines classes and functions for working with configurations
 in the context of the Dagster framework and niceML's Hydra integration.
 """
+
 from __future__ import annotations
 
 import inspect
@@ -70,13 +71,13 @@ class InitConfig(PermissiveConfig):
             ] = get_class_path(type(self))
         return cur_dict
 
-    # TODO: To fields dict -> recursive
-    def get_config_as_field(self, model_dump: Optional[dict] = None) -> DagsterField:
-        model_dump = model_dump or self.model_dump(by_alias=True)
-        for key, value in model_dump.items():
-            if isinstance(value, dict) and "_target_":
-                model_dump[key] = self.get_config_as_field(value)
-        return DagsterField(dict, default_value=model_dump)
+    # # TODO: To fields dict -> recursive
+    # def get_config_as_field(self, model_dump: Optional[dict] = None) -> DagsterField:
+    #     model_dump = model_dump or self.model_dump(by_alias=True)
+    #     for key, value in model_dump.items():
+    #         if isinstance(value, dict) and "_target_":
+    #             model_dump[key] = self.get_config_as_field(value)
+    #     return DagsterField(dict, default_value=model_dump)
 
     def replace_key_in_dict(self, config, old_key, new_key):
         """
@@ -218,6 +219,16 @@ class InitConfig(PermissiveConfig):
             description=description,
             **kwargs,
         )
+
+    @staticmethod
+    def create_dict_config_field(
+        target_class, description: Optional[str] = None, **kwargs
+    ):
+        if description is None:
+            description = f"Dict of instances of class: {target_class.__name__} {target_class.__doc__}"
+
+        # TODO: Add key list ["train","validation",...]
+        return Field(default={}, description=description)
 
 
 def parse_value_type(value_type: type):

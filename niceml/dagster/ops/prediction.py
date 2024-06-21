@@ -29,7 +29,10 @@ class PredictionConfig(Config):
     prediction_handler: InitConfig = InitConfig.create_config_field(
         target_class=PredictionHandler
     )
-    datasets: MapInitConfig = MapInitConfig.create_config_field(target_class=Dataset)
+    datasets: Dict[str, InitConfig] = InitConfig.create_dict_config_field(
+        target_class=Dataset,
+    )
+    # datasets: MapInitConfig = MapInitConfig.create_config_field(target_class=Dataset)
     prediction_steps: Optional[int] = Field(
         default=None,
         description="If None the whole datasets are processed. "
@@ -77,7 +80,10 @@ def prediction(
             file_system=exp_fs,
         )
 
-    datasets_dict: Dict[str, Dataset] = config.datasets.instantiate()
+    datasets_dict: Dict[str, Dataset] = {
+        dataset_name: dataset.instantiate()
+        for dataset_name, dataset in config.datasets.items()
+    }
     prediction_handler: PredictionHandler = config.prediction_handler.instantiate()
     prediction_function: PredictionFunction = config.prediction_function.instantiate()
 
