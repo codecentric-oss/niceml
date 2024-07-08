@@ -1,20 +1,19 @@
-name: 🍦 Create Release
+name: 🍦 Create Pre-Release
 
 on:
   pull_request:
     branches:
-      - main
+      - develop
     types:
       - closed
-permissions:
-  contents: write
-
 jobs:
-  build:
-    if: ${{ github.event.pull_request.merged }}
+  release:
+    #if: ${{ github.event.pull_request.merged }}
     name: 🏗️ Build package and publish to pypi
     runs-on: ubuntu-latest
-    concurrency: build
+    concurrency: release
+    permissions:
+      id-token: write
     environment:
       name: pypi
       url: https://pypi.org/p/niceml
@@ -22,7 +21,7 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: 'main'
+          ref: 'develop'
           fetch-depth: 0
           token: ${{ secrets.RELEASE_WORKFLOW }}
       - name: 🐍Setup Python
@@ -42,9 +41,10 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v8.7.0
         with:
           github_token: ${{ secrets.RELEASE_WORKFLOW }}
+          force: "prerelease"
 
       - name: 🐍 Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@v1
+        uses: pypa/gh-action-pypi-publish@v1.8.14
         if: steps.release.outputs.released == 'true'
 
       - name: 🐙 Publish package distributions to GitHub Releases
@@ -52,6 +52,3 @@ jobs:
         if: steps.release.outputs.released == 'true'
         with:
           github_token: ${{ secrets.RELEASE_WORKFLOW }}
-  documentation:
-    if: ${{ github.event.pull_request.merged }}
-    uses: ./.github/workflows/docs.yaml
