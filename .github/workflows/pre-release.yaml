@@ -5,12 +5,13 @@ on:
     branches:
       - develop
     types:
-      - opened
-      - synchronize
       - closed
+permissions:
+  contents: write
+
 jobs:
   release:
-    #if: ${{ github.event.pull_request.merged }}
+    if: ${{ github.event.pull_request.merged }}
     name: 🏗️ Build package and publish to pypi
     runs-on: ubuntu-latest
     concurrency: release
@@ -43,7 +44,6 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v8.3.0
         with:
           github_token: ${{ secrets.RELEASE_WORKFLOW }}
-          prerelease: 'true'
 
       - name: 🐍 Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@v1.8.14
