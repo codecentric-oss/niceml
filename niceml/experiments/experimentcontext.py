@@ -128,11 +128,20 @@ class ExperimentContext:
             return read_json(join(root_path, data_path), file_system=file_system)
 
     def write_image(
-        self, image: Image.Image, data_path: str, apply_last_modified: bool = True
+        self,
+        image: Image.Image,
+        data_path: str,
+        apply_last_modified: bool = True,
+        **kwargs,
     ):
         """Writes an image relative to the experiment"""
         with open_location(self.fs_config) as (file_system, root_path):
-            write_image(image, join(root_path, data_path), file_system=file_system)
+            write_image(
+                image,
+                join(root_path, data_path),
+                file_system=file_system,
+                **kwargs,
+            )
         if apply_last_modified:
             self.update_last_modified()
 
