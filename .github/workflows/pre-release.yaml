@@ -41,7 +41,7 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v8.7.0
         with:
           github_token: ${{ secrets.RELEASE_WORKFLOW }}
-          force: "prerelease"
+          prerelease: 'true'
 
       - name: 🐍 Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@v1.8.14
