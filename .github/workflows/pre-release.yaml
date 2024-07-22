@@ -5,6 +5,8 @@ on:
     branches:
       - develop
     types:
+      - opened
+      - synchronize
       - closed
 jobs:
   release:
@@ -38,7 +40,7 @@ jobs:
           poetry install --no-interaction --no-ansi --with dev
       - name: 🚀 Python Semantic Release
         id: release
-        uses: python-semantic-release/python-semantic-release@v8.7.0
+        uses: python-semantic-release/python-semantic-release@v9.8.6
         with:
           github_token: ${{ secrets.RELEASE_WORKFLOW }}
           prerelease: 'true'
