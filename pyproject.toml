@@ -116,7 +116,7 @@ niceml = 'niceml.cli.climain:program.run'
 
 [tool.semantic_release]
 assets = []
-build_command = "poetry build"
+    build_command = "poetry version && poetry build"
 build_command_env = []
 version_variable = [
     "niceml/__init__.py:__version__",
