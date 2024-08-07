@@ -1,8 +1,9 @@
 """Module for DataframeAnalyzer and DfMetric"""
+
 import logging
 from abc import ABC, abstractmethod
 from os.path import basename, join
-from typing import List
+from typing import List, Optional
 
 import mlflow
 import pandas as pd
@@ -16,6 +17,10 @@ from niceml.utilities.logutils import get_logstr_from_dict
 
 class DfMetric(ABC):
     """metric of a dataframe"""
+
+    def __init__(self):
+        """Initializes a DfMetric and set the data_description attribute to None."""
+        self.data_description: Optional[DataDescription] = None
 
     def initialize(self, data_description: DataDescription):
         """Initializes the metric with a data_description"""
@@ -41,20 +46,34 @@ class DataframeAnalyzer(ResultAnalyzer):
         super().__init__()
         self.parq_file_prefix = parq_file_prefix
         self.df_metrics: List[DfMetric] = metrics
+        self.experiment_context = None
 
-    def initialize(self, data_description: DataDescription):
+    def initialize(
+        self,
+        *args,
+        data_description: DataDescription,
+        exp_context: Optional[ExperimentContext] = None,
+        **kwargs,
+    ):
         """
         The initialize function initialized the metrics in `self.metrics`
         This function is called once before the first call to the
         evaluate function. It can be used to initialize any variables that are needed
-        for evaluation. The data_description parameter contains information about the
-        data set, such as number of classes and feature names.
+        for evaluation.
 
         Args:
-            data_description: `DataDescription` used to initialize instances of
-                                this class and the metrics
+            *args: Additional arguments that can be added to the ResultAnalyzer
+            data_description:   DataDescription that is used by the ResultAnalyzer (available in the
+                                `__call__` method). The data_description parameter contains
+                                information about the data set, such as number of classes and
+                                feature names.
+            exp_context:    For some ResultAnalyzers
+                            it may be necessary to obtain the experiment context before calling
+                            the ResultAnalyzer (`__call__`).
+            **kwargs: Additional keyword arguments that can be added to the ResultAnalyzer
         """
-        super().initialize(data_description)
+        super().initialize(data_description=data_description)
+        self.experiment_context = exp_context
         for cur_metric in self.df_metrics:
             cur_metric.initialize(data_description)
 

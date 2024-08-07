@@ -47,7 +47,9 @@ def analysis(
     )
 
     result_analyzer: ResultAnalyzer = instantiated_op_config["result_analyzer"]
-    result_analyzer.initialize(data_description)
+    result_analyzer.initialize(
+        data_description=data_description, exp_context=exp_context
+    )
 
     for dataset_key, cur_pred_set in datasets.items():
         context.log.info(f"Analyze dataset: {dataset_key}")
