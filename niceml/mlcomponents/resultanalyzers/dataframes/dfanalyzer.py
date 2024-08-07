@@ -72,7 +72,7 @@ class DataframeAnalyzer(ResultAnalyzer):
                             the ResultAnalyzer (`__call__`).
             **kwargs: Additional keyword arguments that can be added to the ResultAnalyzer
         """
-        super().initialize(data_description)
+        super().initialize(data_description=data_description)
         self.experiment_context = exp_context
         for cur_metric in self.df_metrics:
             cur_metric.initialize(data_description)
