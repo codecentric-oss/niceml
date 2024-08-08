@@ -24,7 +24,7 @@ from niceml.utilities.readwritelock import FileLock
         remove_key_list=Field(
             list,
             default_value=DEFAULT_REMOVE_CONFIG_KEYS,
-            description="These key are removed from any config recursively before it is saved.",
+            description="These keys are removed from any config recursively before it is saved.",
         ),
     ),
     out={"expcontext": Out(), "filelock_dict": Out()},

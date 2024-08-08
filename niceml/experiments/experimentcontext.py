@@ -2,9 +2,10 @@
 import logging
 from dataclasses import dataclass
 from os.path import join
-from typing import Optional, Union
+from typing import Optional, Union, Literal
 
 import pandas as pd
+from altair import Chart
 from fsspec import AbstractFileSystem
 from PIL import Image
 
@@ -24,6 +25,7 @@ from niceml.utilities.ioutils import (
     write_yaml,
     write_json,
     read_json,
+    write_chart,
 )
 from niceml.utilities.timeutils import generate_timestamp
 
@@ -149,6 +151,26 @@ class ExperimentContext:
         """Reads an image relative to the experiment"""
         with open_location(self.fs_config) as (file_system, root_path):
             return read_image(join(root_path, data_path), file_system=file_system)
+
+    def write_chart(
+        self,
+        chart: Chart,
+        data_path: str,
+        apply_last_modified: bool = True,
+        file_format: Optional[Literal["json", "html", "png", "svg", "pdf"]] = "html",
+        **kwargs,
+    ):
+        """Writes a chart in given file_format relative to the experiment"""
+        with open_location(self.fs_config) as (file_system, root_path):
+            write_chart(
+                chart,
+                join(root_path, data_path),
+                file_system,
+                file_format,
+                **kwargs,
+            )
+        if apply_last_modified:
+            self.update_last_modified()
 
     def create_folder(self, folder: str):
         """Creates a folder relative to the experiment"""
