@@ -1,8 +1,9 @@
 """Module for helper functions for io operations"""
 import json
 from os.path import dirname, join, relpath, splitext
-from typing import List, Optional, Any, Tuple
+from typing import List, Optional, Any, Tuple, Literal
 
+from altair import Chart
 import fastparquet
 import pandas as pd
 import yaml
@@ -190,6 +191,28 @@ def write_json(
     )
     with cur_fs.open(filepath, "w", encoding="utf-8") as file:
         json.dump(data, file, **kwargs)
+
+
+def write_chart(
+    chart: Chart,
+    filepath: str,
+    file_system: Optional[AbstractFileSystem] = None,
+    file_format: Optional[Literal["json", "html", "png", "svg", "pdf"]] = "html",
+    **kwargs,
+):
+    """
+    Writes altair chart to filepath with optional AbstractFileSystem
+
+    Args:
+        chart: altair chart to be saved
+        filepath: path to save the output file to
+        file_system: Allow the function to be used with different file systems; default = local
+        **kwargs: additional arguments
+    """
+    cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
+    cur_fs.mkdirs(dirname(filepath), exist_ok=True)
+    with cur_fs.open(filepath, mode="w", encoding="utf-8") as file:
+        chart.save(file, format=file_format, **kwargs)
 
 
 def write_csv(
