@@ -46,7 +46,20 @@ class ExperimentContext:
         apply_last_modified: bool = True,
         **kwargs,
     ):
-        """writes the dataframe as parquet file relative to the experiment"""
+        """
+        Writes the dataframe as parquet file relative to the experiment.
+
+        Args:
+            dataframe: data to save as parquet file
+            data_path: path to save the data to (relative to experiment folder)
+            compression: optional compression argument (defaults to "gzip")
+            apply_last_modified: Whether to update the last modified timestamp
+                saved in the experiment info to track a change in the experiment
+            **kwargs: additional keywords for save function
+
+        Returns:
+
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             write_parquet(
                 dataframe,
@@ -60,19 +73,44 @@ class ExperimentContext:
             self.update_last_modified()
 
     def read_parquet(self, data_path: str) -> pd.DataFrame:
-        """reads the dataframe as parquet file relative to the experiment"""
+        """
+        Reads the dataframe as parquet file relative to the experiment.
+
+        Args:
+            data_path: path to the parquet file to read (relative to experiment folder)
+
+        Returns:
+            DataFrame containing the data of the parquet file
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             return read_parquet(join(root_path, data_path), file_system=file_system)
 
     def read_yaml(self, data_path: str) -> dict:
-        """reads the yaml file relative to the experiment"""
+        """
+        Reads the yaml file relative to the experiment.
+
+        Args:
+            data_path: path to the yaml file to read (relative to experiment folder)
+
+        Returns:
+            Dictionary containing the data of the yaml file
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             return read_yaml(join(root_path, data_path), file_system=file_system)
 
     def write_yaml(
         self, data: dict, data_path: str, apply_last_modified: bool = True, **kwargs
     ):
-        """writes the yaml file relative to the experiment"""
+        """
+        Writes the yaml file relative to the experiment.
+
+        Args:
+            data: dictionary of data to be written to the yaml file
+            data_path: path to save the data to (relative to experiment folder)
+            apply_last_modified: Whether to update the last modified timestamp
+                saved in the experiment info to track a change in the experiment
+            **kwargs: additional keywords for save function
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             write_yaml(
                 data,
@@ -84,7 +122,15 @@ class ExperimentContext:
             self.update_last_modified()
 
     def read_csv(self, data_path: str) -> pd.DataFrame:
-        """Reads a csv file relative to the experiment"""
+        """
+        Reads a csv file relative to the experiment.
+
+        Args:
+            data_path: path to the csv file to read (relative to experiment folder)
+
+        Returns:
+            DataFrame containing the data of the csv file
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             return read_csv(join(root_path, data_path), file_system=file_system)
 
@@ -95,7 +141,16 @@ class ExperimentContext:
         apply_last_modified: bool = True,
         **kwargs,
     ):
-        """Writes a csv file relative to the experiment"""
+        """
+        Writes a csv file relative to the experiment.
+
+        Args:
+            data: Dataframe to save as csv file
+            data_path: path to save the data to (relative to experiment folder)
+            apply_last_modified: Whether to update the last modified timestamp
+                saved in the experiment info to track a change in the experiment
+            **kwargs: additional keywords for save function
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             write_csv(
                 data,
@@ -113,7 +168,16 @@ class ExperimentContext:
         apply_last_modified: bool = True,
         **kwargs,
     ):
-        """Writes a json file relative to the experiment"""
+        """
+        Writes a json file relative to the experiment.
+
+        Args:
+            data: dictionary to write to json file
+            data_path: path to save the json file to (relative to experiment folder)
+            apply_last_modified: Whether to update the last modified timestamp
+                saved in the experiment info to track a change in the experiment
+            **kwargs: additional keywords for save function
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             write_json(
                 data,
@@ -125,7 +189,15 @@ class ExperimentContext:
             self.update_last_modified()
 
     def read_json(self, data_path: str) -> dict:
-        """reads the json file relative to the experiment"""
+        """
+        Reads the json file relative to the experiment.
+
+        Args:
+            data_path: path to the json file to read (relative to experiment folder)
+
+        Returns:
+            the json file contents as a dictionary
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             return read_json(join(root_path, data_path), file_system=file_system)
 
@@ -136,7 +208,16 @@ class ExperimentContext:
         apply_last_modified: bool = True,
         **kwargs,
     ):
-        """Writes an image relative to the experiment"""
+        """
+        Writes an image relative to the experiment
+
+        Args:
+            image: pillow image to save
+            data_path: path to save the image to (relative to experiment folder)
+            apply_last_modified: Whether to update the last modified timestamp
+                of the experiment
+            **kwargs: additional keywords for save function
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             write_image(
                 image,
@@ -148,7 +229,15 @@ class ExperimentContext:
             self.update_last_modified()
 
     def read_image(self, data_path: str) -> Image.Image:
-        """Reads an image relative to the experiment"""
+        """
+        Reads an image relative to the experiment
+
+        Args:
+            data_path: path to load the image from (inside the experiment folder)
+
+        Returns:
+            Image from given file
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             return read_image(join(root_path, data_path), file_system=file_system)
 
@@ -160,7 +249,17 @@ class ExperimentContext:
         file_format: Optional[Literal["json", "html", "png", "svg", "pdf"]] = "html",
         **kwargs,
     ):
-        """Writes a chart in given file_format relative to the experiment"""
+        """
+        Writes an altair.Chart in given file_format relative to the experiment.
+
+        Args:
+            chart: altair chart to save
+            data_path: path to save the chart to (inside the experiment folder)
+            apply_last_modified: Whether to update the last modified timestamp
+                saved in the experiment info to track a change in the experiment
+            file_format: file format to save the chart in (json, html, png, svg or pdf)
+            **kwargs: additional keywords for save function
+        """
         with open_location(self.fs_config) as (file_system, root_path):
             write_chart(
                 chart,
@@ -173,14 +272,26 @@ class ExperimentContext:
             self.update_last_modified()
 
     def create_folder(self, folder: str):
-        """Creates a folder relative to the experiment"""
+        """
+        Creates a folder relative to the experiment.
+
+        Args:
+            folder: name of folder to create inside the experiment folder
+        """
         file_system: AbstractFileSystem
         with open_location(self.fs_config) as (file_system, root_path):
             abs_folder = join(root_path, folder)
             file_system.makedirs(abs_folder, exist_ok=True)
 
     def instantiate_datadescription_from_yaml(self) -> DataDescription:
-        """Instantiates a DataDescription from a yaml file"""
+        """
+        Instantiates a DataDescription from a yaml file. Path to
+        yaml file is accessed via the experiment context and must not
+        be given.
+
+        Returns:
+            DataDescription instance of experiment
+        """
         with open_location(self.fs_config) as (exp_fs, exp_root):
             data_description: DataDescription = instantiate_from_yaml(
                 join(
@@ -194,7 +305,17 @@ class ExperimentContext:
         return data_description
 
     def update_last_modified(self, timestamp: Optional[str] = None):
-        """Updates the last modified timestamp of the experiment info"""
+        """
+        Updates the last modified timestamp of the experiment info file
+        of the experiment. The timestamp is used to track when the
+        experiment was changed.
+
+        Args:
+            timestamp: new timestamp to save in experiment info
+
+        Raises:
+            FileNotFoundError if experiment info file does not exist
+        """
         timestamp = timestamp or generate_timestamp()
         try:
             exp_info_dict = self.read_yaml(ExperimentFilenames.EXP_INFO)

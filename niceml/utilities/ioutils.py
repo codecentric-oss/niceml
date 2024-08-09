@@ -22,7 +22,8 @@ def list_dir(
     filter_ext: Optional[List[str]] = None,
 ) -> List[str]:
     """
-    Returns a list of files in a directory
+    Returns a list of files in a directory. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         path: path to directory, which should be listed
@@ -67,7 +68,8 @@ def write_parquet(
     **kwargs,
 ):
     """
-    Writes dataframe to parquet file with optional AbstractFileSystem given
+    Writes dataframe to parquet file. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         dataframe: Dataframe to write to parquet file
@@ -94,7 +96,8 @@ def read_parquet(
     filepath: str, file_system: Optional[AbstractFileSystem] = None
 ) -> pd.DataFrame:
     """
-    Reads parquet with optional AbstractFileSystem given
+    Reads parquet file to dataframe. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to parquet file
@@ -111,7 +114,8 @@ def read_parquet(
 
 def read_yaml(filepath: str, file_system: Optional[AbstractFileSystem] = None) -> dict:
     """
-    Reads a yaml file with optional AbstractFileSystem given
+    Reads a yaml file to a dictionary. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to yaml file
@@ -134,7 +138,8 @@ def write_yaml(
     **kwargs,
 ):
     """
-    Writes dictionary to yaml with optional AbstractFileSystem given
+    Writes dictionary to yaml. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         data: dictionary to be saved as yaml
@@ -153,7 +158,8 @@ def write_yaml(
 
 def read_json(filepath: str, file_system: Optional[AbstractFileSystem] = None) -> dict:
     """
-    Reads a json file with optional AbstractFileSystem given
+    Reads a json file to a dictionary. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to json file
@@ -176,7 +182,8 @@ def write_json(
     **kwargs,
 ):
     """
-    Writes dictionary to json with optional AbstractFileSystem given
+    Writes dictionary to json. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         data: dictionary to be saved as json
@@ -201,7 +208,8 @@ def write_chart(
     **kwargs,
 ):
     """
-    Writes altair chart to filepath with optional AbstractFileSystem
+    Writes an altair chart to a file path. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         chart: altair chart to be saved
@@ -222,7 +230,8 @@ def write_csv(
     **kwargs,
 ):
     """
-    Writes dataframe to csv file with optional AbstractFileSystem given
+    Writes dataframe to csv file. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         data: Dataframe to write to csv file
@@ -242,7 +251,8 @@ def write_csv(
 def read_csv(
     filepath: str, file_system: Optional[AbstractFileSystem] = None, **kwargs
 ) -> pd.DataFrame:
-    """Reads csv with optional AbstractFileSystem given
+    """Reads csv file to a dataframe. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to csv file
@@ -265,7 +275,8 @@ def write_image(
     **kwargs,
 ):
     """
-    Saves image to filepath with optional AbstractFileSystem given
+    Saves image to filepath. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         image: Image object
@@ -286,7 +297,8 @@ def write_image(
 def read_image(
     filepath: str, file_system: Optional[AbstractFileSystem] = None, **kwargs
 ) -> Image.Image:
-    """Reads image with optional AbstractFileSystem given
+    """Reads image form filepath. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: Path to load the image from
@@ -311,7 +323,9 @@ def find_and_read_file(
     **kwargs,
 ) -> Tuple[str, Any]:
     """
-    Tries to find a file in a list of search paths and reads it with given read function
+    Tries to find a file in a list of search paths and reads it with given read function.
+    An AbstractFileSystem can be specified optionally. Otherwise, LocalFileSystem is used by
+    default.
 
     Args:
         filepath: path to file
