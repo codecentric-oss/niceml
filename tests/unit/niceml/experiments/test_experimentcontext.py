@@ -1,10 +1,11 @@
-from os.path import isdir, join
+from os.path import isdir, join, isfile
 from tempfile import TemporaryDirectory
 
 import numpy as np
 import pandas as pd
 import pytest
 from PIL import Image
+from altair import Chart
 
 from niceml.config.envconfig import LAST_MODIFIED_KEY
 from niceml.experiments.experimentcontext import ExperimentContext
@@ -89,6 +90,19 @@ def test_read_write_image(experiment_context, exp_tmp_dir):
     result = experiment_context.read_image(image_path)
     result_np = np.array(result)
     assert np.array_equal(np_image, result_np)
+
+
+def test_write_chart(experiment_context, exp_tmp_dir):
+    """Test that it is possible to write a chart"""
+    df = pd.DataFrame(
+        {"Task": ["Task A", "Task B", "Task C", "Task D"], "Time": [10, 15, 7, 5]}
+    )
+
+    # Create a bar chart
+    chart = Chart(df).mark_bar().encode(x="Task", y="Time")
+    chart_path = "chart.html"
+    experiment_context.write_chart(chart, chart_path, False, "html")
+    assert isfile(join(experiment_context.fs_config.uri, chart_path))
 
 
 def test_update_last_modified(
