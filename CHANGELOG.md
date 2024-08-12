@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## v0.17.0-dev.1 (2024-08-07)
+
+### Feature
+
+* feat: Add possibility to pass additional arguments when initializing a `ResultAnalyzer` (#134)
+
+## 📥 Pull Request Description
+
+This PR adds the following features and changes:
+
+- feat: Add possibility to pass additional arguments when initializing a
+`ResultAnalyzer`
+- refactor: Add an experiment context to the `initialize` function of
+the `DataframeAnalyzer`
+- refactor: Pass the experiment context of a train or eval pipeline run
+to the result analyzer.
+
+## 👀 Affected Areas
+
+- Result analyzers
+- Analyse op 
+- Train and eval job ([`6e48893`](https://github.com/codecentric-oss/niceml/commit/6e48893b6734a554eacaf30985926dd865f8a275))
+
 ## v0.16.1-dev.1 (2024-07-23)
 
 ### Ci
