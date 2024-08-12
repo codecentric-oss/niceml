@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.17.0-dev.2 (2024-08-12)
+
+### Documentation
+
+* docs: improve docstring for read and write functions ([`46f9f53`](https://github.com/codecentric-oss/niceml/commit/46f9f53c4ed3c25d4ea00043f85899ae89f79a26))
+
+* docs: improve docstring for read and write functions ([`1840097`](https://github.com/codecentric-oss/niceml/commit/184009725ce0f1475455f9b1a5ff43a7bee5d5a6))
+
+### Feature
+
+* feat: add write chart to exp context ([`f120835`](https://github.com/codecentric-oss/niceml/commit/f1208354be783d6bda51c7d947efe4fab8910469))
+
+### Test
+
+* test: test write_chart ([`d636f63`](https://github.com/codecentric-oss/niceml/commit/d636f634405e540b75d23fbca7714c9e4b39f94d))
+
 ## v0.17.0-dev.1 (2024-08-07)
 
 ### Feature
