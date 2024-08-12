@@ -56,9 +56,6 @@ class ExperimentContext:
             apply_last_modified: Whether to update the last modified timestamp
                 saved in the experiment info to track a change in the experiment
             **kwargs: additional keywords for save function
-
-        Returns:
-
         """
         with open_location(self.fs_config) as (file_system, root_path):
             write_parquet(
