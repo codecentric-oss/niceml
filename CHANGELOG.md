@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.17.0-dev.3 (2024-08-15)
+
+### Fix
+
+* fix: make altair not optional ([`6b248d5`](https://github.com/codecentric-oss/niceml/commit/6b248d5ccc8fd6bc4d3b307b1c533fef28a6b9e8))
+
 ## v0.17.0-dev.2 (2024-08-12)
 
 ### Documentation
