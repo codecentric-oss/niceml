@@ -78,6 +78,8 @@ dagster-mlflow = "~0.22.0"
 grpcio = ">=1.60.0"
 pendulum = ">=2.0"
 tensorflow-io-gcs-filesystem = { version="0.34.0", optional = true}
+tf2onnx = "^1.16.1"
+onnx = "^1.16.2"
 
 
 [tool.poetry.extras]
