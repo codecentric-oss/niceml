@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from os.path import join
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Optional
 
 from niceml.dlframeworks.keras.callbacks.csvlogger import CSVLogger
 from niceml.dlframeworks.keras.callbacks.modelcheckpoint import (
@@ -39,19 +39,25 @@ class InitCallbackFactory(CallbackFactory):
 class ModelCallbackFactory(CallbackFactory):
     """Creates the model checkpoint callback"""
 
-    def __init__(self, model_subfolder: str, model_filename: str, **kwargs):
+    def __init__(
+        self, model_subfolder: str, model_filename: Optional[str] = None, **kwargs
+    ):
         """
         Initializes the ModelCallbackFactory object, which creates
-        ModelCheckpoint callbacks.
+        ModelCheckpoint callbacks. If model_filename is not given, it will
+        be inferred from the model_subfolder. Fileextensions will be ignored.
 
         Args:
             model_subfolder: name of the subfolder to save the model in
-            model_filename: filename of the model file without the file extension
+            model_filename: filename of the model file without the file extension. If
+                model_filename is not given, it will be inferred from the model_subfolder
             **kwargs: additional keyword arguments for ModelCheckpoint initialization
         """
         self.kwargs = kwargs
-        self.model_subfolder = model_subfolder
-        self.model_filename = model_filename
+        self.model_subfolder = (
+            model_subfolder if model_filename else str(Path(model_subfolder).parent)
+        )
+        self.model_filename = model_filename or str(Path(model_subfolder).stem)
 
     def create_callback(self, exp_context: ExperimentContext) -> ModelCheckpoint:
         """
