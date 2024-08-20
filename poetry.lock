@@ -6115,4 +6115,4 @@ visu = ["streamlit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.9.7 || >3.9.7,<3.12"
-content-hash = "f6612f1de87fb3e19f9f478414e9e59ecdd7c60d6202403abd6c5dc89be6f2a2"
+content-hash = "578f8725e6a745d09f47b6e69d61857a1cc34d0cc06859533640ab8a82a81af1"
