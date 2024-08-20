@@ -12,5 +12,7 @@ callback_dict:
   save_model:
     # Stores the model after each epoch
     _target_: niceml.dlframeworks.keras.callbacks.callback_factories.ModelCallbackFactory
-    model_subfolder: models
-    model_filename: model-id_{short_id}-ep{epoch:03d}
+#    model_subfolder may include model name or declare them separately
+    model_subfolder: models/model-id_{short_id}-ep{epoch:03d}
+#    model_subfolder: models
+#    model_filename: model-id_{short_id}-ep{epoch:03d}
