@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.17.0-dev.4 (2024-08-20)
+
+### Fix
+
+* fix: less static dependencies ([`e0becd7`](https://github.com/codecentric-oss/niceml/commit/e0becd7485b951e169a209f73bd7e4255c3a6c4d))
+
+* fix: config tests for old config ([`af02edc`](https://github.com/codecentric-oss/niceml/commit/af02edc2c11d8e2fae9e7d986c0e4d81d870cdbe))
+
+* fix: config tests ([`10b0d78`](https://github.com/codecentric-oss/niceml/commit/10b0d78f3486b01dd11aaf804bdbe61085362e35))
+
+### Unknown
+
+* fest: add option to save model in onnx format ([`58f19c0`](https://github.com/codecentric-oss/niceml/commit/58f19c001754eaf15a99094672b965fd0bc701f6))
+
 ## v0.17.0-dev.3 (2024-08-15)
 
 ### Fix
