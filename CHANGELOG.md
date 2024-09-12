@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.17.0-dev.5 (2024-09-12)
+
+### Feature
+
+* feat: Add the ability to add a niceML formatted timestamp based on a given datetime object
+
+The timestmap format used in niceml has a special foramt. If it is necessary to create this, it can now be created based on a given datetime object. ([`9cebe9d`](https://github.com/codecentric-oss/niceml/commit/9cebe9d8d688a21aec2f83ccd69cd23edab89cb5))
+
 ## v0.17.0-dev.4 (2024-08-20)
 
 ### Fix
