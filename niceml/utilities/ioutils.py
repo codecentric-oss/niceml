@@ -289,7 +289,7 @@ def write_image(
         dirname(filepath),
         exist_ok=True,
     )
-    with file_system.open(filepath, "wb") as file:
+    with cur_fs.open(filepath, "wb") as file:
         file_format = filepath.rsplit(".")[-1]
         image.save(file, format=file_format, **kwargs)
 
@@ -311,7 +311,7 @@ def read_image(
     cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
     if not cur_fs.exists(filepath):
         raise FileNotFoundError(f"ImageFile not found: {filepath}")
-    with file_system.open(filepath, "rb") as file:
+    with cur_fs.open(filepath, "rb") as file:
         return Image.open(file, **kwargs).copy()
 
 
