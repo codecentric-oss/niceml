@@ -37,7 +37,8 @@ def list_dir(
     """
     cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
     files: List[str] = [
-        relpath(cur_file, path) for cur_file in list(cur_fs.listdir(path, detail=False))
+        relpath(cur_file, path)
+        for cur_file in list(cur_fs.ls(path, detail=False, refresh=True))
     ]
     if recursive:
         folders = [
