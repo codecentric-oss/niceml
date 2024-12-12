@@ -21,7 +21,7 @@ class _ItemTypes(str, Enum):
 
 
 class FSSpecStorage(StorageInterface):
-    """A CloudStorageInterface to interact with fsspec isntances"""
+    """A CloudStorageInterface to interact with fsspec instances"""
 
     def __init__(self, fsconfig: Union[LocationConfig, Dict[str, Any]]):
         """
@@ -34,7 +34,7 @@ class FSSpecStorage(StorageInterface):
         self._fsconfig = fsconfig
 
     def list_data(self, path: Optional[str] = None) -> List[str]:
-        """recusively lists all objects in the given path"""
+        """recursively lists all objects in the given path"""
         with open_location(self._fsconfig) as (filesystem, fspath):
             target_path = fspath if path is None else self.join_paths(fspath, path)
             item_list = list_dir(
@@ -51,7 +51,7 @@ class FSSpecStorage(StorageInterface):
 
         Raises:
             RuntimeError:
-                If the given bucket_path is not part of the currently opended
+                If the given bucket_path is not part of the currently opened
                 filesystem.
         """
         with open_location(self._fsconfig) as (filesystem, path):
@@ -80,6 +80,7 @@ class FSSpecStorage(StorageInterface):
             return filesystem.sep.join(paths)
 
     def list_experiments(self, path: Optional[str] = None) -> List[ExperimentInfo]:
+        """Lists all experiment infos of the given path"""
         files = self.list_data(path)
         files = filter_for_exp_info_files(files)
         exp_info_list = []

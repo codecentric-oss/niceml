@@ -78,6 +78,6 @@ class SemSegDataDescription(InputImageDataDescription, OutputImageDataDescriptio
 
 def create_number_semseg_datadescription(
     max_number: int,
-) -> List[SemSegClassInfo]:  # QUEST: still used?
-    """Creates a list of SemSegClassInfo for the number dataset"""  # QUEST: better docstring
+) -> List[SemSegClassInfo]:
+    """Creates a list of SemSegClassInfo for the number dataset"""
     return [SemSegClassInfo([idx], f"{idx}") for idx in range(max_number)]
