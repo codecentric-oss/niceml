@@ -1,6 +1,44 @@
 # CHANGELOG
 
 
+## v0.17.0-dev.7 (2024-12-13)
+
+### Bug Fixes
+
+- Add option to use list_dir of location without caching
+  ([#141](https://github.com/codecentric-oss/niceml/pull/141),
+  [`3b1c8d1`](https://github.com/codecentric-oss/niceml/commit/3b1c8d15d6e58cfd152ee2a9fa1ead961d694d01))
+
+## 📥 Pull Request Description
+
+Using listdir from FSSpec multiple times for the same path with a FileSystem other than
+  LocalFileSystem (e.g. S3FileSystem or AzureFileSystem) resulted in outdated results, as listdir
+  uses an internal caching. To fix this, the niceml function list_dir, which used fsspecs listdir,
+  was exchanged with fsspecs function with the refresh option.
+
+Additionally, some typos were fixed.
+
+Github test pipeline was updated to use macos-13 instead of macos-12
+
+## 👀 Affected Areas
+
+Everywhere where the list_dir function of niceml is used.
+
+## 📝 Checklist
+
+Please make sure you've completed the following tasks before submitting this pull request:
+
+- [x] Pre-commit hooks were executed - [x] Changes have been reviewed by at least one other
+  developer - [ ] Tests have been added or updated to cover the changes (only necessary if the
+  changes affect the executable code) - [ ] All tests ran successfully - [x] All merge conflicts are
+  resolved - [ ] Documentation has been updated to reflect the changes - [ ] Any necessary
+  migrations have been run
+
+---------
+
+Co-authored-by: Nils Uhrberg <nils.uhrberg@codecentric.de>
+
+
 ## v0.17.0-dev.6 (2024-12-03)
 
 ### Bug Fixes
