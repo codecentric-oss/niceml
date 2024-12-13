@@ -1,6 +1,5 @@
 """Module for fsspec storage"""
 import logging
-from enum import Enum
 from os import makedirs
 from os.path import dirname, isdir, relpath
 from typing import List, Optional
@@ -27,7 +26,7 @@ class FsFileSystemStorage(StorageInterface):
         self.root_dir = root_dir
 
     def list_data(self, path: Optional[str] = None) -> List[str]:
-        """recusively lists all objects in the given path"""
+        """recursively lists all objects in the given path"""
         target_path = (
             self.root_dir if path is None else self.join_paths(self.root_dir, path)
         )
@@ -72,6 +71,7 @@ class FsFileSystemStorage(StorageInterface):
         return self.file_system.sep.join(paths)
 
     def list_experiments(self, path: Optional[str] = None) -> List[ExperimentInfo]:
+        """Lists all experiment infos of the given path"""
         files = self.list_data(path)
         files = filter_for_exp_info_files(files)
         exp_info_list = []

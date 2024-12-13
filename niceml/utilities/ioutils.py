@@ -20,6 +20,7 @@ def list_dir(
     recursive: bool = False,
     file_system: Optional[AbstractFileSystem] = None,
     filter_ext: Optional[List[str]] = None,
+    enable_cache: bool = False,
 ) -> List[str]:
     """
     Returns a list of files in a directory. An AbstractFileSystem can be
@@ -31,14 +32,22 @@ def list_dir(
         recursive: Determine if the function should look into subfolders
         file_system: Allow the function to be used with different file systems; default = local
         filter_ext: List of file extension to filter for; default = all files
+        enable_cache: whether caching the result should be allowed or not
 
     Returns:
         A list of files in the specified directory
     """
     cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
-    files: List[str] = [
-        relpath(cur_file, path) for cur_file in list(cur_fs.listdir(path, detail=False))
-    ]
+    if enable_cache:
+        files: List[str] = [
+            relpath(cur_file, path)
+            for cur_file in list(cur_fs.listdir(path, detail=False))
+        ]
+    else:
+        files: List[str] = [
+            relpath(cur_file, path)
+            for cur_file in list(cur_fs.ls(path, detail=False, refresh=True))
+        ]
     if recursive:
         folders = [
             cur_folder for cur_folder in files if cur_fs.isdir(join(path, cur_folder))
