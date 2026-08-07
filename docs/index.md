@@ -1,5 +1,11 @@
 # Welcome to niceML
 
+!!! warning
+    niceML is no longer under active development and has been archived as a project!
+    Do not use it for production purposes!
+
+    
+
 **niceML** is a tool to help you set up your machine learning projects faster. 
 It provides pipelines for a variety of ML tasks, like
 
