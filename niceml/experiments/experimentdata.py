@@ -1,8 +1,8 @@
 """Module for experimentdata"""
 import datetime
 from dataclasses import dataclass
-from os.path import basename, dirname, join, splitext
-from typing import Any, Dict, List, Optional, Union
+from os.path import basename, join, splitext
+from typing import Any, Dict, List, Optional, Union, Literal
 
 import numpy as np
 import pandas as pd
@@ -115,19 +115,17 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
     def get_rel_file_exp_path(self, file: str) -> str:
         """
         Returns the filepath of the given file relative to the experiment folder.
-        Parameters
-        ----------
-        file: str
-            Relative path from the experiment without or with extension.
-            If the name is unique its enough to specify the basename of the file.
-        Returns
-        -------
-        str: filepath of the dataframe file
+
+        Args:
+            file: Relative path from the experiment without or with extension.
+                If the name is unique its enough to specify the basename of the file.
+        Returns:
+            filepath of the dataframe file
         """
         if file in self.all_exp_files:
             return file
         file_name, file_ext = splitext(file)
-        if file_ext == "":
+        if not file_ext:
             target_files = self.all_exp_files
         else:
             target_files = [x for x in self.all_exp_files if file_ext == splitext(x)[1]]
@@ -147,14 +145,11 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
     def load_df(self, file: str) -> pd.DataFrame:
         """
         Loads a dataframe file
-        Parameters
-        ----------
-        file: str
-            Relative path from the experiment without extension.
-            If the name is unique its enough to specify the basename of the file.
-        Returns
-        -------
-        pd.DataFrame: dataframe
+        Args:
+            file: Relative path from the experiment without extension.
+                If the name is unique its enough to specify the basename of the file.
+        Returns:
+            dataframe from given file
         """
         file_path = self.get_rel_file_exp_path(file)
         if self.df_loader is None:
@@ -184,8 +179,16 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
     def get_instantiated_data_description(
         self, class_renamings: Optional[Dict[str, str]] = None
     ) -> DataDescription:
-        """Instantiates the DataDescription stored with the experiment
-        If the name of the class has changed meanwhile, you can specify this in the class_renamings
+        """
+        Instantiates the DataDescription stored with the experiment
+        If the name of the class has changed meanwhile, you can
+        specify this in the class_renamings.
+
+        Args:
+            class_renamings: a dictionary of class renamings
+
+        Returns:
+            instantiated DataDescription (with renamed classes)
         """
         class_renamings = class_renamings or {}
         data_description_yaml = self.get_config_information(["data_description"])
@@ -195,7 +198,15 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         return check_instance(data_description, DataDescription)
 
     def get_log_for_metric(self, metric_name: str) -> pd.DataFrame:
-        """Returns log information for given metric"""
+        """
+        Returns log information for given metric
+
+        Args:
+            metric_name: name of metric to get log information for
+
+        Returns:
+            log info of metric as DataFrame
+        """
         series_epoch = self._get_epoch_series()
         try:
             series_metrics = self.log_data[metric_name]
@@ -220,7 +231,12 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         return series_epoch
 
     def get_trained_epochs(self) -> int:
-        """Uses the logfile to determine how many epochs have been trained"""
+        """
+        Returns how many epochs have been trained according to the logs
+
+        Returns:
+            number of epochs trained so far
+        """
         try:
             epochs = len(self._get_epoch_series())
         except LogEmptyError:
@@ -228,7 +244,12 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         return epochs
 
     def is_empty(self) -> bool:
-        """Determines whether the exp has trained epochs"""
+        """
+        Determines whether the exp has trained epochs
+
+        Returns:
+            True, if the experiment has trained epochs, False otherwise.
+        """
         return self.get_trained_epochs() == 0
 
     def get_config_information(self, info_path: List[str]) -> Any:
@@ -236,6 +257,12 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         Returns the information of the config (e.g. the input_image_size)
         The whole path of the information must be given:
         info_path = ["datasets", "data_description", "input_image_size"]
+
+        Args:
+            info_path: List of paths to the wanted information
+
+        Returns:
+            experiment information found at given info_path
         """
         config_dict: Dict[str, Any] = self.get_config_dict()
         cur_info_path = info_path.copy()
@@ -285,12 +312,20 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
             f"Information: {info_path} not found at {info_path[0]} in {self.exp_info.short_id}"
         )
 
-    def get_best_metric_value(self, metric_name: str, mode) -> MetricValue:
+    def get_best_metric_value(
+        self,
+        metric_name: str,
+        mode: Literal["min", "max"],
+    ) -> MetricValue:
         """
         Returns the best value of the given metric according to the mode.
-        :param metric_name: name of the metric
-        :param mode: either 'min' or 'max'
-        :return: MetricValue
+
+        Args:
+            metric_name: name of the metric
+            mode: Mode to determine best value, either 'min' or 'max'
+
+        Returns:
+            best min or max metric value of requested metric
         """
         series_epoch = self._get_epoch_series()
         series_metrics = self.log_data[metric_name]
@@ -305,10 +340,22 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         epoch = series_epoch[idx]
         return MetricValue(metric_name=metric_name, value=val, epoch=epoch)
 
-    def get_model_path(self, epoch: int = None, relative_path: bool = True) -> str:
+    def get_model_path(
+        self,
+        epoch: int = None,
+        relative_path: bool = True,
+        model_file_suffix: Optional[str] = ".hdf5",
+    ) -> str:
         """
         Get the model path for the desired model.
-        :param epoch: epoch as int if not given the latest is returned
+
+        Args:
+            epoch: epoch as int if not given the latest is returned
+            relative_path: whether to return path of the model
+                file relative to experiment directory
+            model_file_suffix: File extension of wanted model file
+        Returns:
+            Path to the desired model file
         """
         ret_model = None
         model_files = self.get_all_model_files()
@@ -318,6 +365,11 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
             )
 
         if epoch is None:
+            model_files = [
+                model_file
+                for model_file in model_files
+                if model_file.endswith(model_file_suffix)
+            ] or model_files
             ret_model = model_files[-1]
         else:
             ep_str = ExperimentFilenames.EPOCHS_FORMATTING.format(epoch)
@@ -354,7 +406,13 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         df_loader: Optional[DfLoader] = None,
         image_loader: Optional[ImageLoader] = None,
     ):
-        """set loaders for experiment"""
+        """
+        Updates experiment data by setting the loaders
+
+        Args:
+            df_loader: Dataframe loader to be set for this experiment
+            image_loader: Image loader to be set for this experiment
+        """
         if df_loader is not None:
             self.df_loader = check_instance(df_loader, DfLoader)
         if image_loader is not None:
@@ -365,13 +423,13 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
     ) -> List[str]:
         """
         Get a list of files in a subfolder with a specified `suffix`
+
         Args:
             subfolder_name: Name of the subfolder
             suffix: Suffix or list of suffixes that must be part of the file path to be returned
 
         Returns:
             list of filepaths as strings
-
         """
 
         filtered_paths = [
@@ -388,7 +446,15 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
         ]
 
     def __eq__(self, other: "ExperimentData") -> bool:
-        """check if two experiments are equal"""
+        """
+        Check if two experiments are equal
+
+        Args:
+            other: other instance of ExperimentData
+
+        Returns:
+            True, if other experiment data is equal to this one, False otherwise
+        """
         exp_info_equal = self.exp_info == other.exp_info
         exp_dict_data_equal = self.exp_dict_data == other.exp_dict_data
         has_file_list = [
@@ -406,7 +472,17 @@ class ExperimentData:  # pylint: disable = too-many-public-methods, too-many-ins
 
 
 def extract_info_from_dict(info: dict, info_path: List[Union[str, int]]) -> Any:
-    """Extracts information from a dict at given path"""
+    """
+    Extracts information from a dict at given path.
+    e.g. info_path = ["datasets", "data_description", "input_image_size"]
+
+    Args:
+        info: dictionary to search the info in
+        info_path: list of keys to the requested info
+
+    Returns:
+        info at given path
+    """
     for key in info_path:
         try:
             info = info[key]

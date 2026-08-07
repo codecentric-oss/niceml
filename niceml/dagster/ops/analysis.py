@@ -24,7 +24,7 @@ from niceml.utilities.readwritelock import FileLock
         remove_key_list=Field(
             list,
             default_value=DEFAULT_REMOVE_CONFIG_KEYS,
-            description="These key are removed from any config recursively before it is saved.",
+            description="These keys are removed from any config recursively before it is saved.",
         ),
     ),
     out={"expcontext": Out(), "filelock_dict": Out()},
@@ -47,7 +47,9 @@ def analysis(
     )
 
     result_analyzer: ResultAnalyzer = instantiated_op_config["result_analyzer"]
-    result_analyzer.initialize(data_description)
+    result_analyzer.initialize(
+        data_description=data_description, exp_context=exp_context
+    )
 
     for dataset_key, cur_pred_set in datasets.items():
         context.log.info(f"Analyze dataset: {dataset_key}")

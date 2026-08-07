@@ -2,10 +2,12 @@
 from abc import ABC, abstractmethod
 from os.path import join
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Optional
 
 from niceml.dlframeworks.keras.callbacks.csvlogger import CSVLogger
-from niceml.dlframeworks.keras.callbacks.modelcheckpoint import ModelCheckpoint
+from niceml.dlframeworks.keras.callbacks.modelcheckpoint import (
+    ModelCheckpoint,
+)
 from niceml.experiments.experimentcontext import ExperimentContext
 from niceml.utilities.factoryutils import subs_path_and_create_folder
 from niceml.utilities.fsspec.locationutils import join_location_w_path
@@ -25,9 +27,11 @@ class InitCallbackFactory(CallbackFactory):
     any experiment specific parameters"""
 
     def __init__(self, callback: Any):
+        """Initializes the InitCallbackFactory object with given callback"""
         self.callback = callback
 
     def create_callback(self, exp_context: ExperimentContext):
+        """Returns the callback of the factory"""
         return self.callback
 
 
@@ -35,17 +39,46 @@ class InitCallbackFactory(CallbackFactory):
 class ModelCallbackFactory(CallbackFactory):
     """Creates the model checkpoint callback"""
 
-    def __init__(self, model_subfolder: str, **kwargs):
-        self.kwargs = kwargs
-        self.model_subfolder = model_subfolder
+    def __init__(
+        self, model_subfolder: str, model_filename: Optional[str] = None, **kwargs
+    ):
+        """
+        Initializes the ModelCallbackFactory object, which creates
+        ModelCheckpoint callbacks. If model_filename is not given, it will
+        be inferred from the model_subfolder. Fileextensions will be ignored.
 
-    def create_callback(self, exp_context: ExperimentContext):
+        Args:
+            model_subfolder: name of the subfolder to save the model in
+            model_filename: filename of the model file without the file extension. If
+                model_filename is not given, it will be inferred from the model_subfolder
+            **kwargs: additional keyword arguments for ModelCheckpoint initialization
+        """
+        self.kwargs = kwargs
+        self.model_subfolder = (
+            model_subfolder if model_filename else str(Path(model_subfolder).parent)
+        )
+        self.model_filename = model_filename or str(Path(model_subfolder).stem)
+
+    def create_callback(self, exp_context: ExperimentContext) -> ModelCheckpoint:
+        """
+        Creates the model checkpoint callback based on the given experiment context.
+        The ModelCheckpoint callback saves the model of the experiment.
+
+        Args:
+            exp_context: experiment to create the model callback for
+
+        Returns:
+            ModelCheckpoint callback
+        """
         target_model_fs = join_location_w_path(
             exp_context.fs_config, self.model_subfolder
         )
         file_formats = {"run_id": exp_context.run_id, "short_id": exp_context.short_id}
         return ModelCheckpoint(
-            target_model_fs, file_formats=file_formats, **self.kwargs
+            target_model_fs,
+            file_formats=file_formats,
+            model_filename=self.model_filename,
+            **self.kwargs
         )
 
 
@@ -54,9 +87,23 @@ class LoggingOutputCallbackFactory(CallbackFactory):
     """Creates a callback that logs the metrics to a csv file"""
 
     def __init__(self, filename: str = "train_logs.csv"):
+        """
+        Initializes a LoggingOutputCallbackFactory.
+
+        Args:
+            filename: name of the file to save the logging output to
+        """
         self.filename = filename
 
     def create_callback(self, exp_context: ExperimentContext):
+        """
+        Creates the CSVLogger callback for the given experiment context.
+        Args:
+            exp_context: experiment context to create the callback for
+
+        Returns:
+            CSVLogger callback
+        """
         return CSVLogger(experiment_context=exp_context, filename=self.filename)
 
 
@@ -64,6 +111,7 @@ class CamCallbackFactory(CallbackFactory):  # pylint: disable=too-few-public-met
     """Callback factory for a cam callback"""
 
     def __init__(self, images: List[str]):
+        """Initializes a CamCallbackFactory"""
         self.images = images
 
     def create_callback(self, exp_context: ExperimentContext):

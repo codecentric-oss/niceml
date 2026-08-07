@@ -1,8 +1,9 @@
 """Module for helper functions for io operations"""
 import json
 from os.path import dirname, join, relpath, splitext
-from typing import List, Optional, Any, Tuple
+from typing import List, Optional, Any, Tuple, Literal
 
+from altair import Chart
 import fastparquet
 import pandas as pd
 import yaml
@@ -19,9 +20,11 @@ def list_dir(
     recursive: bool = False,
     file_system: Optional[AbstractFileSystem] = None,
     filter_ext: Optional[List[str]] = None,
+    enable_cache: bool = False,
 ) -> List[str]:
     """
-    Returns a list of files in a directory
+    Returns a list of files in a directory. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         path: path to directory, which should be listed
@@ -29,14 +32,22 @@ def list_dir(
         recursive: Determine if the function should look into subfolders
         file_system: Allow the function to be used with different file systems; default = local
         filter_ext: List of file extension to filter for; default = all files
+        enable_cache: whether caching the result should be allowed or not
 
     Returns:
         A list of files in the specified directory
     """
     cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
-    files: List[str] = [
-        relpath(cur_file, path) for cur_file in list(cur_fs.listdir(path, detail=False))
-    ]
+    if enable_cache:
+        files: List[str] = [
+            relpath(cur_file, path)
+            for cur_file in list(cur_fs.listdir(path, detail=False))
+        ]
+    else:
+        files: List[str] = [
+            relpath(cur_file, path)
+            for cur_file in list(cur_fs.ls(path, detail=False, refresh=True))
+        ]
     if recursive:
         folders = [
             cur_folder for cur_folder in files if cur_fs.isdir(join(path, cur_folder))
@@ -66,7 +77,8 @@ def write_parquet(
     **kwargs,
 ):
     """
-    Writes dataframe to parquet file with optional AbstractFileSystem given
+    Writes dataframe to parquet file. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         dataframe: Dataframe to write to parquet file
@@ -93,7 +105,8 @@ def read_parquet(
     filepath: str, file_system: Optional[AbstractFileSystem] = None
 ) -> pd.DataFrame:
     """
-    Reads parquet with optional AbstractFileSystem given
+    Reads parquet file to dataframe. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to parquet file
@@ -110,7 +123,8 @@ def read_parquet(
 
 def read_yaml(filepath: str, file_system: Optional[AbstractFileSystem] = None) -> dict:
     """
-    Reads a yaml file with optional AbstractFileSystem given
+    Reads a yaml file to a dictionary. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to yaml file
@@ -133,7 +147,8 @@ def write_yaml(
     **kwargs,
 ):
     """
-    Writes dictionary to yaml with optional AbstractFileSystem given
+    Writes dictionary to yaml. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         data: dictionary to be saved as yaml
@@ -152,7 +167,8 @@ def write_yaml(
 
 def read_json(filepath: str, file_system: Optional[AbstractFileSystem] = None) -> dict:
     """
-    Reads a json file with optional AbstractFileSystem given
+    Reads a json file to a dictionary. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to json file
@@ -175,7 +191,8 @@ def write_json(
     **kwargs,
 ):
     """
-    Writes dictionary to json with optional AbstractFileSystem given
+    Writes dictionary to json. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         data: dictionary to be saved as json
@@ -192,6 +209,29 @@ def write_json(
         json.dump(data, file, **kwargs)
 
 
+def write_chart(
+    chart: Chart,
+    filepath: str,
+    file_system: Optional[AbstractFileSystem] = None,
+    file_format: Optional[Literal["json", "html", "png", "svg", "pdf"]] = "html",
+    **kwargs,
+):
+    """
+    Writes an altair chart to a file path. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
+
+    Args:
+        chart: altair chart to be saved
+        filepath: path to save the output file to
+        file_system: Allow the function to be used with different file systems; default = local
+        **kwargs: additional arguments
+    """
+    cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
+    cur_fs.mkdirs(dirname(filepath), exist_ok=True)
+    with cur_fs.open(filepath, mode="w", encoding="utf-8") as file:
+        chart.save(file, format=file_format, **kwargs)
+
+
 def write_csv(
     data: pd.DataFrame,
     filepath: str,
@@ -199,7 +239,8 @@ def write_csv(
     **kwargs,
 ):
     """
-    Writes dataframe to csv file with optional AbstractFileSystem given
+    Writes dataframe to csv file. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         data: Dataframe to write to csv file
@@ -219,7 +260,8 @@ def write_csv(
 def read_csv(
     filepath: str, file_system: Optional[AbstractFileSystem] = None, **kwargs
 ) -> pd.DataFrame:
-    """Reads csv with optional AbstractFileSystem given
+    """Reads csv file to a dataframe. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: path to csv file
@@ -242,7 +284,8 @@ def write_image(
     **kwargs,
 ):
     """
-    Saves image to filepath with optional AbstractFileSystem given
+    Saves image to filepath. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         image: Image object
@@ -255,7 +298,7 @@ def write_image(
         dirname(filepath),
         exist_ok=True,
     )
-    with file_system.open(filepath, "wb") as file:
+    with cur_fs.open(filepath, "wb") as file:
         file_format = filepath.rsplit(".")[-1]
         image.save(file, format=file_format, **kwargs)
 
@@ -263,7 +306,8 @@ def write_image(
 def read_image(
     filepath: str, file_system: Optional[AbstractFileSystem] = None, **kwargs
 ) -> Image.Image:
-    """Reads image with optional AbstractFileSystem given
+    """Reads image form filepath. An AbstractFileSystem can be
+    specified optionally. Otherwise, LocalFileSystem is used by default.
 
     Args:
         filepath: Path to load the image from
@@ -276,7 +320,7 @@ def read_image(
     cur_fs: AbstractFileSystem = file_system or LocalFileSystem()
     if not cur_fs.exists(filepath):
         raise FileNotFoundError(f"ImageFile not found: {filepath}")
-    with file_system.open(filepath, "rb") as file:
+    with cur_fs.open(filepath, "rb") as file:
         return Image.open(file, **kwargs).copy()
 
 
@@ -288,7 +332,9 @@ def find_and_read_file(
     **kwargs,
 ) -> Tuple[str, Any]:
     """
-    Tries to find a file in a list of search paths and reads it with given read function
+    Tries to find a file in a list of search paths and reads it with given read function.
+    An AbstractFileSystem can be specified optionally. Otherwise, LocalFileSystem is used by
+    default.
 
     Args:
         filepath: path to file
